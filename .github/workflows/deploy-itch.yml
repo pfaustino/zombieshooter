@@ -1,0 +1,40 @@
+name: Deploy to itch.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      userversion:
+        description: itch.io build label (defaults to package.json version)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: itch
+      url: https://pfaustino.itch.io/zombie-shooter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run build:itch
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+      - name: Push HTML5 build to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          VERSION="${{ github.event.inputs.userversion }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="$(node -p "require('./package.json').version")"
+          fi
+          ./butler push dist pfaustino/zombie-shooter:html5 --userversion "$VERSION"

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Zombie Shooter — Particle Realms</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a14; color: #e0e0e0; font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-select: none; }
+    canvas { display: block; }
+
+    #game-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+
+    /* ===== Loading Screen ===== */
+    #loading {
+      position: fixed; inset: 0; background: #0a0a14;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 300; transition: opacity 0.6s;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+    .loading-logo {
+      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2.5em;
+      color: #00ff88; text-shadow: 0 0 30px rgba(0, 255, 136, 0.6), 0 0 60px rgba(0, 255, 136, 0.3);
+      letter-spacing: 4px; margin-bottom: 30px; animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .loading-bar {
+      width: 300px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, #00ff88, #00ccff);
+      border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    .loading-text { margin-top: 15px; color: #556; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* ===== Blocker / Menu Overlay ===== */
+    #blocker {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(8, 8, 16, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    #blocker.hidden { display: none; }
+
+    /* Animated grid background */
+    #blocker::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 255, 136, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
+
+    /* Radial glow */
+    #blocker::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(0, 255, 136, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ===== Menu Panels ===== */
+    .menu-panel {
+      position: relative; z-index: 1;
+      background: rgba(15, 15, 28, 0.88);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      border-radius: 16px;
+      padding: 45px 50px;
+      min-width: 460px; max-width: 620px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0, 255, 136, 0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .menu-panel.hidden { display: none; }
+
+    .menu-title {
+      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2.8em;
+      color: #00ff88; letter-spacing: 6px; margin-bottom: 6px;
+      text-shadow: 0 0 25px rgba(0, 255, 136, 0.5), 0 0 50px rgba(0, 255, 136, 0.2);
+    }
+    .menu-subtitle {
+      font-family: 'Rajdhani', sans-serif; font-weight: 300; font-size: 1.1em;
+      color: #445; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 35px;
+    }
+
+    /* ===== Buttons ===== */
+    .btn {
+      display: block; width: 100%; padding: 16px 24px; margin: 10px 0;
+      background: rgba(0, 255, 136, 0.06);
+      border: 1px solid rgba(0, 255, 136, 0.25);
+      border-radius: 10px; color: #00ff88;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1.15em;
+      letter-spacing: 3px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.15), transparent);
+      transition: left 0.5s;
+    }
+    .btn:hover {
+      background: rgba(0, 255, 136, 0.14); border-color: #00ff88;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.25), inset 0 0 15px rgba(0, 255, 136, 0.05);
+      transform: translateX(4px);
+    }
+    .btn:hover::before { left: 100%; }
+    .btn:active { transform: translateX(2px) scale(0.98); }
+
+    .btn-back {
+      color: #667; border-color: rgba(100, 110, 120, 0.3); background: rgba(40, 42, 50, 0.4);
+    }
+    .btn-back:hover {
+      color: #aab; border-color: rgba(120, 130, 140, 0.6); background: rgba(50, 52, 60, 0.5);
+      box-shadow: none; transform: translateX(0);
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.1));
+      border-color: rgba(0, 255, 136, 0.4); font-size: 1.3em; padding: 18px;
+    }
+    .btn-play:hover {
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(0, 204, 255, 0.18));
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.35);
+    }
+
+    /* ===== Settings Control Center ===== */
+    #settings-menu {
+      min-width: 760px !important; max-width: 900px !important;
+      padding: 0 !important; text-align: left !important;
+      display: flex; flex-direction: column;
+      max-height: 88vh; overflow: hidden;
+    }
+    #settings-menu.hidden { display: none !important; }
+
+    .settings-topbar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 24px; border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+      flex-shrink: 0;
+    }
+    .settings-topbar-title {
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.4em;
+      color: #00ff88; letter-spacing: 4px; flex-shrink: 0;
+    }
+    .settings-search {
+      flex: 1; position: relative;
+    }
+    .settings-search input {
+      width: 100%; padding: 8px 14px 8px 36px;
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,136,0.15);
+      border-radius: 8px; color: #ccd; font-family: 'Rajdhani', sans-serif;
+      font-size: 1em; outline: none; transition: border-color 0.2s;
+    }
+    .settings-search input:focus { border-color: rgba(0,255,136,0.4); }
+    .settings-search input::placeholder { color: #445; }
+    .settings-search::before {
+      content: '\2699'; position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%); color: #445; font-size: 1.1em;
+    }
+    .settings-profile {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+      padding: 6px 14px; background: rgba(0,0,0,0.3); border-radius: 8px;
+      border: 1px solid rgba(0,255,136,0.1);
+    }
+    .settings-profile-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #00ff88;
+      box-shadow: 0 0 6px rgba(0,255,136,0.5);
+    }
+    .settings-profile-text { color: #778; font-size: 0.85em; }
+    .settings-close {
+      background: none; border: none; color: #556; font-size: 1.5em;
+      cursor: pointer; padding: 4px 8px; transition: color 0.2s;
+    }
+    .settings-close:hover { color: #ff4455; }
+
+    .settings-body {
+      display: flex; flex: 1; overflow: hidden;
+    }
+
+    .settings-sidebar {
+      width: 180px; flex-shrink: 0;
+      border-right: 1px solid rgba(0,255,136,0.08);
+      padding: 12px 0; overflow-y: auto;
+    }
+    .settings-cat {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; cursor: pointer;
+      color: #556; font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: 0.95em; letter-spacing: 1px; text-transform: uppercase;
+      transition: all 0.2s; border-left: 2px solid transparent;
+    }
+    .settings-cat:hover { color: #889; background: rgba(255,255,255,0.02); }
+    .settings-cat.active {
+      color: #00ff88; border-left-color: #00ff88;
+      background: rgba(0,255,136,0.04);
+    }
+    .settings-cat-icon { font-size: 1.1em; width: 20px; text-align: center; }
+
+    .settings-content {
+      flex: 1; overflow-y: auto; padding: 20px 28px;
+    }
+    .settings-pane { display: none; }
+    .settings-pane.active { display: block; }
+    .settings-pane-title {
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.2em;
+      color: #ccd; letter-spacing: 3px; margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .set-card {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 14px 16px; margin-bottom: 8px;
+      background: rgba(255,255,255,0.02); border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.03);
+      transition: all 0.2s;
+    }
+    .set-card:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(0,255,136,0.1);
+    }
+    .set-card-info { flex: 1; padding-right: 16px; }
+    .set-card-name {
+      color: #bbc; font-weight: 600; font-size: 1.05em; letter-spacing: 0.5px;
+    }
+    .set-card-desc {
+      color: #556; font-size: 0.88em; margin-top: 3px; line-height: 1.4;
+    }
+    .set-card-control { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+
+    .set-slider {
+      width: 140px; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(255,255,255,0.1); border-radius: 3px; outline: none;
+    }
+    .set-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #00ff88; cursor: pointer;
+      box-shadow: 0 0 8px rgba(0,255,136,0.4); transition: transform 0.15s;
+    }
+    .set-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .set-slider::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%; border: none;
+      background: #00ff88; cursor: pointer; box-shadow: 0 0 8px rgba(0,255,136,0.4);
+    }
+    .set-value {
+      min-width: 45px; text-align: right; color: #00ff88; font-weight: 700;
+      font-size: 0.95em; font-family: 'Orbitron', sans-serif;
+    }
+    .set-select {
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 6px; color: #ccd; padding: 6px 12px;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95em; cursor: pointer;
+      outline: none; transition: border-color 0.2s;
+    }
+    .set-select:hover, .set-select:focus { border-color: rgba(0,255,136,0.5); }
+    .set-select option { background: #1a1a2e; color: #ccd; }
+    .set-toggle {
+      position: relative; width: 44px; height: 24px;
+      background: rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer;
+      transition: background 0.25s; flex-shrink: 0;
+    }
+    .set-toggle.on { background: rgba(0,255,136,0.3); }
+    .set-toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: #556;
+      transition: all 0.25s;
+    }
+    .set-toggle.on::after { left: 23px; background: #00ff88; box-shadow: 0 0 8px rgba(0,255,136,0.5); }
+    .set-color-row { display: flex; gap: 6px; }
+    .set-color-swatch {
+      width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s;
+    }
+    .set-color-swatch:hover { transform: scale(1.1); }
+    .set-color-swatch.selected { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.3); }
+    .set-btn {
+      padding: 7px 16px; border-radius: 8px; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.9em;
+      letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+      border: 1px solid; background: transparent;
+    }
+    .set-btn-primary {
+      color: #00ff88; border-color: rgba(0,255,136,0.3); background: rgba(0,255,136,0.06);
+    }
+    .set-btn-primary:hover { background: rgba(0,255,136,0.15); border-color: #00ff88; }
+    .set-btn-danger {
+      color: #ff4455; border-color: rgba(255,68,85,0.3); background: rgba(255,68,85,0.05);
+    }
+    .set-btn-danger:hover { background: rgba(255,68,85,0.15); border-color: #ff4455; }
+
+    .set-section-divider {
+      height: 1px; background: rgba(0,255,136,0.06); margin: 16px 0;
+    }
+    .set-section-label {
+      color: #334; font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px;
+      margin: 12px 0 8px 4px; font-weight: 600;
+    }
+    .set-danger-zone {
+      border: 1px solid rgba(255,68,85,0.15); border-radius: 10px;
+      padding: 12px 16px; margin-top: 8px;
+      background: rgba(255,68,85,0.02);
+    }
+    .set-danger-label {
+      color: #ff4455; font-size: 0.85em; text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 10px; font-weight: 700;
+    }
+    .set-feedback {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      padding: 8px 24px; border-radius: 8px;
+      background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.3);
+      color: #00ff88; font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: 1em; z-index: 500; opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; letter-spacing: 1px;
+    }
+    .set-feedback.show { opacity: 1; }
+
+    .settings-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px; border-top: 1px solid rgba(0,255,136,0.08);
+      flex-shrink: 0;
+    }
+    .settings-footer-left { display: flex; gap: 8px; }
+    .settings-footer-right { display: flex; gap: 8px; }
+
+    /* ===== Crosshair ===== */
+    #crosshair {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 24px; height: 24px; pointer-events: none; z-index: 50;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #crosshair.visible { opacity: 1; }
+    #crosshair .ch-line {
+      position: absolute; background: rgba(0, 255, 136, 0.8);
+      box-shadow: 0 0 4px rgba(0, 255, 136, 0.4);
+    }
+    #crosshair .ch-top { top: 0; left: 50%; width: 2px; height: 8px; transform: translateX(-50%); }
+    #crosshair .ch-bottom { bottom: 0; left: 50%; width: 2px; height: 8px; transform: translateX(-50%); }
+    #crosshair .ch-left { left: 0; top: 50%; width: 8px; height: 2px; transform: translateY(-50%); }
+    #crosshair .ch-right { right: 0; top: 50%; width: 8px; height: 2px; transform: translateY(-50%); }
+    #crosshair .ch-dot {
+      position: absolute; top: 50%; left: 50%; width: 2px; height: 2px;
+      transform: translate(-50%, -50%); background: #00ff88; border-radius: 50%;
+    }
+
+    /* ===== HUD ===== */
+    #hud {
+      position: fixed; bottom: 20px; left: 20px;
+      display: flex; flex-direction: column; gap: 6px;
+      z-index: 50; opacity: 0; transition: opacity 0.3s;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: 1em; text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    }
+    #hud.visible { opacity: 1; }
+    #hud > div {
+      background: rgba(0, 0, 0, 0.5); padding: 6px 16px; border-radius: 6px;
+      border-left: 3px solid; backdrop-filter: blur(4px);
+    }
+
+    #health { color: #00ff88; border-left-color: #00ff88; }
+    #ammo { color: #ffaa00; border-left-color: #ffaa00; }
+    #money { color: #ffd700; border-left-color: #ffd700; }
+    #armor { color: #88ccff; border-left-color: #88ccff; }
+    #kills { color: #ff5566; border-left-color: #ff5566; }
+    #wave { color: #aaa; border-left-color: #666; }
+
+    /* HUD top-right stats */
+    #hud-top {
+      position: fixed; top: 15px; right: 15px;
+      display: flex; gap: 12px; z-index: 50;
+      opacity: 0; transition: opacity 0.3s;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    }
+    #hud-top.visible { opacity: 1; }
+    #hud-top > div {
+      background: rgba(0, 0, 0, 0.5); padding: 4px 14px; border-radius: 6px;
+      font-size: 0.85em; color: #778; backdrop-filter: blur(4px);
+    }
+
+    /* ===== Notification ===== */
+    #notification {
+      position: fixed; top: 30%; left: 50%; transform: translateX(-50%);
+      font-family: 'Orbitron', sans-serif; font-size: 1.8em; font-weight: 700;
+      color: #00ff88; text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+      z-index: 50; opacity: 0; transition: opacity 0.5s; pointer-events: none;
+      letter-spacing: 4px;
+    }
+
+    /* ===== Game Over ===== */
+    #game-over {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(20, 0, 0, 0.88); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #game-over:not(.hidden) { display: flex; }
+    #game-over .menu-panel { border-color: rgba(255, 68, 68, 0.3); box-shadow: 0 0 40px rgba(255, 0, 0, 0.1); }
+    #game-over .menu-title { color: #ff4455; text-shadow: 0 0 25px rgba(255, 68, 68, 0.5); }
+
+    /* ===== About / Credits text ===== */
+    .info-text {
+      color: #99a; margin: 15px 0; line-height: 1.7; font-size: 1.05em;
+    }
+    .info-controls {
+      display: grid; grid-template-columns: auto auto; gap: 8px 20px;
+      margin: 20px 0; text-align: left; justify-content: center;
+    }
+    .info-controls .key {
+      display: inline-block; padding: 3px 10px; border-radius: 5px;
+      background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2);
+      color: #00ff88; font-family: 'Orbitron', sans-serif; font-size: 0.85em;
+      font-weight: 700; text-align: center; min-width: 40px;
+    }
+    .info-controls .desc { color: #778; font-size: 1em; align-self: center; }
+
+    .credits-row { margin: 12px 0; }
+    .credits-role { color: #556; font-size: 0.85em; text-transform: uppercase; letter-spacing: 2px; }
+    .credits-name { color: #00ff88; font-size: 1.1em; font-weight: 600; }
+
+    #vehicle-hud {
+      position: fixed; top: 50%; right: 20px; transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.6); padding: 12px 20px; border-radius: 10px;
+      border-left: 3px solid #00ccff; backdrop-filter: blur(4px);
+      font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #00ccff;
+      z-index: 50; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    #vehicle-hud.visible { opacity: 1; }
+    #vehicle-hud .vh-title { font-size: 1.1em; letter-spacing: 2px; margin-bottom: 6px; }
+    #vehicle-hud .vh-speed { font-size: 1.8em; font-family: 'Orbitron', sans-serif; font-weight: 700; }
+    #vehicle-hud .vh-hint { font-size: 0.8em; color: #445; margin-top: 8px; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="loading-logo">ZOMBIE SHOOTER</div>
+    <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
+    <div class="loading-text" id="loading-text">Initializing WebGPU...</div>
+  </div>
+
+  <canvas id="game-canvas"></canvas>
+
+  <div id="crosshair">
+    <div class="ch-line ch-top"></div>
+    <div class="ch-line ch-bottom"></div>
+    <div class="ch-line ch-left"></div>
+    <div class="ch-line ch-right"></div>
+    <div class="ch-dot"></div>
+  </div>
+
+  <div id="hud">
+    <div id="health">Health: 100</div>
+    <div id="armor">Armor: 0</div>
+    <div id="ammo">Ammo: 12/12</div>
+    <div id="money">Money: $0</div>
+    <div id="kills">Total Kills: 0</div>
+    <div id="wave">Wave 1: 0/5</div>
+  </div>
+
+  <div id="vehicle-hud">
+    <div class="vh-title">VEHICLE</div>
+    <div class="vh-speed" id="vehicle-speed">0</div>
+    <div class="vh-hint">F: Exit | WASD: Drive</div>
+  </div>
+
+  <div id="hud-top">
+    <div id="fps-counter" style="display:none;color:#00ff88;font-family:'Orbitron',sans-serif;"></div>
+    <div id="position"></div>
+    <div id="target"></div>
+  </div>
+
+  <div id="notification"></div>
+
+  <div id="blocker">
+    <!-- ===== Main Menu ===== -->
+    <div id="main-menu" class="menu-panel">
+      <div class="menu-title">ZOMBIE SHOOTER</div>
+      <div class="menu-subtitle">Particle Realms Engine</div>
+      <button class="btn btn-play" id="btn-resume">Play</button>
+      <button class="btn" id="btn-settings">Settings</button>
+      <button class="btn" id="btn-about">About</button>
+      <button class="btn" id="btn-credits">Credits</button>
+    </div>
+
+    <!-- ===== Settings Control Center ===== -->
+    <div id="settings-menu" class="menu-panel hidden">
+      <div class="settings-topbar">
+        <div class="settings-topbar-title">SETTINGS</div>
+        <div class="settings-search">
+          <input type="text" id="settings-search-input" placeholder="Search settings..." autocomplete="off">
+        </div>
+        <div class="settings-profile">
+          <div class="settings-profile-dot"></div>
+          <span class="settings-profile-text" id="settings-device-name">WebGPU</span>
+        </div>
+        <button class="settings-close" id="settings-close-btn">&times;</button>
+      </div>
+
+      <div class="settings-body">
+        <div class="settings-sidebar" id="settings-sidebar">
+          <div class="settings-cat active" data-cat="general"><span class="settings-cat-icon">&#9881;</span>General</div>
+          <div class="settings-cat" data-cat="appearance"><span class="settings-cat-icon">&#127912;</span>Appearance</div>
+          <div class="settings-cat" data-cat="renderer"><span class="settings-cat-icon">&#9889;</span>Renderer</div>
+          <div class="settings-cat" data-cat="audio"><span class="settings-cat-icon">&#128266;</span>Audio</div>
+          <div class="settings-cat" data-cat="controls"><span class="settings-cat-icon">&#127868;</span>Controls</div>
+          <div class="settings-cat" data-cat="gameplay"><span class="settings-cat-icon">&#127918;</span>Gameplay</div>
+          <div class="settings-cat" data-cat="developer"><span class="settings-cat-icon">&#128187;</span>Developer</div>
+          <div class="settings-cat" data-cat="about"><span class="settings-cat-icon">&#8505;</span>About</div>
+        </div>
+
+        <div class="settings-content" id="settings-content">
+          <!-- General -->
+          <div class="settings-pane active" id="pane-general">
+            <div class="settings-pane-title">General</div>
+            <div class="set-card" data-search="language">
+              <div class="set-card-info"><div class="set-card-name">Language</div><div class="set-card-desc">Display language for menus and HUD.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-language"><option selected>English</option><option>Espanol</option><option>Francais</option><option>Deutsch</option><option>Portugues</option></select></div>
+            </div>
+            <div class="set-card" data-search="reset defaults">
+              <div class="set-card-info"><div class="set-card-name">Reset All Settings</div><div class="set-card-desc">Restore every setting to its default value.</div></div>
+              <div class="set-card-control"><button class="set-btn set-btn-danger" id="set-reset-all">Reset</button></div>
+            </div>
+            <div class="set-card" data-search="export settings">
+              <div class="set-card-info"><div class="set-card-name">Export Settings</div><div class="set-card-desc">Download your configuration as a JSON file.</div></div>
+              <div class="set-card-control"><button class="set-btn set-btn-primary" id="set-export">Export</button></div>
+            </div>
+            <div class="set-card" data-search="import settings">
+              <div class="set-card-info"><div class="set-card-name">Import Settings</div><div class="set-card-desc">Load a previously exported settings file.</div></div>
+              <div class="set-card-control"><button class="set-btn set-btn-primary" id="set-import">Import</button></div>
+            </div>
+          </div>
+
+          <!-- Appearance -->
+          <div class="settings-pane" id="pane-appearance">
+            <div class="settings-pane-title">Appearance</div>
+            <div class="set-card" data-search="theme dark light auto">
+              <div class="set-card-info"><div class="set-card-name">Theme</div><div class="set-card-desc">Choose the overall color scheme.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-theme"><option value="dark" selected>Dark</option><option value="light">Light</option><option value="auto">Auto</option></select></div>
+            </div>
+            <div class="set-card" data-search="accent color">
+              <div class="set-card-info"><div class="set-card-name">Accent Color</div><div class="set-card-desc">Primary highlight color for UI elements.</div></div>
+              <div class="set-card-control"><div class="set-color-row" id="set-accent-row">
+                <div class="set-color-swatch selected" style="background:#00ff88" data-color="#00ff88"></div>
+                <div class="set-color-swatch" style="background:#00ccff" data-color="#00ccff"></div>
+                <div class="set-color-swatch" style="background:#ff44aa" data-color="#ff44aa"></div>
+                <div class="set-color-swatch" style="background:#ffaa00" data-color="#ffaa00"></div>
+                <div class="set-color-swatch" style="background:#aa44ff" data-color="#aa44ff"></div>
+                <div class="set-color-swatch" style="background:#ff4444" data-color="#ff4444"></div>
+              </div></div>
+            </div>
+            <div class="set-card" data-search="font size ui scale">
+              <div class="set-card-info"><div class="set-card-name">UI Scale</div><div class="set-card-desc">Scale the size of HUD and menu text.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-uiscale" min="80" max="140" value="100" step="5"><span class="set-value" id="val-uiscale">100%</span></div>
+            </div>
+            <div class="set-card" data-search="motion effects animations">
+              <div class="set-card-info"><div class="set-card-name">Motion Effects</div><div class="set-card-desc">Enable animated transitions and particle effects in menus.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-motion"></div></div>
+            </div>
+            <div class="set-card" data-search="crosshair style">
+              <div class="set-card-info"><div class="set-card-name">Crosshair Style</div><div class="set-card-desc">Choose the in-game crosshair shape.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-crosshair"><option value="cross">Cross</option><option value="dot">Dot</option><option value="circle">Circle</option><option value="cross-dot" selected>Cross + Dot</option></select></div>
+            </div>
+          </div>
+
+          <!-- Renderer -->
+          <div class="settings-pane" id="pane-renderer">
+            <div class="settings-pane-title">Renderer</div>
+            <div class="set-card" data-search="render scale resolution">
+              <div class="set-card-info"><div class="set-card-name">Render Scale</div><div class="set-card-desc">Internal resolution multiplier. Lower for performance, higher for quality.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-renderscale" min="25" max="100" value="100" step="5"><span class="set-value" id="val-renderscale">100%</span></div>
+            </div>
+            <div class="set-card" data-search="field of view fov">
+              <div class="set-card-info"><div class="set-card-name">Field of View</div><div class="set-card-desc">Camera FOV in degrees. Wider sees more but distorts edges.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-fov" min="60" max="110" value="75" step="1"><span class="set-value" id="val-fov">75</span></div>
+            </div>
+            <div class="set-card" data-search="anti aliasing msaa">
+              <div class="set-card-info"><div class="set-card-name">Anti-Aliasing</div><div class="set-card-desc">Smooths jagged edges. Disable for performance on low-end GPUs.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-aa"></div></div>
+            </div>
+            <div class="set-card" data-search="shadows">
+              <div class="set-card-info"><div class="set-card-name">Shadows</div><div class="set-card-desc">Enable real-time shadow rendering.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-shadows"></div></div>
+            </div>
+            <div class="set-card" data-search="bloom glow post processing">
+              <div class="set-card-info"><div class="set-card-name">Bloom / Glow</div><div class="set-card-desc">Bright areas bleed light into surroundings.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-bloom"></div></div>
+            </div>
+            <div class="set-card" data-search="grid overlay">
+              <div class="set-card-info"><div class="set-card-name">Grid Overlay</div><div class="set-card-desc">Show the world grid for debugging spatial layout.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-grid"></div></div>
+            </div>
+            <div class="set-card" data-search="fps cap frame limit vsync">
+              <div class="set-card-info"><div class="set-card-name">FPS Cap</div><div class="set-card-desc">Limit the frame rate. 0 = uncapped.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-fpscap"><option value="0">Uncapped</option><option value="30">30 FPS</option><option value="60" selected>60 FPS</option><option value="120">120 FPS</option><option value="144">144 FPS</option></select></div>
+            </div>
+            <div class="set-card" data-search="particle quality">
+              <div class="set-card-info"><div class="set-card-name">Particle Quality</div><div class="set-card-desc">Controls max simultaneous particles.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-particles"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+            </div>
+          </div>
+
+          <!-- Audio -->
+          <div class="settings-pane" id="pane-audio">
+            <div class="settings-pane-title">Audio</div>
+            <div class="set-card" data-search="master volume">
+              <div class="set-card-info"><div class="set-card-name">Master Volume</div><div class="set-card-desc">Overall volume for all audio output.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-master" min="0" max="100" value="80"><span class="set-value" id="val-master">80%</span></div>
+            </div>
+            <div class="set-card" data-search="music volume ambient">
+              <div class="set-card-info"><div class="set-card-name">Music Volume</div><div class="set-card-desc">Dark ambient background music and drones.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-music" min="0" max="100" value="30"><span class="set-value" id="val-music">30%</span></div>
+            </div>
+            <div class="set-card" data-search="sfx volume sound effects">
+              <div class="set-card-info"><div class="set-card-name">SFX Volume</div><div class="set-card-desc">Gunshots, footsteps, reloads, and impacts.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-sfx" min="0" max="100" value="70"><span class="set-value" id="val-sfx">70%</span></div>
+            </div>
+            <div class="set-card" data-search="voice enemy volume">
+              <div class="set-card-info"><div class="set-card-name">Voice / Enemy Volume</div><div class="set-card-desc">Zombie groans, attack sounds, and vocal effects.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-voice" min="0" max="100" value="60"><span class="set-value" id="val-voice">60%</span></div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="settings-pane" id="pane-controls">
+            <div class="settings-pane-title">Controls</div>
+            <div class="set-card" data-search="mouse sensitivity">
+              <div class="set-card-info"><div class="set-card-name">Mouse Sensitivity</div><div class="set-card-desc">How fast the camera turns with mouse movement.</div></div>
+              <div class="set-card-control"><input type="range" class="set-slider" id="set-sensitivity" min="1" max="20" value="5" step="1"><span class="set-value" id="val-sensitivity">5</span></div>
+            </div>
+            <div class="set-card" data-search="invert mouse">
+              <div class="set-card-info"><div class="set-card-name">Invert Mouse Y</div><div class="set-card-desc">Reverse vertical look direction.</div></div>
+              <div class="set-card-control"><div class="set-toggle" id="set-invert"></div></div>
+            </div>
+            <div class="set-card" data-search="keybinds wasd">
+              <div class="set-card-info"><div class="set-card-name">Key Bindings</div><div class="set-card-desc">WASD: Move | Mouse: Look | Click: Shoot | R: Reload | Space: Jump | Shift: Sprint | 1/2: Weapons | G: Ghost</div></div>
+              <div class="set-card-control"><button class="set-btn set-btn-primary" id="set-view-keys">View</button></div>
+            </div>
+          </div>
+
+          <!-- Gameplay -->
+          <div class="settings-pane" id="pane-gameplay">
+            <div class="settings-pane-title">Gameplay</div>
+            <div class="set-card" data-search="difficulty">
+              <div class="set-card-info"><div class="set-card-name">Difficulty</div><div class="set-card-desc">Enemy health, speed, and spawn rate scale with difficulty.</div></div>
+              <div class="set-card-control"><select class="set-select" id="set-difficulty"><option value="1">Very Easy</option><option value="2">Easy</option><option value="3" selected>Normal</option><option value="4">Hard</option><option value="5">Very Hard</option><option value="6">Nightmare</option></select></div>
+            </div>
+            <div class="set-card" data-search="show fps counter">
+              <div class="set-card-info"><div class="set-card-name">Show FPS Counter</div><div class="set-card-desc">Display frames-per-second in the top-right corner.</div></div>
+              <div class="set-card-control"><div class="set-toggle" id="set-fps"></div></div>
+            </div>
+            <div class="set-card" data-search="show position">
+              <div class="set-card-info"><div class="set-card-name">Show Position</div><div class="set-card-desc">Display player coordinates in the HUD.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-position"></div></div>
+            </div>
+            <div class="set-card" data-search="auto reload">
+              <div class="set-card-info"><div class="set-card-name">Auto Reload</div><div class="set-card-desc">Automatically reload when ammo reaches zero.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-autoreload"></div></div>
+            </div>
+          </div>
+
+          <!-- Developer -->
+          <div class="settings-pane" id="pane-developer">
+            <div class="settings-pane-title">Developer</div>
+            <div class="set-card" data-search="debug overlay gpu stats">
+              <div class="set-card-info"><div class="set-card-name">Debug Overlay</div><div class="set-card-desc">Show GPU stats, draw calls, and memory usage on screen.</div></div>
+              <div class="set-card-control"><div class="set-toggle" id="set-debug"></div></div>
+            </div>
+            <div class="set-card" data-search="console logs">
+              <div class="set-card-info"><div class="set-card-name">Console Logs</div><div class="set-card-desc">Print detailed engine logs to the browser console.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-logs"></div></div>
+            </div>
+            <div class="set-card" data-search="experimental flags">
+              <div class="set-card-info"><div class="set-card-name">Experimental Flags</div><div class="set-card-desc">Enable unfinished or experimental engine features.</div></div>
+              <div class="set-card-control"><div class="set-toggle" id="set-experimental"></div></div>
+            </div>
+            <div class="set-card" data-search="shader cache">
+              <div class="set-card-info"><div class="set-card-name">Shader Cache</div><div class="set-card-desc">Cache compiled WGSL shaders for faster reloads.</div></div>
+              <div class="set-card-control"><div class="set-toggle on" id="set-shadercache"></div></div>
+            </div>
+            <div class="set-section-divider"></div>
+            <div class="set-danger-zone">
+              <div class="set-danger-label">Danger Zone</div>
+              <div class="set-card" data-search="clear shader cache" style="border:none;background:none;margin:0;padding:8px 0;">
+                <div class="set-card-info"><div class="set-card-name">Clear Shader Cache</div><div class="set-card-desc">Remove all cached shaders. They will recompile on next launch.</div></div>
+                <div class="set-card-control"><button class="set-btn set-btn-danger" id="set-clear-shaders">Clear</button></div>
+              </div>
+              <div class="set-card" data-search="hard reset" style="border:none;background:none;margin:0;padding:8px 0;">
+                <div class="set-card-info"><div class="set-card-name">Hard Reset Engine</div><div class="set-card-desc">Reload the page and reinitialize everything from scratch.</div></div>
+                <div class="set-card-control"><button class="set-btn set-btn-danger" id="set-hard-reset">Reset</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="settings-pane" id="pane-about">
+            <div class="settings-pane-title">About</div>
+            <div class="set-card" data-search="engine version">
+              <div class="set-card-info"><div class="set-card-name">Engine</div><div class="set-card-desc">Particle Realms WebGPU Engine v1.0</div></div>
+            </div>
+            <div class="set-card" data-search="game version">
+              <div class="set-card-info"><div class="set-card-name">Game</div><div class="set-card-desc">Zombie Shooter — ported from 3dfps by pfaustino</div></div>
+            </div>
+            <div class="set-card" data-search="renderer adapter gpu">
+              <div class="set-card-info"><div class="set-card-name">GPU Adapter</div><div class="set-card-desc" id="set-gpu-info">Detecting...</div></div>
+            </div>
+            <div class="set-card" data-search="credits">
+              <div class="set-card-info"><div class="set-card-name">Credits</div><div class="set-card-desc">Engine: BTSpaniel | Original: pfaustino | Assets: CityPack</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <div class="settings-footer-left">
+          <button class="set-btn set-btn-danger" id="set-footer-reset">Reset to Default</button>
+        </div>
+        <div class="settings-footer-right">
+          <button class="set-btn" style="color:#667;border-color:#333;background:rgba(40,42,50,0.4)" id="set-footer-cancel">Cancel</button>
+          <button class="set-btn set-btn-primary" id="set-footer-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-feedback" id="set-feedback">Saved</div>
+
+    <!-- ===== About Menu ===== -->
+    <div id="about-menu" class="menu-panel hidden">
+      <div class="menu-title" style="font-size:2em;">ABOUT</div>
+      <p class="info-text">
+        A 3D first-person zombie shooter powered by the Particle Realms WebGPU engine.
+        Survive endless waves of the undead, collect loot, and stay alive in a sprawling city.
+      </p>
+      <div class="info-controls">
+        <span class="key">WASD</span><span class="desc">Move</span>
+        <span class="key">Mouse</span><span class="desc">Look around</span>
+        <span class="key">Click</span><span class="desc">Shoot</span>
+        <span class="key">R</span><span class="desc">Reload weapon</span>
+        <span class="key">Space</span><span class="desc">Jump (double jump!)</span>
+        <span class="key">Shift</span><span class="desc">Sprint</span>
+        <span class="key">1 / 2</span><span class="desc">Switch weapons</span>
+        <span class="key">G</span><span class="desc">Ghost mode</span>
+        <span class="key">F</span><span class="desc">Enter/Exit vehicle</span>
+      </div>
+      <button class="btn btn-back" data-target="main">Back</button>
+    </div>
+
+    <!-- ===== Credits Menu ===== -->
+    <div id="credits-menu" class="menu-panel hidden">
+      <div class="menu-title" style="font-size:2em;">CREDITS</div>
+      <div class="credits-row">
+        <div class="credits-role">Original Game</div>
+        <div class="credits-name">3dfps by pfaustino</div>
+      </div>
+      <div class="credits-row">
+        <div class="credits-role">Engine</div>
+        <div class="credits-name">Particle Realms by BTSpaniel</div>
+      </div>
+      <div class="credits-row">
+        <div class="credits-role">WebGPU Port</div>
+        <div class="credits-name">Particle Realms Engine Team</div>
+      </div>
+      <div class="credits-row">
+        <div class="credits-role">City Assets</div>
+        <div class="credits-name">CityPack 3D Models</div>
+      </div>
+      <button class="btn btn-back" data-target="main" style="margin-top:20px;">Back</button>
+    </div>
+  </div>
+
+  <!-- ===== Game Over ===== -->
+  <div id="game-over" class="hidden">
+    <div class="menu-panel">
+      <div class="menu-title">GAME OVER</div>
+      <div class="menu-subtitle">You scored <span id="final-kills">0</span> kills</div>
+      <button class="btn btn-play" onclick="location.reload()">Restart</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

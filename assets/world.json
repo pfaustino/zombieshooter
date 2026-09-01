@@ -1,0 +1,611 @@
+{
+    "buildings": [
+        {
+            "model": "Brown Building.glb",
+            "x": 49.8,
+            "y": 0.73,
+            "z": -10.1,
+            "scale": 3.54,
+            "rotY": 4.7124,
+            "collidable": true
+        },
+        {
+            "model": "Building Green.glb",
+            "x": 32.83,
+            "y": 0,
+            "z": -47.94,
+            "scale": 4.39,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Building Red Corner.glb",
+            "x": 63.74,
+            "y": -0.12,
+            "z": 9.85,
+            "scale": 7.59,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Building Red Corner.glb",
+            "x": 48.11,
+            "y": -0.01,
+            "z": 9.59,
+            "scale": 7.59,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Pizza Corner.glb",
+            "x": 32.28,
+            "y": 0,
+            "z": -8.93,
+            "scale": 5.85,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Building Red.glb",
+            "x": 32.42,
+            "y": 0.01,
+            "z": 18.69,
+            "scale": 5.71,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Big Building.glb",
+            "x": 31.29,
+            "y": 0,
+            "z": -31.78,
+            "scale": 2.42,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Big Building.glb",
+            "x": 48.82,
+            "y": 0,
+            "z": -30.17,
+            "scale": 2.5,
+            "rotY": 4.7124,
+            "collidable": true
+        },
+        {
+            "model": "Big Building.glb",
+            "x": 67.49,
+            "y": 0.03,
+            "z": -9.61,
+            "scale": 2.5,
+            "rotY": 6.2832,
+            "collidable": true
+        },
+        {
+            "model": "Building Red Corner.glb",
+            "x": 32.02,
+            "y": -7.79,
+            "z": 49.25,
+            "scale": 7.59,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Pizza Corner.glb",
+            "x": 48.83,
+            "y": -0.13,
+            "z": -55.76,
+            "scale": 5.85,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Big Building.glb",
+            "x": 24,
+            "y": -0.07,
+            "z": 10.06,
+            "scale": 2.5,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Building Red Corner.glb",
+            "x": 20.15,
+            "y": -0.02,
+            "z": -10.04,
+            "scale": 7.59,
+            "rotY": -3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Building Red Corner.glb",
+            "x": 9.63,
+            "y": -0.05,
+            "z": -10.02,
+            "scale": 7.59,
+            "rotY": 0,
+            "collidable": true
+        }
+    ],
+    "vehicles": [
+        {
+            "model": "Police Car.glb",
+            "x": -0.81,
+            "y": 0,
+            "z": 20.87,
+            "scale": 2,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Bus Stop.glb",
+            "x": 46.47,
+            "y": 3.06,
+            "z": 30.99,
+            "scale": 0.2,
+            "rotY": 4.7124,
+            "collidable": true
+        },
+        {
+            "model": "Car.glb",
+            "x": 9.58,
+            "y": 0,
+            "z": -41.91,
+            "scale": 2,
+            "rotY": 4.7496,
+            "collidable": true
+        },
+        {
+            "model": "Planter & Bushes.glb",
+            "x": 75,
+            "y": 0,
+            "z": 140,
+            "scale": 1.5,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Sports Car.glb",
+            "x": 249.22,
+            "y": 0,
+            "z": 20.24,
+            "scale": 1.7,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "SUV.glb",
+            "x": -10.09,
+            "y": 0,
+            "z": 40.68,
+            "scale": 1.51,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Bus stop sign.glb",
+            "x": 87.61,
+            "y": 0,
+            "z": 84.87,
+            "scale": 0.12,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": 71.31,
+            "y": 0,
+            "z": -1.22,
+            "scale": 2,
+            "rotY": -1.4998,
+            "collidable": true
+        },
+        {
+            "model": "Bus.glb",
+            "x": 40,
+            "y": 0,
+            "z": 11.18,
+            "scale": 0.1,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Motorcycle.glb",
+            "x": -9.11,
+            "y": 0,
+            "z": -42.57,
+            "scale": 0.02,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Van.glb",
+            "x": 40.66,
+            "y": 0,
+            "z": 46.26,
+            "scale": 0.08,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Pickup Truck.glb",
+            "x": 22.59,
+            "y": 0,
+            "z": 40.06,
+            "scale": 1.1,
+            "rotY": -1.5654,
+            "collidable": true
+        },
+        {
+            "model": "Sports Car-Gzj704DXdr.glb",
+            "x": 84,
+            "y": 311.85,
+            "z": 159.69,
+            "scale": 0.9,
+            "rotY": 0,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": 93.8,
+            "y": 0.08,
+            "z": -1.72,
+            "scale": 2,
+            "rotY": -1.4998,
+            "collidable": true
+        }
+    ],
+    "props": [
+        {
+            "model": "Bench.glb",
+            "x": 7.9,
+            "y": 0.77,
+            "z": -29.81,
+            "scale": 0.89,
+            "rotY": 1.5708,
+            "collidable": false
+        },
+        {
+            "model": "Bench.glb",
+            "x": -8,
+            "y": 0,
+            "z": 30,
+            "scale": 1.5,
+            "rotY": -1.5708,
+            "collidable": false
+        },
+        {
+            "model": "Greenhouse.glb",
+            "x": 90,
+            "y": 0,
+            "z": 125,
+            "scale": 2,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "ATM.glb",
+            "x": 47.36,
+            "y": 0,
+            "z": 39.79,
+            "scale": 3.38,
+            "rotY": 4.7124,
+            "collidable": false
+        },
+        {
+            "model": "Debris Papers.glb",
+            "x": 75,
+            "y": 0,
+            "z": 95,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Cone.glb",
+            "x": 60,
+            "y": 0,
+            "z": 95,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Dumpster.glb",
+            "x": 95.31,
+            "y": 0,
+            "z": 114.02,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Fire hydrant.glb",
+            "x": 82.33,
+            "y": 0,
+            "z": 107.45,
+            "scale": 0.01,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Fence Piece.glb",
+            "x": 120,
+            "y": 0,
+            "z": 95,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Fence End.glb",
+            "x": 105,
+            "y": 0,
+            "z": 95,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Floor Hole.glb",
+            "x": 105,
+            "y": 0,
+            "z": 110,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Flower Pot.glb",
+            "x": 60,
+            "y": 0,
+            "z": 125,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Mailbox.glb",
+            "x": 105,
+            "y": 0,
+            "z": 125,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Fence.glb",
+            "x": 60,
+            "y": 0,
+            "z": 110,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Flower Pot-Kgt363WkKd.glb",
+            "x": 120,
+            "y": 0,
+            "z": 110,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Manhole Cover.glb",
+            "x": 60,
+            "y": 0,
+            "z": 140,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Power Box.glb",
+            "x": 90,
+            "y": 0,
+            "z": 140,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Fire Exit.glb",
+            "x": 75,
+            "y": 0,
+            "z": 110,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Roof Exit.glb",
+            "x": 75,
+            "y": 0,
+            "z": 155,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Rock band poster.glb",
+            "x": 60,
+            "y": 0,
+            "z": 155,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Trash Can.glb",
+            "x": 74.28,
+            "y": 0,
+            "z": 171.05,
+            "scale": 0.35,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Yellow Post-it.glb",
+            "x": 120,
+            "y": 0,
+            "z": 170,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Gb Blank.glb",
+            "x": 75,
+            "y": 0,
+            "z": 125,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "trah bag grey.glb",
+            "x": 60,
+            "y": 0,
+            "z": 170,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Washing Line.glb",
+            "x": 105,
+            "y": 0,
+            "z": 170,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "RB Blank.glb",
+            "x": 105,
+            "y": 0,
+            "z": 140,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Man.glb",
+            "x": 120,
+            "y": 0,
+            "z": 125,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Animated Woman-nIItLV9nxS.glb",
+            "x": 90,
+            "y": 0,
+            "z": 50,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Animated Woman-qJ2gsTUBHL.glb",
+            "x": 105,
+            "y": 0,
+            "z": 50,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Adventurer.glb",
+            "x": 30.72,
+            "y": 0,
+            "z": 29.01,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Air conditioner.glb",
+            "x": -59.94,
+            "y": 0,
+            "z": 33.56,
+            "scale": 0.03,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Stop sign.glb",
+            "x": 110.62,
+            "y": 0,
+            "z": 153.2,
+            "scale": 0.01,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Tree.glb",
+            "x": 82.33,
+            "y": 0,
+            "z": 182.05,
+            "scale": 0.02,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Animated Woman.glb",
+            "x": 120,
+            "y": 0,
+            "z": 50,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Traffic Light.glb",
+            "x": 120,
+            "y": 0,
+            "z": 155,
+            "scale": 1.5,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Billboard.glb",
+            "x": 49.9,
+            "y": 0,
+            "z": 30.92,
+            "scale": 0.03,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Road Bits.glb",
+            "x": 120,
+            "y": 0,
+            "z": 140,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Box.glb",
+            "x": 105,
+            "y": 0,
+            "z": 65,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        },
+        {
+            "model": "Bicycle.glb",
+            "x": 75,
+            "y": 0,
+            "z": 65,
+            "scale": 1,
+            "rotY": 0,
+            "collidable": false
+        }
+    ]
+}

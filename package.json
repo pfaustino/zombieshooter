@@ -1,0 +1,12 @@
+{
+  "name": "zombieshooter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "3D zombie shooter (Particle Realms / WebGPU)",
+  "scripts": {
+    "prepare-dist": "node scripts/prepare-dist.mjs",
+    "build": "npm run prepare-dist",
+    "build:itch": "npm run prepare-dist",
+    "start": "python -m http.server 8080"
+  }
+}

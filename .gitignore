@@ -1,0 +1,20 @@
+# Local / build
+dist/
+_tmp/
+node_modules/
+
+# Bulky source dumps (CityPack lives in assets/)
+3dfps-main/
+3dfps-source/
+3dfps-source.zip
+Examples.zip
+examples/
+engine/
+playground.html
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
