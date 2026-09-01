@@ -11,10 +11,11 @@ export async function loadGLBGeometry(url) {
   if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
   const buffer = await res.arrayBuffer();
   const { json, bin } = parseGLB(buffer);
+  const images = await loadEmbeddedImages(json, bin);
   const meshes = [];
   const scene = json.scenes?.[json.scene || 0];
   const roots = scene?.nodes || json.nodes?.map((_, i) => i) || [];
-  for (const nodeIndex of roots) collectNodeMeshes(json, bin, nodeIndex, Mat4.identity(), meshes);
+  for (const nodeIndex of roots) collectNodeMeshes(json, bin, nodeIndex, Mat4.identity(), meshes, images);
   if (meshes.length === 0) throw new Error(`No renderable meshes in ${url}`);
   return mergeMeshes(meshes);
 }
@@ -24,14 +25,15 @@ export async function loadGLBWithNodes(url) {
   if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
   const buffer = await res.arrayBuffer();
   const { json, bin } = parseGLB(buffer);
+  const images = await loadEmbeddedImages(json, bin);
   const nodes = [];
   const scene = json.scenes?.[json.scene || 0];
   const roots = scene?.nodes || json.nodes?.map((_, i) => i) || [];
-  for (const nodeIndex of roots) collectNodes(json, bin, nodeIndex, Mat4.identity(), nodes, null);
+  for (const nodeIndex of roots) collectNodes(json, bin, nodeIndex, Mat4.identity(), nodes, null, images);
   return { nodes, json };
 }
 
-function collectNodes(json, bin, nodeIndex, parentMatrix, nodes, parentName) {
+function collectNodes(json, bin, nodeIndex, parentMatrix, nodes, parentName, images) {
   const node = json.nodes[nodeIndex];
   const local = nodeMatrix(node);
   const world = Mat4.multiply(parentMatrix, local);
@@ -47,7 +49,7 @@ function collectNodes(json, bin, nodeIndex, parentMatrix, nodes, parentName) {
       const positions = readAccessor(json, bin, posAccessor);
       const normals = primitive.attributes.NORMAL !== undefined ? readAccessor(json, bin, primitive.attributes.NORMAL) : makeDefaultNormals(positions.length / 3);
       const indices = primitive.indices !== undefined ? readAccessor(json, bin, primitive.indices) : makeSequentialIndices(positions.length / 3);
-      const colors = makeVertexColors(positions.length / 3, materialColor(json, primitive.material));
+      const colors = resolvePrimitiveColors(json, bin, primitive, positions.length / 3, images);
       const worldPos = transformPositions(positions, world);
       let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
       for (let i = 0; i < worldPos.length; i += 3) {
@@ -62,7 +64,7 @@ function collectNodes(json, bin, nodeIndex, parentMatrix, nodes, parentName) {
   nodes.push(entry);
   if (node.children) {
     for (const child of node.children) {
-      const childEntry = collectNodes(json, bin, child, world, nodes, name);
+      const childEntry = collectNodes(json, bin, child, world, nodes, name, images);
       entry.children.push(nodes.indexOf(childEntry));
     }
   }
@@ -89,13 +91,13 @@ function parseGLB(buffer) {
   return { json, bin };
 }
 
-function collectNodeMeshes(json, bin, nodeIndex, parentMatrix, meshes) {
+function collectNodeMeshes(json, bin, nodeIndex, parentMatrix, meshes, images) {
   const node = json.nodes[nodeIndex];
   const local = nodeMatrix(node);
   const world = Mat4.multiply(parentMatrix, local);
-  if (node.mesh !== undefined) appendMesh(json, bin, node.mesh, world, meshes);
+  if (node.mesh !== undefined) appendMesh(json, bin, node.mesh, world, meshes, images);
   if (node.children) {
-    for (const child of node.children) collectNodeMeshes(json, bin, child, world, meshes);
+    for (const child of node.children) collectNodeMeshes(json, bin, child, world, meshes, images);
   }
 }
 
@@ -120,7 +122,7 @@ function quatToMat4(q) {
   return m;
 }
 
-function appendMesh(json, bin, meshIndex, matrix, meshes) {
+function appendMesh(json, bin, meshIndex, matrix, meshes, images) {
   const mesh = json.meshes[meshIndex];
   for (const primitive of mesh.primitives || []) {
     if (primitive.mode !== undefined && primitive.mode !== 4) continue;
@@ -129,7 +131,7 @@ function appendMesh(json, bin, meshIndex, matrix, meshes) {
     const positions = readAccessor(json, bin, posAccessor);
     const normals = primitive.attributes.NORMAL !== undefined ? readAccessor(json, bin, primitive.attributes.NORMAL) : makeDefaultNormals(positions.length / 3);
     const indices = primitive.indices !== undefined ? readAccessor(json, bin, primitive.indices) : makeSequentialIndices(positions.length / 3);
-    const colors = makeVertexColors(positions.length / 3, materialColor(json, primitive.material));
+    const colors = resolvePrimitiveColors(json, bin, primitive, positions.length / 3, images);
     meshes.push({ positions: transformPositions(positions, matrix), normals: transformNormals(normals, matrix), colors, indices });
   }
 }
@@ -205,6 +207,93 @@ function materialColor(json, materialIndex) {
   const material = materialIndex !== undefined ? json.materials?.[materialIndex] : null;
   const factor = material?.pbrMetallicRoughness?.baseColorFactor || [1, 1, 1, 1];
   return [factor[0] ?? 1, factor[1] ?? 1, factor[2] ?? 1];
+}
+
+function resolvePrimitiveColors(json, bin, primitive, vertexCount, images) {
+  if (primitive.attributes?.COLOR_0 !== undefined) {
+    const raw = readAccessor(json, bin, primitive.attributes.COLOR_0);
+    const comps = raw.length / vertexCount;
+    const colors = new Float32Array(vertexCount * 3);
+    for (let i = 0; i < vertexCount; i++) {
+      colors[i * 3] = raw[i * comps];
+      colors[i * 3 + 1] = raw[i * comps + 1];
+      colors[i * 3 + 2] = raw[i * comps + 2];
+    }
+    return colors;
+  }
+
+  const factor = materialColor(json, primitive.material);
+  const material = primitive.material !== undefined ? json.materials?.[primitive.material] : null;
+  const texInfo = material?.pbrMetallicRoughness?.baseColorTexture;
+  const uvAttr = primitive.attributes?.TEXCOORD_0;
+  if (texInfo && uvAttr !== undefined && images) {
+    const texture = json.textures?.[texInfo.index];
+    const imageIndex = texture?.source;
+    const image = imageIndex !== undefined ? images.get(imageIndex) : null;
+    if (image) {
+      const uvs = readAccessor(json, bin, uvAttr);
+      const colors = new Float32Array(vertexCount * 3);
+      for (let i = 0; i < vertexCount; i++) {
+        const sampled = sampleImage(image, uvs[i * 2], uvs[i * 2 + 1]);
+        colors[i * 3] = sampled[0] * factor[0];
+        colors[i * 3 + 1] = sampled[1] * factor[1];
+        colors[i * 3 + 2] = sampled[2] * factor[2];
+      }
+      return colors;
+    }
+  }
+
+  return makeVertexColors(vertexCount, factor);
+}
+
+async function loadEmbeddedImages(json, bin) {
+  const images = new Map();
+  const list = json.images || [];
+  for (let i = 0; i < list.length; i++) {
+    try {
+      const image = list[i];
+      let bytes = null;
+      let mime = image.mimeType || 'image/png';
+      if (image.bufferView !== undefined) {
+        const view = json.bufferViews[image.bufferView];
+        const start = view.byteOffset || 0;
+        bytes = bin.slice(start, start + view.byteLength);
+      } else if (typeof image.uri === 'string' && image.uri.startsWith('data:')) {
+        const comma = image.uri.indexOf(',');
+        const header = image.uri.slice(0, comma);
+        const payload = image.uri.slice(comma + 1);
+        mime = header.match(/data:([^;]+)/)?.[1] || mime;
+        const binStr = atob(payload);
+        bytes = new Uint8Array(binStr.length);
+        for (let j = 0; j < binStr.length; j++) bytes[j] = binStr.charCodeAt(j);
+      }
+      if (!bytes) continue;
+      const bitmap = await createImageBitmap(new Blob([bytes], { type: mime }));
+      const canvas = typeof OffscreenCanvas !== 'undefined'
+        ? new OffscreenCanvas(bitmap.width, bitmap.height)
+        : Object.assign(document.createElement('canvas'), { width: bitmap.width, height: bitmap.height });
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(bitmap, 0, 0);
+      const { data, width, height } = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+      bitmap.close?.();
+      images.set(i, { data, width, height });
+    } catch (err) {
+      console.warn(`Failed to decode GLB image ${i}:`, err);
+    }
+  }
+  return images;
+}
+
+function sampleImage(image, u, v) {
+  let uu = u - Math.floor(u);
+  let vv = v - Math.floor(v);
+  if (uu < 0) uu += 1;
+  if (vv < 0) vv += 1;
+  // glTF UVs origin bottom-left; ImageData origin top-left
+  const x = Math.min(image.width - 1, Math.max(0, Math.floor(uu * image.width)));
+  const y = Math.min(image.height - 1, Math.max(0, Math.floor((1 - vv) * image.height)));
+  const i = (y * image.width + x) * 4;
+  return [image.data[i] / 255, image.data[i + 1] / 255, image.data[i + 2] / 255];
 }
 
 function makeVertexColors(count, color) {

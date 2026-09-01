@@ -36,7 +36,9 @@ export class EnemyManager {
 
   checkSpawns() {
     if (!this.waveInProgress) return;
-    const activeCount = this.enemies.filter(e => e.state !== Enemy.STATE.DEAD).length;
+    const activeCount = this.enemies.filter(e =>
+      e.state !== Enemy.STATE.DEAD && e.state !== Enemy.STATE.RAGDOLL && e.state !== Enemy.STATE.DYING
+    ).length;
     if (this.waveEnemiesSpawned < this.waveTotalEnemies && activeCount < this.maxSimultaneousEnemies) {
       this.spawnEnemy();
     }
@@ -81,7 +83,9 @@ export class EnemyManager {
   }
 
   _resolveEnemyCollisions() {
-    const active = this.enemies.filter(e => e.state !== Enemy.STATE.DEAD && e.state !== Enemy.STATE.RAGDOLL);
+    const active = this.enemies.filter(e =>
+      e.state !== Enemy.STATE.DEAD && e.state !== Enemy.STATE.RAGDOLL && e.state !== Enemy.STATE.DYING
+    );
     for (let i = 0; i < active.length; i++) {
       for (let j = i + 1; j < active.length; j++) {
         const a = active[i], b = active[j];
@@ -147,7 +151,7 @@ export class EnemyManager {
     let closest = null;
     let closestDist = maxDist;
     for (const enemy of this.enemies) {
-      if (enemy.state === Enemy.STATE.DEAD) continue;
+      if (enemy.state === Enemy.STATE.DEAD || enemy.state === Enemy.STATE.DYING || enemy.state === Enemy.STATE.RAGDOLL) continue;
       const aabb = enemy.getAABB();
       const hit = this._rayAABB(origin, dir, aabb);
       if (hit !== null && hit < closestDist) {

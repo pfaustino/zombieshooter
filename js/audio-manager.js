@@ -192,6 +192,30 @@ export class AudioManager {
     this.playTone(400, 0.02, 0.15, 'square');
   }
 
+  playLootPickup(type = 'coin') {
+    if (!this.initialized) return;
+    const now = this.context.currentTime;
+    const chords = {
+      coin: [880, 1175],
+      cowboyhat: [660, 880, 990],
+      potion: [523, 784],
+    };
+    const freqs = chords[type] || chords.coin;
+    freqs.forEach((freq, i) => {
+      const t = now + i * 0.05;
+      const osc = this.context.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      const gain = this.context.createGain();
+      gain.gain.setValueAtTime(0.22 * this.sfxVolume, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.2);
+    });
+  }
+
   startAmbient() {
     if (!this.initialized) return;
     const ctx = this.context;

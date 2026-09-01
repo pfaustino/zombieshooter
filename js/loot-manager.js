@@ -44,6 +44,7 @@ export class LootManager {
     drop.active = false;
     this.game.renderer.removeObject(drop.obj);
     this.drops.splice(index, 1);
+    if (this.game.audioManager) this.game.audioManager.playLootPickup(drop.type);
     this.game.player.collectLoot(drop.type);
   }
 }

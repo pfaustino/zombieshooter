@@ -1,7 +1,7 @@
 import { Vec3, AABB } from './math.js';
 
 export class Enemy {
-  static STATE = { IDLE: 'idle', PATROL: 'patrol', CHASE: 'chase', ATTACK: 'attack', DEAD: 'dead', RAGDOLL: 'ragdoll' };
+  static STATE = { IDLE: 'idle', PATROL: 'patrol', CHASE: 'chase', ATTACK: 'attack', DEAD: 'dead', RAGDOLL: 'ragdoll', DYING: 'dying' };
   static TYPE = { ROBOT: 'robot', GHOST: 'ghost', ZOMBIE: 'zombie', DEMON: 'demon' };
 
   constructor(game, position, type = null) {
@@ -20,8 +20,9 @@ export class Enemy {
     this.damage = 10;
     this.attackCooldown = 0;
     this.attackRate = 1;
-    this.speed = 3;
-    this.chaseSpeed = 3;
+    this.speed = 2;
+    this.chaseSpeed = 10.5; // overwritten in applyTypeStats from player walk * 0.75
+    this.chaseSpeedRatio = 0.75;
     this.stateTimer = 0;
     this.patrolWaitTime = 2;
     this.floatOffset = 0;
@@ -32,15 +33,17 @@ export class Enemy {
   }
 
   applyTypeStats() {
+    const walk = this.game.player?.moveSpeed ?? 14;
+    const chase = walk * 0.75;
     switch (this.type) {
       case Enemy.TYPE.ROBOT:
-        this.health = 150; this.maxHealth = 150; this.damage = 15; this.speed = 2; this.chaseSpeed = 2.5; break;
+        this.health = 150; this.maxHealth = 150; this.damage = 15; this.speed = walk * 0.35; this.chaseSpeed = chase; break;
       case Enemy.TYPE.GHOST:
-        this.health = 60; this.maxHealth = 60; this.damage = 8; this.speed = 3; this.chaseSpeed = 4; this.detectionRange = 25; break;
+        this.health = 60; this.maxHealth = 60; this.damage = 8; this.speed = walk * 0.4; this.chaseSpeed = chase; this.detectionRange = 25; break;
       case Enemy.TYPE.ZOMBIE:
-        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = 1.5; this.chaseSpeed = 2; this.attackRate = 1.5; break;
+        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = walk * 0.3; this.chaseSpeed = chase; this.attackRate = 1.5; break;
       case Enemy.TYPE.DEMON:
-        this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = 2.5; this.chaseSpeed = 3.5; this.attackRate = 0.8; break;
+        this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = walk * 0.4; this.chaseSpeed = chase; this.attackRate = 0.8; break;
     }
   }
 
@@ -143,6 +146,7 @@ export class Enemy {
   update(delta) {
     if (this.state === Enemy.STATE.DEAD) return;
     if (this.state === Enemy.STATE.RAGDOLL) { this._updateRagdoll(delta); return; }
+    if (this.state === Enemy.STATE.DYING) { this._updateDying(delta); return; }
     if (this.attackCooldown > 0) this.attackCooldown -= delta;
 
     switch (this.state) {
@@ -201,6 +205,9 @@ export class Enemy {
   _updateChase(delta) {
     const dist = this.distanceToPlayer();
     if (dist <= this.attackRange) { this.state = Enemy.STATE.ATTACK; return; }
+    // Keep chase locked to 75% of current player walk speed
+    const walk = this.game.player?.moveSpeed ?? 14;
+    this.chaseSpeed = walk * (this.chaseSpeedRatio ?? 0.75);
     this._moveToward(this.getPlayerPosition(), this.chaseSpeed, delta);
   }
 
@@ -213,10 +220,14 @@ export class Enemy {
   _moveToward(target, speed, delta) {
     const dir = Vec3.sub(target, this.position);
     dir.y = 0;
-    dir.normalize();
+    const len = dir.length();
+    if (len < 1e-6) return;
+    const nx = dir.x / len;
+    const nz = dir.z / len;
     const r = this.getCollisionRadius();
-    const newX = this.position.x + dir.x * speed * delta;
-    const newZ = this.position.z + dir.z * speed * delta;
+    const step = speed * delta;
+    const newX = this.position.x + nx * step;
+    const newZ = this.position.z + nz * step;
     if (!this.game.world.checkCollision(newX, newZ, r)) {
       this.position.x = newX; this.position.z = newZ;
     } else {
@@ -230,14 +241,14 @@ export class Enemy {
   }
 
   takeDamage(amount) {
-    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL) return;
+    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return;
     this.health -= amount;
     this._flashDamage();
     if (this.health <= 0) this.die();
   }
 
   ragdoll(impactVel) {
-    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL) return;
+    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return;
     this.state = Enemy.STATE.RAGDOLL;
     if (this.game.audioManager) this.game.audioManager.playEnemyDeath();
     if (this.healthBar) this.game.renderer.removeBillboard(this.healthBar);
@@ -360,8 +371,44 @@ export class Enemy {
   }
 
   die() {
-    this.state = Enemy.STATE.DEAD;
+    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return;
+
+    if (this.healthBar) this.game.renderer.removeBillboard(this.healthBar);
+    if (this.healthBarBg) this.game.renderer.removeBillboard(this.healthBarBg);
+    this.healthBar = null;
+    this.healthBarBg = null;
+
     if (this.game.audioManager) this.game.audioManager.playEnemyDeath();
+    if (this.game.particleSystem) {
+      this.game.particleSystem.emit(
+        new Vec3(this.position.x, this.position.y + 1.0, this.position.z),
+        14,
+        [0.45, 0.05, 0.05]
+      );
+    }
+    if (this.game.enemyManager) this.game.enemyManager.onEnemyKilled(this);
+    if (this.game.lootManager) {
+      const rand = Math.random();
+      if (rand < 0.1) this.game.lootManager.spawnLoot(this.position, 'potion');
+      else if (rand < 0.2) this.game.lootManager.spawnLoot(this.position, 'cowboyhat');
+      else if (rand < 0.8) this.game.lootManager.spawnLoot(this.position, 'coin');
+    }
+
+    // Zombies get a topple death; others keep a short shrink/fade
+    if (this.type === Enemy.TYPE.ZOMBIE) {
+      this.state = Enemy.STATE.DYING;
+      this.deathTime = 0;
+      this.deathDuration = 0.95;
+      this.deathFallSign = Math.random() < 0.5 ? 1 : -1;
+      const toPlayer = Vec3.sub(this.getPlayerPosition(), this.position);
+      toPlayer.y = 0;
+      const len = toPlayer.length() || 1;
+      // Tip sideways and get knocked slightly away from the player
+      this.deathKnock = new Vec3(-(toPlayer.x / len) * 1.2, 0, -(toPlayer.z / len) * 1.2);
+      return;
+    }
+
+    this.state = Enemy.STATE.DEAD;
     const startTime = performance.now();
     const animate = () => {
       const elapsed = performance.now() - startTime;
@@ -378,19 +425,49 @@ export class Enemy {
       else this.dispose();
     };
     animate();
-    if (this.game.enemyManager) this.game.enemyManager.onEnemyKilled(this);
-    if (this.game.lootManager) {
-      const rand = Math.random();
-      if (rand < 0.1) this.game.lootManager.spawnLoot(this.position, 'potion');
-      else if (rand < 0.2) this.game.lootManager.spawnLoot(this.position, 'cowboyhat');
-      else if (rand < 0.8) this.game.lootManager.spawnLoot(this.position, 'coin');
+  }
+
+  _updateDying(delta) {
+    this.deathTime += delta;
+    const t = Math.min(this.deathTime / this.deathDuration, 1);
+    const ease = t * t * (3 - 2 * t);
+    const angle = ease * (Math.PI / 2) * this.deathFallSign;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const sink = ease * 0.45;
+    const knock = ease;
+    const fade = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+
+    for (const p of this.parts) {
+      const ox = p.offsetX;
+      const oy = p.offsetY;
+      const oz = p.offsetZ;
+      // Tip over around Z (fall left/right), pivot near the feet
+      const rx = ox * cos - oy * sin;
+      const ry = ox * sin + oy * cos;
+      p.obj.position.set(
+        this.position.x + rx + this.deathKnock.x * knock,
+        Math.max(0.05, this.position.y + ry - sink),
+        this.position.z + oz + this.deathKnock.z * knock
+      );
+      p.obj.rotationZ = angle;
+      p.obj.opacity = Math.max(0, fade);
+      this.game.renderer.updateObjectTransform(p.obj);
+    }
+
+    if (t >= 1) {
+      this.dispose();
+      this.state = Enemy.STATE.DEAD;
     }
   }
 
   dispose() {
     for (const p of this.parts) this.game.renderer.removeObject(p.obj);
+    this.parts = [];
     if (this.healthBar) this.game.renderer.removeBillboard(this.healthBar);
     if (this.healthBarBg) this.game.renderer.removeBillboard(this.healthBarBg);
+    this.healthBar = null;
+    this.healthBarBg = null;
   }
 
   getAABB() {

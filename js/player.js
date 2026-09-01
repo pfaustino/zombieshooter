@@ -17,7 +17,7 @@ export class Player {
     this.money = 0;
     this.ammo = 12;
     this.maxAmmo = 12;
-    this.moveSpeed = 10;
+    this.moveSpeed = 14;
     this.sprintMultiplier = 1.6;
     this.jumpForce = 8;
     this.gravity = 25;
@@ -105,16 +105,11 @@ export class Player {
     const right = cam.getRight().normalize();
     const fwd = cam.getForward().normalize();
     const up = right.cross(fwd).normalize();
-    const moving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
-    const bobSpeed = this.isSprinting ? 14 : 9;
-    const bobAmount = moving ? (this.isSprinting ? 0.045 : 0.025) : 0.006;
-    const bobY = Math.sin(this.weaponBobTime * bobSpeed) * bobAmount;
-    const bobX = Math.cos(this.weaponBobTime * bobSpeed * 0.5) * bobAmount * 0.5;
     const recoil = this.weaponRecoil;
     const weapon = this.getCurrentWeapon();
     const offset = weapon.viewOffset;
-    const localX = offset.x + bobX;
-    const localY = offset.y + bobY + recoil * 0.08;
+    const localX = offset.x;
+    const localY = offset.y + recoil * 0.08;
     const localZ = offset.z - recoil * 0.2;
     const pos = new Vec3(
       cam.position.x + right.x * localX + up.x * localY + fwd.x * localZ,
@@ -419,7 +414,6 @@ export class Player {
     if (moving) moveDir = moveDir.normalize();
     this.isSprinting = moving && (this.game.inputManager?.isAnyDown('ShiftLeft', 'ShiftRight') || false);
     const currentSpeed = this.moveSpeed * (this.isSprinting ? this.sprintMultiplier : 1);
-    this.weaponBobTime += delta * (moving ? currentSpeed : 1);
 
     const oldX = this.position.x, oldZ = this.position.z;
     this.position.x += moveDir.x * currentSpeed * delta;

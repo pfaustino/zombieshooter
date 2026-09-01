@@ -16,22 +16,26 @@ export class World {
 
   createGround() {
     const ground = this.game.renderer.addObject('plane',
-      new Vec3(0, 0, 0), new Vec3(400, 1, 400), 0,
+      new Vec3(0, 0, 0), new Vec3(800, 1, 800), 0,
       [0.165, 0.165, 0.23], [0, 0, 0], 1);
     ground.visible = true;
-    this.collidables.push({ name: 'ground', aabb: new AABB(new Vec3(-200, -1, -200), new Vec3(200, 0, 200)) });
+    this.collidables.push({ name: 'ground', aabb: new AABB(new Vec3(-400, -1, -400), new Vec3(400, 0, 400)) });
   }
 
   createRoads() {
     const roads = [
-      { x: 0, z: 0, w: 8, d: 360 },
-      { x: 0, z: 0, w: 360, d: 8 },
-      { x: -40, z: 0, w: 6, d: 240 },
-      { x: 40, z: 0, w: 6, d: 240 },
-      { x: 120, z: 0, w: 8, d: 320 },
-      { x: 0, z: -40, w: 240, d: 6 },
-      { x: 0, z: 40, w: 240, d: 6 },
+      { x: 0, z: 0, w: 8, d: 700 },
+      { x: 0, z: 0, w: 700, d: 8 },
+      { x: -40, z: 0, w: 6, d: 480 },
+      { x: 40, z: 0, w: 6, d: 480 },
+      { x: 120, z: 0, w: 8, d: 640 },
+      { x: -120, z: 0, w: 8, d: 640 },
+      { x: 0, z: -40, w: 480, d: 6 },
+      { x: 0, z: 40, w: 480, d: 6 },
+      { x: 0, z: -160, w: 560, d: 8 },
+      { x: 0, z: 160, w: 560, d: 8 },
       { x: 100, z: 140, w: 120, d: 8 },
+      { x: -100, z: -140, w: 120, d: 8 },
     ];
     for (const r of roads) {
       this.game.renderer.addObject('plane',
@@ -42,7 +46,7 @@ export class World {
 
   async loadCityAssets() {
     try {
-      const r = await fetch('assets/world.json');
+      const r = await fetch('assets/world.json', { cache: 'no-store' });
       const data = await r.json();
       const jobs = [];
       if (data.buildings) jobs.push(...data.buildings.map(b => this.loadModel(b, true)));
