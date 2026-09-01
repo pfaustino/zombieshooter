@@ -21,7 +21,7 @@ export class Enemy {
     this.attackCooldown = 0;
     this.attackRate = 1;
     this.speed = 3;
-    this.chaseSpeed = 5;
+    this.chaseSpeed = 3;
     this.stateTimer = 0;
     this.patrolWaitTime = 2;
     this.floatOffset = 0;
@@ -34,13 +34,13 @@ export class Enemy {
   applyTypeStats() {
     switch (this.type) {
       case Enemy.TYPE.ROBOT:
-        this.health = 150; this.maxHealth = 150; this.damage = 15; this.speed = 2; this.chaseSpeed = 4; break;
+        this.health = 150; this.maxHealth = 150; this.damage = 15; this.speed = 2; this.chaseSpeed = 2.5; break;
       case Enemy.TYPE.GHOST:
-        this.health = 60; this.maxHealth = 60; this.damage = 8; this.speed = 4; this.chaseSpeed = 7; this.detectionRange = 25; break;
+        this.health = 60; this.maxHealth = 60; this.damage = 8; this.speed = 3; this.chaseSpeed = 4; this.detectionRange = 25; break;
       case Enemy.TYPE.ZOMBIE:
-        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = 1.5; this.chaseSpeed = 3; this.attackRate = 1.5; break;
+        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = 1.5; this.chaseSpeed = 2; this.attackRate = 1.5; break;
       case Enemy.TYPE.DEMON:
-        this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = 3.5; this.chaseSpeed = 6; this.attackRate = 0.8; break;
+        this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = 2.5; this.chaseSpeed = 3.5; this.attackRate = 0.8; break;
     }
   }
 
