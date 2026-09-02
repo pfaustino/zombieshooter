@@ -12,6 +12,7 @@ export class World {
   init() {
     this.createGround();
     this.createRoads();
+    this.createCityWalls();
   }
 
   createGround() {
@@ -41,6 +42,41 @@ export class World {
       this.game.renderer.addObject('plane',
         new Vec3(r.x, 0.02, r.z), new Vec3(r.w, 1, r.d), 0,
         [0.2, 0.2, 0.27], [0, 0, 0], 1);
+    }
+  }
+
+  createCityWalls() {
+    const minX = -90;
+    const maxX = 170;
+    const minZ = -130;
+    const maxZ = 155;
+    const height = 14;
+    const thickness = 4;
+    const wallColor = [0.26, 0.26, 0.3];
+    const spanX = maxX - minX;
+    const spanZ = maxZ - minZ;
+
+    this.cityBounds = { minX, maxX, minZ, maxZ };
+
+    const segments = [
+      { x: (minX + maxX) * 0.5, z: maxZ + thickness * 0.5, w: spanX + thickness * 2, d: thickness },
+      { x: (minX + maxX) * 0.5, z: minZ - thickness * 0.5, w: spanX + thickness * 2, d: thickness },
+      { x: maxX + thickness * 0.5, z: (minZ + maxZ) * 0.5, w: thickness, d: spanZ + thickness * 2 },
+      { x: minX - thickness * 0.5, z: (minZ + maxZ) * 0.5, w: thickness, d: spanZ + thickness * 2 },
+    ];
+
+    for (const s of segments) {
+      this.game.renderer.addObject('box',
+        new Vec3(s.x, height * 0.5, s.z),
+        new Vec3(s.w, height, s.d),
+        0, wallColor, [0, 0, 0], 1);
+      this.collidables.push({
+        name: 'city_wall',
+        aabb: new AABB(
+          new Vec3(s.x - s.w * 0.5, 0, s.z - s.d * 0.5),
+          new Vec3(s.x + s.w * 0.5, height, s.z + s.d * 0.5)
+        ),
+      });
     }
   }
 

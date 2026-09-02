@@ -1,6 +1,6 @@
 {
   "name": "zombieshooter",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "private": true,
   "description": "3D zombie shooter (Particle Realms / WebGPU)",
   "scripts": {

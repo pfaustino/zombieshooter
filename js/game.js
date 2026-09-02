@@ -3,7 +3,7 @@ import { Camera } from './camera.js';
 import { Player } from './player.js';
 import { World } from './world.js';
 import { InputManager } from './input-manager.js';
-import { EnemyManager } from './enemy-manager.js';
+import { EnemyManager } from './enemy-manager.js?v=0.1.3';
 import { AudioManager } from './audio-manager.js';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js';
@@ -502,6 +502,7 @@ export class Game {
     if (this.hud) this.hud.classList.add('visible');
     const hudTop = document.getElementById('hud-top');
     if (hudTop && this.settings?.showPosition) hudTop.classList.add('visible');
+    if (this.enemyManager?.updateWaveTimerDisplay) this.enemyManager.updateWaveTimerDisplay();
   }
 
   pause() {

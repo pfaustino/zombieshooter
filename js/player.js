@@ -34,6 +34,7 @@ export class Player {
     this.weaponRecoil = 0;
     this.isReloading = false;
     this.reloadTimer = 0;
+    this.reloadDuration = 0;
     this.footstepTimer = 0;
     this.isInVehicle = false;
     this.vehicle = null;
@@ -51,6 +52,7 @@ export class Player {
     this.muzzleFlashTimer = 0;
     this.healthDisplay = document.getElementById('health');
     this.ammoDisplay = document.getElementById('ammo');
+    this.reloadPrompt = document.getElementById('reload-prompt');
   }
 
   init() {
@@ -108,16 +110,17 @@ export class Player {
     const recoil = this.weaponRecoil;
     const weapon = this.getCurrentWeapon();
     const offset = weapon.viewOffset;
-    const localX = offset.x;
-    const localY = offset.y + recoil * 0.08;
-    const localZ = offset.z - recoil * 0.2;
+    const reloadAnim = this._getReloadAnim(weapon);
+    const localX = offset.x + reloadAnim.offsetX;
+    const localY = offset.y + recoil * 0.08 + reloadAnim.offsetY;
+    const localZ = offset.z - recoil * 0.2 + reloadAnim.offsetZ;
     const pos = new Vec3(
       cam.position.x + right.x * localX + up.x * localY + fwd.x * localZ,
       cam.position.y + right.y * localX + up.y * localY + fwd.y * localZ,
       cam.position.z + right.z * localX + up.z * localY + fwd.z * localZ
     );
     this.weaponObj.position.copy(pos);
-    this.weaponObj.modelMatrix = this._composeCameraWeaponMatrix(pos, right, up, fwd, weapon);
+    this.weaponObj.modelMatrix = this._composeCameraWeaponMatrix(pos, right, up, fwd, weapon, reloadAnim);
     this.game.renderer.updateObjectTransform(this.weaponObj);
 
     if (this.muzzleFlashObj && this.muzzleFlashTimer > 0) {
@@ -131,11 +134,40 @@ export class Player {
     }
   }
 
-  _composeCameraWeaponMatrix(pos, right, up, fwd, weapon) {
+  _getReloadAnim(weapon) {
+    if (!this.isReloading || this.reloadDuration <= 0) {
+      return { pitch: 0, yaw: 0, roll: 0, offsetX: 0, offsetY: 0, offsetZ: 0 };
+    }
+    const progress = 1 - this.reloadTimer / this.reloadDuration;
+    const peak = Math.sin(progress * Math.PI);
+    if (weapon.name === 'Pistol') {
+      return {
+        pitch: peak * 0.65,
+        yaw: peak * 0.08,
+        roll: -peak * 0.18,
+        offsetX: peak * 0.04,
+        offsetY: -peak * 0.16,
+        offsetZ: -peak * 0.12,
+      };
+    }
+    return {
+      pitch: peak * 0.42,
+      yaw: -peak * 0.06,
+      roll: peak * 0.22,
+      offsetX: peak * 0.06,
+      offsetY: -peak * 0.12,
+      offsetZ: -peak * 0.08,
+    };
+  }
+
+  _composeCameraWeaponMatrix(pos, right, up, fwd, weapon, anim = {}) {
     const s = weapon.modelScale;
-    const cy = Math.cos(weapon.localYaw || 0), sy = Math.sin(weapon.localYaw || 0);
-    const cp = Math.cos(weapon.localPitch || 0), sp = Math.sin(weapon.localPitch || 0);
-    const cr = Math.cos(weapon.localRoll || 0), sr = Math.sin(weapon.localRoll || 0);
+    const pitch = (weapon.localPitch || 0) + (anim.pitch || 0);
+    const yaw = (weapon.localYaw || 0) + (anim.yaw || 0);
+    const roll = (weapon.localRoll || 0) + (anim.roll || 0);
+    const cy = Math.cos(yaw), sy = Math.sin(yaw);
+    const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const cr = Math.cos(roll), sr = Math.sin(roll);
     const lx = new Vec3(cy * cr + sy * sp * sr, cp * sr, -sy * cr + cy * sp * sr);
     const ly = new Vec3(-cy * sr + sy * sp * cr, cp * cr, sy * sr + cy * sp * cr);
     const lz = new Vec3(sy * cp, -sp, cy * cp);
@@ -288,7 +320,10 @@ export class Player {
   reloadWeapon() {
     if (this.isReloading || this.ammo === this.maxAmmo) return;
     this.isReloading = true;
-    this.reloadTimer = this.getCurrentWeapon().reloadTime || 1.5;
+    this.reloadDuration = this.getCurrentWeapon().reloadTime || 1.5;
+    this.reloadTimer = this.reloadDuration;
+    if (this.game.audioManager) this.game.audioManager.playReload();
+    this.updateHUD();
   }
 
   shoot() {
@@ -296,6 +331,7 @@ export class Player {
     if (this.ammo <= 0) {
       if (this.game.audioManager) this.game.audioManager.playEmptyGun();
       this.shootCooldown = 0.25;
+      this.updateHUD();
       return;
     }
     this.shootCooldown = this.shootRate;
@@ -368,6 +404,10 @@ export class Player {
   updateHUD() {
     if (this.healthDisplay) this.healthDisplay.textContent = `Health: ${Math.max(0, Math.floor(this.health))}`;
     if (this.ammoDisplay) this.ammoDisplay.textContent = `Ammo: ${this.ammo}/${this.maxAmmo}`;
+    if (this.reloadPrompt) {
+      const show = this.ammo <= 0 && !this.isReloading && !this.isInVehicle;
+      this.reloadPrompt.classList.toggle('visible', show);
+    }
     const moneyDisp = document.getElementById('money');
     if (moneyDisp) moneyDisp.textContent = `Money: $${this.money}`;
     const armorDisp = document.getElementById('armor');
@@ -391,6 +431,8 @@ export class Player {
       this.reloadTimer -= delta;
       if (this.reloadTimer <= 0) {
         this.isReloading = false;
+        this.reloadTimer = 0;
+        this.reloadDuration = 0;
         this.ammo = this.maxAmmo;
         this.updateHUD();
       }
