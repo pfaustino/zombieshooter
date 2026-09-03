@@ -29,15 +29,15 @@ export class Vehicle {
   }
 
   static STATS = {
-    'Car.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 2.5, maxSteer: 0.5, friction: 3, mass: 1200 },
-    'Car-unqqkULtRU.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 2.5, maxSteer: 0.5, friction: 3, mass: 1200 },
-    'SUV.glb': { maxSpeed: 25, acceleration: 12, brakeForce: 22, steerSpeed: 2.0, maxSteer: 0.45, friction: 2.8, mass: 1800 },
-    'Sports Car.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 3.0, maxSteer: 0.55, friction: 3.5, mass: 900 },
-    'Sports Car-Gzj704DXdr.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 3.0, maxSteer: 0.55, friction: 3.5, mass: 900 },
-    'Police Car.glb': { maxSpeed: 35, acceleration: 18, brakeForce: 27, steerSpeed: 2.8, maxSteer: 0.5, friction: 3, mass: 1100 },
-    'Pickup Truck.glb': { maxSpeed: 22, acceleration: 10, brakeForce: 18, steerSpeed: 1.8, maxSteer: 0.4, friction: 2.5, mass: 2500 },
-    'Bus.glb': { maxSpeed: 18, acceleration: 8, brakeForce: 15, steerSpeed: 1.5, maxSteer: 0.35, friction: 2.2, mass: 4000 },
-    'Motorcycle.glb': { maxSpeed: 35, acceleration: 20, brakeForce: 28, steerSpeed: 3.5, maxSteer: 0.6, friction: 3, mass: 200 },
+    'Car.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
+    'Car-unqqkULtRU.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
+    'SUV.glb': { maxSpeed: 25, acceleration: 12, brakeForce: 22, steerSpeed: 3.0, maxSteer: 0.38, friction: 2.8, lateralGrip: 13, mass: 1800 },
+    'Sports Car.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
+    'Sports Car-Gzj704DXdr.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
+    'Police Car.glb': { maxSpeed: 35, acceleration: 18, brakeForce: 27, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1100 },
+    'Pickup Truck.glb': { maxSpeed: 22, acceleration: 10, brakeForce: 18, steerSpeed: 2.5, maxSteer: 0.35, friction: 2.5, lateralGrip: 12, mass: 2500 },
+    'Bus.glb': { maxSpeed: 18, acceleration: 8, brakeForce: 15, steerSpeed: 2.0, maxSteer: 0.3, friction: 2.2, lateralGrip: 11, mass: 4000 },
+    'Motorcycle.glb': { maxSpeed: 35, acceleration: 20, brakeForce: 28, steerSpeed: 4.5, maxSteer: 0.55, friction: 3, lateralGrip: 10, mass: 200 },
   };
 
   _stats() {
@@ -99,11 +99,10 @@ export class Vehicle {
 
     if (sizeX > sizeZ) {
       this.forwardAxis = 0;
-      this.modelYawOffset = Math.PI / 2;
     } else {
       this.forwardAxis = 2;
-      this.modelYawOffset = Math.PI;
     }
+    this.modelYawOffset = 0;
 
     this._modelOffset = new Vec3(
       -modelCenterX * this.modelScale,
@@ -167,7 +166,23 @@ export class Vehicle {
       }
     }
 
+    this._resolveModelYawOffset();
+    this.wheelBase = Math.max(this.length * 0.62, 2.4);
     this._syncParts();
+  }
+
+  _resolveModelYawOffset() {
+    if (this.frontWheels.length === 0) {
+      this.modelYawOffset = 0;
+      return;
+    }
+    let frontSum = 0;
+    let rearSum = 0;
+    for (const w of this.frontWheels) frontSum += this.forwardAxis === 0 ? w.offsetX : w.offsetZ;
+    for (const w of this.rearWheels) rearSum += this.forwardAxis === 0 ? w.offsetX : w.offsetZ;
+    const frontAvg = frontSum / this.frontWheels.length;
+    const rearAvg = this.rearWheels.length ? rearSum / this.rearWheels.length : 0;
+    this.modelYawOffset = frontAvg >= rearAvg ? 0 : Math.PI;
   }
 
   _isWheelNode(name) {
@@ -187,6 +202,7 @@ export class Vehicle {
     this.height = 1.0;
     this.forwardAxis = 2;
     this.modelYawOffset = 0;
+    this.wheelBase = 2.6;
     this._modelOffset = new Vec3(0, 0, 0);
     this._syncParts();
   }
@@ -195,6 +211,7 @@ export class Vehicle {
     if (this.destroyed || !this.loaded) return;
 
     const stats = this._stats();
+    const wheelBase = this.wheelBase || Math.max((this.length || 4.2) * 0.62, 2.4);
 
     if (this.occupied && input) {
       this.throttleInput = 0;
@@ -209,47 +226,44 @@ export class Vehicle {
       this.steerInput = 0;
     }
 
-    const fwd = this._getForward();
-    const right = new Vec3(fwd.z, 0, -fwd.x);
-
-    const vForward = this.velocity.x * fwd.x + this.velocity.z * fwd.z;
-    const vLateral = this.velocity.x * right.x + this.velocity.z * right.z;
-
-    const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.z * this.velocity.z);
-    this.speed = vForward;
-
     const steerTarget = this.steerInput * stats.maxSteer;
     const steerLerp = 1 - Math.exp(-stats.steerSpeed * delta);
     this.steerAngle += (steerTarget - this.steerAngle) * steerLerp;
 
-    let engineForce = 0;
-    if (this.throttleInput > 0) engineForce = this.throttleInput * stats.acceleration;
-    else if (this.throttleInput < 0) {
-      if (vForward > 0.5) engineForce = this.throttleInput * stats.brakeForce;
-      else engineForce = this.throttleInput * stats.acceleration * 0.6;
+    const fwd = this._getForward();
+    const right = new Vec3(fwd.z, 0, -fwd.x);
+    let vForward = this.velocity.x * fwd.x + this.velocity.z * fwd.z;
+    let vLateral = this.velocity.x * right.x + this.velocity.z * right.z;
+
+    let accel = 0;
+    if (this.throttleInput > 0) {
+      accel = this.throttleInput * stats.acceleration;
+    } else if (this.throttleInput < 0) {
+      if (vForward > 0.5) accel = this.throttleInput * stats.brakeForce;
+      else accel = this.throttleInput * stats.acceleration * 0.55;
     }
+    accel -= vForward * stats.friction * 0.35;
+    vForward += accel * delta;
+    vForward = Math.max(-stats.maxSpeed * 0.35, Math.min(stats.maxSpeed, vForward));
+    this.speed = vForward;
 
-    const dragForce = stats.friction * 0.4;
-    const rollResistance = vForward * dragForce;
-    const newVForward = vForward + (engineForce - rollResistance) * delta;
+    const grip = 1 - Math.exp(-(stats.lateralGrip || 14) * delta);
+    vLateral *= 1 - grip;
 
-    const maxSpeed = stats.maxSpeed;
-    const clampedVForward = Math.max(-maxSpeed * 0.5, Math.min(maxSpeed, newVForward));
-
-    const lateralGrip = 50.0;
-    const newVLateral = vLateral * Math.exp(-lateralGrip * delta);
-
-    const turnSpeedFactor = Math.min(Math.abs(clampedVForward) / 5, 1);
-    const angularTorque = this.steerAngle * clampedVForward * turnSpeedFactor * 2.5;
-    const angularDamping = Math.exp(-3.0 * delta);
-    this.angularVelocity = this.angularVelocity * angularDamping + angularTorque * delta;
-
-    this.yaw += this.angularVelocity * delta;
+    const speedAbs = Math.abs(vForward);
+    if (speedAbs > 0.35) {
+      const speedSteerScale = 1 / (1 + speedAbs * 0.045);
+      const steer = this.steerAngle * speedSteerScale;
+      const yawRate = (Math.sign(vForward) * speedAbs * Math.tan(steer)) / wheelBase;
+      this.yaw += yawRate * delta;
+    } else if (this.throttleInput !== 0 && Math.abs(this.steerAngle) > 0.05) {
+      this.yaw += this.steerAngle * 1.4 * this.throttleInput * delta;
+    }
 
     const newFwd = this._getForward();
     const newRight = new Vec3(newFwd.z, 0, -newFwd.x);
-    this.velocity.x = newFwd.x * clampedVForward + newRight.x * newVLateral;
-    this.velocity.z = newFwd.z * clampedVForward + newRight.z * newVLateral;
+    this.velocity.x = newFwd.x * vForward + newRight.x * vLateral;
+    this.velocity.z = newFwd.z * vForward + newRight.z * vLateral;
 
     const oldX = this.position.x, oldZ = this.position.z;
     this.position.x += this.velocity.x * delta;
@@ -258,30 +272,64 @@ export class Vehicle {
     if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
       this.position.x = oldX;
       this.position.z = oldZ;
-      this.velocity.x *= 0.3;
-      this.velocity.z *= 0.3;
-      this.angularVelocity *= 0.3;
+      this.velocity.x *= 0.25;
+      this.velocity.z *= 0.25;
       const impactSpeed = Math.sqrt(this.velocity.x ** 2 + this.velocity.z ** 2);
       if (impactSpeed > 15) this._takeDamage(impactSpeed * 0.5);
     }
 
-    this.wheelSpin += clampedVForward * delta * 2.5;
+    this.wheelSpin += vForward * delta * 2.5;
 
     this._checkRunover();
     this._syncParts();
 
-    if (this.occupied) {
-      const cam = this.game.camera;
-      const camOffset = new Vec3(-newFwd.x * 8, 5, -newFwd.z * 8);
-      cam.position.set(this.position.x + camOffset.x, this.position.y + camOffset.y, this.position.z + camOffset.z);
-      cam.yaw = this.yaw;
-      cam.pitch = -0.2;
-      cam.updateView();
+    if (this.occupied) this._updateVehicleCamera(delta);
+  }
 
-      this.game.player.position.set(this.position.x, this.position.y + 1.0, this.position.z);
-      this.game.player.yaw = this.yaw;
-      this.game.player.pitch = -0.2;
+  _getChaseForward() {
+    const speed = Math.hypot(this.velocity.x, this.velocity.z);
+    if (speed > 1.0) {
+      return new Vec3(this.velocity.x / speed, 0, this.velocity.z / speed);
     }
+    return this._getForward();
+  }
+
+  _updateVehicleCamera(delta) {
+    const cam = this.game.camera;
+    const len = this.length || 4.2;
+    const h = this.height || 1.2;
+    const forward = this._getChaseForward();
+    const followDist = Math.max(len * 1.6, 9);
+    const followHeight = Math.max(h * 2.8, 4.5);
+    const lookAhead = Math.max(len * 0.55, 3);
+
+    const focus = new Vec3(
+      this.position.x + forward.x * lookAhead * 0.35,
+      this.position.y + h * 0.5,
+      this.position.z + forward.z * lookAhead * 0.35
+    );
+    const desiredEye = new Vec3(
+      this.position.x - forward.x * followDist,
+      this.position.y + followHeight,
+      this.position.z - forward.z * followDist
+    );
+    const lookTarget = new Vec3(
+      focus.x + forward.x * lookAhead,
+      focus.y + h * 0.15,
+      focus.z + forward.z * lookAhead
+    );
+
+    if (!this._chaseEye) this._chaseEye = desiredEye.clone();
+    const blend = 1 - Math.exp(-10 * delta);
+    this._chaseEye.x += (desiredEye.x - this._chaseEye.x) * blend;
+    this._chaseEye.y += (desiredEye.y - this._chaseEye.y) * blend;
+    this._chaseEye.z += (desiredEye.z - this._chaseEye.z) * blend;
+
+    cam.setLookAt(this._chaseEye, lookTarget);
+
+    this.game.player.position.set(this.position.x, this.position.y + 1.0, this.position.z);
+    this.game.player.yaw = this.yaw;
+    this.game.player.pitch = cam.pitch;
   }
 
   _getForward() {
@@ -374,10 +422,13 @@ export class Vehicle {
     player.yaw = this.yaw;
     player.pitch = -0.2;
     if (player.weaponObj) player.weaponObj.visible = false;
+    this._chaseEye = null;
+    this._updateVehicleCamera(0);
   }
 
   exit(player) {
     this.occupied = false;
+    this._chaseEye = null;
     player.isInVehicle = false;
     player.vehicle = null;
     const fwd = this._getForward();

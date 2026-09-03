@@ -53,6 +53,7 @@ export class Player {
     this.healthDisplay = document.getElementById('health');
     this.ammoDisplay = document.getElementById('ammo');
     this.reloadPrompt = document.getElementById('reload-prompt');
+    this.vehiclePrompt = document.getElementById('vehicle-prompt');
   }
 
   init() {
@@ -263,7 +264,12 @@ export class Player {
         if (this.isInVehicle) this.exitVehicle();
         else this.reloadWeapon();
         break;
-      case 'KeyF': this.toggleVehicle(); break;
+      case 'KeyF':
+        if (!this.game.isRunning || !this.isLocked) break;
+        event.preventDefault();
+        if (event.repeat) break;
+        this.toggleVehicle();
+        break;
     }
   }
 
@@ -408,6 +414,10 @@ export class Player {
       const show = this.ammo <= 0 && !this.isReloading && !this.isInVehicle;
       this.reloadPrompt.classList.toggle('visible', show);
     }
+    if (this.vehiclePrompt) {
+      const nearVehicle = !this.isInVehicle && this.game.vehicleManager?.getEnterableVehicle(this.position);
+      this.vehiclePrompt.classList.toggle('visible', !!nearVehicle);
+    }
     const moneyDisp = document.getElementById('money');
     if (moneyDisp) moneyDisp.textContent = `Money: $${this.money}`;
     const armorDisp = document.getElementById('armor');
@@ -416,7 +426,11 @@ export class Player {
 
   update(delta) {
     if (!this.isLocked) return;
-    if (this.isInVehicle) { this._updateVehicleMode(delta); return; }
+    if (this.isInVehicle) {
+      this._updateVehicleMode(delta);
+      this.updateHUD();
+      return;
+    }
     const cam = this.game.camera;
 
     if (this.shootCooldown > 0) this.shootCooldown -= delta;
@@ -500,5 +514,6 @@ export class Player {
 
     const posDisplay = document.getElementById('position');
     if (posDisplay) posDisplay.textContent = `Pos: ${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)}, ${this.position.z.toFixed(1)}`;
+    this.updateHUD();
   }
 }

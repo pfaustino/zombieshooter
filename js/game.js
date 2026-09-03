@@ -1,13 +1,13 @@
-import { Renderer } from './renderer.js';
+import { Renderer } from './renderer.js?v=0.1.4';
 import { Camera } from './camera.js';
 import { Player } from './player.js';
 import { World } from './world.js';
 import { InputManager } from './input-manager.js';
-import { EnemyManager } from './enemy-manager.js?v=0.1.3';
-import { AudioManager } from './audio-manager.js';
+import { EnemyManager } from './enemy-manager.js?v=0.1.4';
+import { AudioManager } from './audio-manager.js?v=0.1.4';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js';
-import { VehicleManager } from './vehicle-manager.js';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.4';
 import { loadEngine } from './engine-loader.js';
 
 export class Game {
@@ -69,7 +69,7 @@ export class Game {
 
     this.player.init();
     this.inputManager.init();
-    this.enemyManager.init();
+    await this.enemyManager.init();
     this.audioManager.init();
     this.lootManager.init();
     this.particleSystem.init();
@@ -308,7 +308,12 @@ export class Game {
         const v = parseInt(e.target.value);
         this.settings[key] = v / 100;
         if (valEl) valEl.textContent = v + '%';
-        if (this.audioManager) this.audioManager[amKey] = v / 100;
+        if (this.audioManager) {
+          const am = this.audioManager;
+          if (amKey === 'masterVolume' && am.setMasterVolume) am.setMasterVolume(v / 100);
+          else if (amKey === 'musicVolume' && am.setMusicVolume) am.setMusicVolume(v / 100);
+          else am[amKey] = v / 100;
+        }
         this._showFeedback('Saved');
       });
     };
@@ -436,8 +441,8 @@ export class Game {
       this.camera.updateAspect(this.renderer.aspect);
     }
     if (this.audioManager) {
-      this.audioManager.masterVolume = s.masterVolume;
-      this.audioManager.musicVolume = s.musicVolume;
+      this.audioManager.setMasterVolume?.(s.masterVolume);
+      this.audioManager.setMusicVolume?.(s.musicVolume);
       this.audioManager.sfxVolume = s.sfxVolume;
       this.audioManager.voiceVolume = s.voiceVolume;
     }

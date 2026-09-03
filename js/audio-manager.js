@@ -1,3 +1,11 @@
+const AUDIO_ASSETS = {
+  music: 'assets/melodyayresgriffiths-what-we-lost-tv-movie-game-theme-zombie-virus-apocalypse-143267.mp3',
+  zombieGrowl: [
+    'assets/dragon-studio-zombie-sound-357975.mp3',
+    'assets/dragon-studio-zombie-sound-2-357976.mp3',
+  ],
+};
+
 export class AudioManager {
   constructor(game) {
     this.game = game;
@@ -8,13 +16,18 @@ export class AudioManager {
     this.sfxVolume = 0.7;
     this.musicVolume = 0.3;
     this.voiceVolume = 0.6;
+    this.buffers = {};
+    this._musicSource = null;
+    this._musicGain = null;
+    this._lastZombieVoice = 0;
   }
 
   init() {
     document.addEventListener('click', () => this.initContext(), { once: true });
+    document.addEventListener('keydown', () => this.initContext(), { once: true });
   }
 
-  initContext() {
+  async initContext() {
     if (this.initialized) return;
     try {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -23,8 +36,86 @@ export class AudioManager {
       this.masterGain.connect(this.context.destination);
       this.buffers = {};
       this.initialized = true;
+      await this._loadSamples();
       this.startAmbient();
+      this.startMusic();
     } catch (e) { console.warn('Web Audio API not supported:', e); }
+  }
+
+  async _loadSamples() {
+    const loadOne = async (key, url) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`${res.status} ${url}`);
+        const data = await res.arrayBuffer();
+        this.buffers[key] = await this.context.decodeAudioData(data.slice(0));
+      } catch (err) {
+        console.warn(`Failed to load audio ${url}:`, err);
+      }
+    };
+    await loadOne('music', AUDIO_ASSETS.music);
+    for (let i = 0; i < AUDIO_ASSETS.zombieGrowl.length; i++) {
+      await loadOne(`zombie${i}`, AUDIO_ASSETS.zombieGrowl[i]);
+    }
+  }
+
+  _playBuffer(buffer, { volume = 1, loop = false, rate = 1, destination = null } = {}) {
+    if (!this.initialized || !buffer) return null;
+    if (this.context.state === 'suspended') this.context.resume();
+    const source = this.context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = loop;
+    source.playbackRate.value = rate;
+    const gain = this.context.createGain();
+    gain.gain.value = volume;
+    source.connect(gain);
+    gain.connect(destination || this.masterGain);
+    source.start(0);
+    return { source, gain };
+  }
+
+  startMusic() {
+    if (!this.initialized || !this.buffers.music || this._musicSource) return;
+    this._musicGain = this.context.createGain();
+    this._musicGain.gain.value = 0;
+    this._musicGain.connect(this.masterGain);
+    const played = this._playBuffer(this.buffers.music, {
+      volume: 1,
+      loop: true,
+      destination: this._musicGain,
+    });
+    if (!played) return;
+    this._musicSource = played.source;
+    const now = this.context.currentTime;
+    this._musicGain.gain.linearRampToValueAtTime(0.55 * this.musicVolume, now + 2.5);
+  }
+
+  stopMusic() {
+    if (this._musicGain && this.context) {
+      const now = this.context.currentTime;
+      this._musicGain.gain.linearRampToValueAtTime(0, now + 1.5);
+    }
+    if (this._musicSource) {
+      const src = this._musicSource;
+      setTimeout(() => { try { src.stop(); } catch (_) {} }, 1600);
+      this._musicSource = null;
+    }
+  }
+
+  _playZombieVoice({ volume = 0.55, minGap = 0.35 } = {}) {
+    if (!this.initialized) return false;
+    const nowMs = performance.now();
+    if (nowMs - this._lastZombieVoice < minGap * 1000) return false;
+    const clips = [this.buffers.zombie0, this.buffers.zombie1].filter(Boolean);
+    if (clips.length === 0) return false;
+    this._lastZombieVoice = nowMs;
+    const buffer = clips[Math.floor(Math.random() * clips.length)];
+    const rate = 0.92 + Math.random() * 0.16;
+    this._playBuffer(buffer, {
+      volume: volume * this.sfxVolume * this.voiceVolume,
+      rate,
+    });
+    return true;
   }
 
   playProceduralGunshot() {
@@ -69,6 +160,7 @@ export class AudioManager {
 
   playEnemyHit() {
     if (!this.initialized) return;
+    if (this._playZombieVoice({ volume: 0.28, minGap: 0.12 })) return;
     const now = this.context.currentTime;
     const osc = this.context.createOscillator();
     osc.type = 'sawtooth';
@@ -85,6 +177,7 @@ export class AudioManager {
 
   playEnemyDeath() {
     if (!this.initialized) return;
+    if (this._playZombieVoice({ volume: 0.7, minGap: 0.05 })) return;
     const now = this.context.currentTime;
     const osc = this.context.createOscillator();
     osc.type = 'sawtooth';
@@ -120,6 +213,7 @@ export class AudioManager {
 
   playEnemyAttack(type) {
     if (!this.initialized) return;
+    if (this._playZombieVoice({ volume: 0.65, minGap: 0.45 })) return;
     const now = this.context.currentTime;
     const osc = this.context.createOscillator();
     osc.type = 'sawtooth';
@@ -218,13 +312,15 @@ export class AudioManager {
 
   startAmbient() {
     if (!this.initialized) return;
+    // Keep a quiet procedural bed under the music track.
+    const bedLevel = this.buffers.music ? 0.03 : 0.08;
     const ctx = this.context;
     const now = ctx.currentTime;
 
     this.ambientNodes = [];
     this.ambientGain = ctx.createGain();
     this.ambientGain.gain.value = 0;
-    this.ambientGain.gain.linearRampToValueAtTime(0.08 * this.musicVolume, now + 4);
+    this.ambientGain.gain.linearRampToValueAtTime(bedLevel * this.musicVolume, now + 4);
 
     const reverb = this._createReverb(4, 2.5);
     const reverbGain = ctx.createGain();
@@ -395,16 +491,21 @@ export class AudioManager {
     if (this.ambientNodes) {
       const nodes = this.ambientNodes;
       setTimeout(() => {
-        nodes.forEach(n => { try { n.stop(); } catch(e) {} });
+        nodes.forEach(n => { try { n.stop(); } catch (e) {} });
       }, 2500);
     }
     this.ambientNodes = null;
+    this.stopMusic();
   }
 
   setMusicVolume(volume) {
     this.musicVolume = Math.max(0, Math.min(1, volume));
     if (this.ambientGain) {
-      this.ambientGain.gain.value = 0.08 * this.musicVolume;
+      const bedLevel = this.buffers.music ? 0.03 : 0.08;
+      this.ambientGain.gain.value = bedLevel * this.musicVolume;
+    }
+    if (this._musicGain) {
+      this._musicGain.gain.value = 0.55 * this.musicVolume;
     }
   }
 

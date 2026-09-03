@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Enemy } from './enemy.js';
+import { Enemy } from './enemy.js?v=0.1.4';
 
 export class EnemyManager {
   constructor(game) {
@@ -34,7 +34,12 @@ export class EnemyManager {
     if (!this.notificationDisplay) this.notificationDisplay = document.getElementById('notification');
   }
 
-  init() { this.startWave(); }
+  init() { return this._init(); }
+
+  async _init() {
+    await Enemy.preloadAssets(this.game);
+    this.startWave();
+  }
 
   startWave() {
     this.waveInProgress = true;
@@ -89,7 +94,7 @@ export class EnemyManager {
     if (!position) return;
 
     position.y = this.game.world.getGroundHeight(position.x, position.z);
-    const enemy = new Enemy(this.game, position);
+    const enemy = new Enemy(this.game, position, Enemy.TYPE.ZOMBIE);
     enemy.init();
     this.enemies.push(enemy);
     if (!reinforcement) this.waveEnemiesSpawned++;

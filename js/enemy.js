@@ -1,8 +1,63 @@
 import { Vec3, AABB } from './math.js';
+import { loadGLBGeometry, loadGLBSkinned } from './gltf-loader.js?v=0.1.4';
+import { AnimPlayer } from './anim-player.js?v=0.1.4';
+
+const ZOMBIE_GLB_ANIM = 'assets/pixellabs-zombie-3403-a.glb';
+const ZOMBIE_GLB_STATIC = 'assets/pixellabs-zombie-3403.glb';
 
 export class Enemy {
   static STATE = { IDLE: 'idle', PATROL: 'patrol', CHASE: 'chase', ATTACK: 'attack', DEAD: 'dead', RAGDOLL: 'ragdoll', DYING: 'dying' };
   static TYPE = { ROBOT: 'robot', GHOST: 'ghost', ZOMBIE: 'zombie', DEMON: 'demon' };
+
+  static zombieGeo = null;
+  static zombieSkinned = null;
+  static zombieScale = 2.6;
+  static zombieYOffset = 0.85;
+  static zombieYawOffset = 0;
+
+  static async preloadAssets(game) {
+    if (Enemy.zombieGeo || Enemy.zombieSkinned) return;
+    const animUrls = [ZOMBIE_GLB_ANIM, `3dfps-main/${ZOMBIE_GLB_ANIM}`];
+    for (const url of animUrls) {
+      try {
+        const skinned = await loadGLBSkinned(url);
+        Enemy.zombieScale = 1.75 / skinned.bounds.height;
+        Enemy.zombieYOffset = -skinned.bounds.minY * Enemy.zombieScale;
+        Enemy.zombieYawOffset = 0;
+        const name = 'enemy:zombie-skinned';
+        game.renderer.registerSkinnedGeometry(name, skinned);
+        Enemy.zombieGeo = name;
+        Enemy.zombieSkinned = skinned;
+        return;
+      } catch (error) {
+        console.warn(`Failed to load animated zombie from ${url}:`, error);
+      }
+    }
+
+    const staticUrls = [ZOMBIE_GLB_STATIC, `3dfps-main/${ZOMBIE_GLB_STATIC}`];
+    for (const url of staticUrls) {
+      try {
+        const geometry = await loadGLBGeometry(url);
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (let i = 1; i < geometry.positions.length; i += 3) {
+          minY = Math.min(minY, geometry.positions[i]);
+          maxY = Math.max(maxY, geometry.positions[i]);
+        }
+        const height = Math.max(maxY - minY, 0.01);
+        Enemy.zombieScale = 1.75 / height;
+        Enemy.zombieYOffset = -minY * Enemy.zombieScale;
+        Enemy.zombieYawOffset = 0;
+        const name = 'enemy:zombie';
+        game.renderer.registerGeometry(name, geometry);
+        Enemy.zombieGeo = name;
+        return;
+      } catch (error) {
+        console.warn(`Failed to load zombie model from ${url}:`, error);
+      }
+    }
+    console.warn('Zombie GLB unavailable — using primitive fallback');
+  }
 
   constructor(game, position, type = null) {
     this.game = game;
@@ -26,6 +81,8 @@ export class Enemy {
     this.stateTimer = 0;
     this.patrolWaitTime = 2;
     this.floatOffset = 0;
+    this.facingYaw = 0;
+    this.anim = null;
     this.parts = [];
     this.healthBar = null;
     this.healthBarBg = null;
@@ -51,6 +108,8 @@ export class Enemy {
     this.createMesh();
     this.createHealthBar();
     this.pickNewPatrolTarget();
+    const player = this.getPlayerPosition();
+    this._faceToward(player.x, player.z);
   }
 
   _addPart(geoName, pos, scale, color, emissive = [0, 0, 0]) {
@@ -92,6 +151,37 @@ export class Enemy {
   }
 
   _createZombie() {
+    if (Enemy.zombieGeo && Enemy.zombieSkinned) {
+      const s = Enemy.zombieScale;
+      const y = Enemy.zombieYOffset;
+      const obj = this.game.renderer.addSkinnedObject(Enemy.zombieGeo,
+        new Vec3(this.position.x, this.position.y + y, this.position.z),
+        new Vec3(s, s, s), 0, [1, 1, 1], [0, 0, 0], 1);
+      this.anim = new AnimPlayer(Enemy.zombieSkinned);
+      this.anim.time = Math.random() * 0.5;
+      this.game.renderer.updateSkinnedJoints(obj, this.anim.jointMatrices);
+      this.parts.push({
+        obj, offsetX: 0, offsetY: y, offsetZ: 0, baseColor: [1, 1, 1],
+        meshPart: true, yawOffset: Enemy.zombieYawOffset, skinned: true,
+      });
+      return;
+    }
+    if (Enemy.zombieGeo) {
+      const s = Enemy.zombieScale;
+      const y = Enemy.zombieYOffset;
+      const obj = this.game.renderer.addObject(Enemy.zombieGeo,
+        new Vec3(this.position.x, this.position.y + y, this.position.z),
+        new Vec3(s, s, s), 0, [1, 1, 1], [0, 0, 0], 1);
+      this.parts.push({
+        obj, offsetX: 0, offsetY: y, offsetZ: 0, baseColor: [1, 1, 1],
+        meshPart: true, yawOffset: Enemy.zombieYawOffset,
+      });
+      return;
+    }
+    this._createZombiePrimitive();
+  }
+
+  _createZombiePrimitive() {
     this._addPart('cylinder', { x: 0, y: 0.85, z: 0 }, { x: 0.35, y: 1.1, z: 0.4 }, [0.33, 0.42, 0.18]);
     this._addPart('sphere', { x: 0.05, y: 1.55, z: 0 }, { x: 0.28, y: 0.25, z: 0.28 }, [0.55, 0.6, 0.42]);
     this._addPart('sphere', { x: -0.08, y: 1.58, z: 0.22 }, 0.05, [0.8, 1.0, 0], [0.4, 0.5, 0]);
@@ -116,12 +206,14 @@ export class Enemy {
   }
 
   createHealthBar() {
+    const barY = (this.type === Enemy.TYPE.ZOMBIE && Enemy.zombieGeo) ? 2.05 : 2.2;
     this.healthBarBg = this.game.renderer.addBillboard(
-      new Vec3(this.position.x, this.position.y + 2.2, this.position.z),
+      new Vec3(this.position.x, this.position.y + barY, this.position.z),
       new Vec3(1, 0.1), [0.2, 0.2, 0.2], 0);
     this.healthBar = this.game.renderer.addBillboard(
-      new Vec3(this.position.x, this.position.y + 2.2, this.position.z),
+      new Vec3(this.position.x, this.position.y + barY, this.position.z),
       new Vec3(0.96, 0.06), [0.27, 1, 0.27], 0.001);
+    this.healthBarOffset = barY;
   }
 
   pickNewPatrolTarget() {
@@ -146,7 +238,19 @@ export class Enemy {
   update(delta) {
     if (this.state === Enemy.STATE.DEAD) return;
     if (this.state === Enemy.STATE.RAGDOLL) { this._updateRagdoll(delta); return; }
-    if (this.state === Enemy.STATE.DYING) { this._updateDying(delta); return; }
+    if (this.state === Enemy.STATE.DYING) {
+      if (this.anim) {
+        this._updateAnim(delta);
+        this._syncParts();
+        if (this.anim.finished) {
+          this.dispose();
+          this.state = Enemy.STATE.DEAD;
+        }
+      } else {
+        this._updateDying(delta);
+      }
+      return;
+    }
     if (this.attackCooldown > 0) this.attackCooldown -= delta;
 
     switch (this.state) {
@@ -156,13 +260,10 @@ export class Enemy {
       case Enemy.STATE.ATTACK: this._updateAttack(delta); break;
     }
 
-    if (this.type === Enemy.TYPE.GHOST) {
-      const time = performance.now() * 0.001;
-      this.position.y = 0.3 + Math.sin(time * 2 + this.floatOffset) * 0.3;
-    } else {
-      this.position.y = 0;
+    if (this.state === Enemy.STATE.CHASE || this.state === Enemy.STATE.ATTACK || this.canSeePlayer()) {
+      const player = this.getPlayerPosition();
+      this._faceToward(player.x, player.z);
     }
-    this._syncParts();
 
     if (this.state !== Enemy.STATE.DEAD && this.state !== Enemy.STATE.ATTACK) {
       if (this.canSeePlayer()) {
@@ -180,12 +281,52 @@ export class Enemy {
       }
     }
 
+    if (this.type === Enemy.TYPE.GHOST) {
+      const time = performance.now() * 0.001;
+      this.position.y = 0.3 + Math.sin(time * 2 + this.floatOffset) * 0.3;
+    } else {
+      this.position.y = 0;
+    }
+
+    if (this.anim) this._updateAnim(delta);
+    this._syncParts();
+
     this._updateHealthBar();
+  }
+
+  _updateAnim(delta) {
+    let clip = 'idle';
+    let loop = true;
+    if (this.state === Enemy.STATE.PATROL) clip = 'walk';
+    else if (this.state === Enemy.STATE.CHASE) clip = 'chase';
+    else if (this.state === Enemy.STATE.ATTACK) clip = 'attack';
+    else if (this.state === Enemy.STATE.DYING) {
+      clip = 'death';
+      loop = false;
+    }
+    this.anim.play(clip, { loop, reset: this.anim.clipName !== clip });
+    this.anim.update(delta);
+    for (const p of this.parts) {
+      if (p.skinned) this.game.renderer.updateSkinnedJoints(p.obj, this.anim.jointMatrices);
+    }
+  }
+
+  _faceToward(x, z) {
+    const dx = x - this.position.x;
+    const dz = z - this.position.z;
+    if (dx * dx + dz * dz > 1e-6) this.facingYaw = Math.atan2(dx, dz);
   }
 
   _syncParts() {
     for (const p of this.parts) {
       p.obj.position.set(this.position.x + p.offsetX, this.position.y + p.offsetY, this.position.z + p.offsetZ);
+      if (p.meshPart) {
+        p.obj.rotationY = this.facingYaw + (p.yawOffset || 0);
+        if (!p.skinned) {
+          p.obj.rotationX = 0;
+          p.obj.rotationZ = 0;
+        }
+      }
       this.game.renderer.updateObjectTransform(p.obj);
     }
   }
@@ -199,6 +340,7 @@ export class Enemy {
     if (!this.targetPosition) { this.pickNewPatrolTarget(); return; }
     const dist = this.position.distanceTo(this.targetPosition);
     if (dist < 0.5) { this.state = Enemy.STATE.IDLE; this.stateTimer = this.patrolWaitTime; return; }
+    this._faceToward(this.targetPosition.x, this.targetPosition.z);
     this._moveToward(this.targetPosition, this.speed, delta);
   }
 
@@ -208,10 +350,14 @@ export class Enemy {
     // Keep chase locked to 75% of current player walk speed
     const walk = this.game.player?.moveSpeed ?? 14;
     this.chaseSpeed = walk * (this.chaseSpeedRatio ?? 0.75);
-    this._moveToward(this.getPlayerPosition(), this.chaseSpeed, delta);
+    const player = this.getPlayerPosition();
+    this._faceToward(player.x, player.z);
+    this._moveToward(player, this.chaseSpeed, delta);
   }
 
   _updateAttack(delta) {
+    const player = this.getPlayerPosition();
+    this._faceToward(player.x, player.z);
     const dist = this.distanceToPlayer();
     if (dist > this.attackRange * 1.5) { this.state = Enemy.STATE.CHASE; return; }
     if (this.attackCooldown <= 0) { this._attack(); this.attackCooldown = this.attackRate; }
@@ -224,6 +370,7 @@ export class Enemy {
     if (len < 1e-6) return;
     const nx = dir.x / len;
     const nz = dir.z / len;
+    this.facingYaw = Math.atan2(nx, nz);
     const r = this.getCollisionRadius();
     const step = speed * delta;
     const newX = this.position.x + nx * step;
@@ -362,11 +509,12 @@ export class Enemy {
   _updateHealthBar() {
     const pct = Math.max(0, this.health / this.maxHealth);
     const color = pct > 0.5 ? [0.27, 1, 0.27] : pct > 0.25 ? [1, 1, 0.27] : [1, 0.27, 0.27];
+    const barY = this.healthBarOffset || 2.2;
     this.game.renderer.updateBillboard(this.healthBar,
-      new Vec3(this.position.x, this.position.y + 2.2, this.position.z),
+      new Vec3(this.position.x, this.position.y + barY, this.position.z),
       new Vec3(0.96 * pct, 0.06), color, 0.001);
     this.game.renderer.updateBillboard(this.healthBarBg,
-      new Vec3(this.position.x, this.position.y + 2.2, this.position.z),
+      new Vec3(this.position.x, this.position.y + barY, this.position.z),
       new Vec3(1, 0.1), [0.2, 0.2, 0.2], 0);
   }
 
@@ -394,7 +542,12 @@ export class Enemy {
       else if (rand < 0.8) this.game.lootManager.spawnLoot(this.position, 'coin');
     }
 
-    // Zombies get a topple death; others keep a short shrink/fade
+    // Animated zombies play death clip; static zombies topple; others shrink/fade
+    if (this.type === Enemy.TYPE.ZOMBIE && this.anim) {
+      this.state = Enemy.STATE.DYING;
+      this.anim.play('death', { loop: false, reset: true });
+      return;
+    }
     if (this.type === Enemy.TYPE.ZOMBIE) {
       this.state = Enemy.STATE.DYING;
       this.deathTime = 0;
@@ -403,7 +556,6 @@ export class Enemy {
       const toPlayer = Vec3.sub(this.getPlayerPosition(), this.position);
       toPlayer.y = 0;
       const len = toPlayer.length() || 1;
-      // Tip sideways and get knocked slightly away from the player
       this.deathKnock = new Vec3(-(toPlayer.x / len) * 1.2, 0, -(toPlayer.z / len) * 1.2);
       return;
     }
@@ -450,6 +602,7 @@ export class Enemy {
         Math.max(0.05, this.position.y + ry - sink),
         this.position.z + oz + this.deathKnock.z * knock
       );
+      if (p.meshPart) p.obj.rotationY = this.facingYaw + (p.yawOffset || 0);
       p.obj.rotationZ = angle;
       p.obj.opacity = Math.max(0, fade);
       this.game.renderer.updateObjectTransform(p.obj);
@@ -481,7 +634,7 @@ export class Enemy {
     switch (this.type) {
       case Enemy.TYPE.ROBOT: return { w: 0.9, h: 2.0, d: 0.6 };
       case Enemy.TYPE.GHOST: return { w: 0.6, h: 1.8, d: 0.5 };
-      case Enemy.TYPE.ZOMBIE: return { w: 0.7, h: 1.8, d: 0.5 };
+      case Enemy.TYPE.ZOMBIE: return { w: 0.65, h: 1.75, d: 0.55 };
       case Enemy.TYPE.DEMON: return { w: 0.7, h: 2.1, d: 0.6 };
       default: return { w: 0.7, h: 1.8, d: 0.5 };
     }

@@ -388,6 +388,22 @@
       color: #ffaa00; font-family: 'Orbitron', sans-serif; font-size: 0.9em; font-weight: 700;
     }
 
+    #vehicle-prompt {
+      position: fixed; top: calc(50% + 70px); left: 50%; transform: translateX(-50%);
+      font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1.1em;
+      color: #88ccff; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.55); padding: 8px 18px; border-radius: 6px;
+      border: 1px solid rgba(136, 204, 255, 0.35); backdrop-filter: blur(4px);
+      z-index: 50; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+      letter-spacing: 1px;
+    }
+    #vehicle-prompt.visible { opacity: 1; }
+    #vehicle-prompt .key {
+      display: inline-block; padding: 2px 8px; border-radius: 4px; margin: 0 4px;
+      background: rgba(136, 204, 255, 0.15); border: 1px solid rgba(136, 204, 255, 0.4);
+      color: #88ccff; font-family: 'Orbitron', sans-serif; font-size: 0.9em; font-weight: 700;
+    }
+
     /* HUD top-right stats */
     #hud-top {
       position: fixed; top: 15px; right: 15px;
@@ -494,6 +510,7 @@
 
   <div id="notification"></div>
   <div id="reload-prompt">Press <span class="key">R</span> to reload</div>
+  <div id="vehicle-prompt">Press <span class="key">F</span> to ride car</div>
 
   <div id="blocker">
     <!-- ===== Main Menu ===== -->
@@ -800,7 +817,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/crikket-capture.js?v=0.1.3"></script>
-  <script type="module" src="js/main.js?v=0.1.3"></script>
+  <script type="module" src="js/crikket-capture.js?v=0.1.4"></script>
+  <script type="module" src="js/main.js?v=0.1.4"></script>
 </body>
 </html>

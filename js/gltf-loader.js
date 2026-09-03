@@ -337,3 +337,149 @@ function mergeMeshes(meshes) {
   }
   return { positions, normals, colors, indices };
 }
+
+/** Prefer baseColor texture over solid COLOR_0 (PixelLab often embeds white COLOR_0). */
+function resolveSkinnedColors(json, bin, primitive, vertexCount, images) {
+  const factor = materialColor(json, primitive.material);
+  const material = primitive.material !== undefined ? json.materials?.[primitive.material] : null;
+  const texInfo = material?.pbrMetallicRoughness?.baseColorTexture;
+  const uvAttr = primitive.attributes?.TEXCOORD_0;
+  if (texInfo && uvAttr !== undefined && images) {
+    const texture = json.textures?.[texInfo.index];
+    const image = texture?.source !== undefined ? images.get(texture.source) : null;
+    if (image) {
+      const uvs = readAccessor(json, bin, uvAttr);
+      const colors = new Float32Array(vertexCount * 3);
+      for (let i = 0; i < vertexCount; i++) {
+        const sampled = sampleImage(image, uvs[i * 2], uvs[i * 2 + 1]);
+        colors[i * 3] = sampled[0] * factor[0];
+        colors[i * 3 + 1] = sampled[1] * factor[1];
+        colors[i * 3 + 2] = sampled[2] * factor[2];
+      }
+      return colors;
+    }
+  }
+  return resolvePrimitiveColors(json, bin, primitive, vertexCount, images);
+}
+
+function readJointsAccessor(json, bin, accessorIndex) {
+  const accessor = json.accessors[accessorIndex];
+  const view = json.bufferViews[accessor.bufferView];
+  const componentBytes = COMPONENT_BYTES[accessor.componentType];
+  const components = TYPE_COUNTS[accessor.type];
+  const stride = view.byteStride || componentBytes * components;
+  const byteOffset = (view.byteOffset || 0) + (accessor.byteOffset || 0);
+  const out = new Uint16Array(accessor.count * components);
+  const data = new DataView(bin);
+  for (let i = 0; i < accessor.count; i++) {
+    for (let c = 0; c < components; c++) {
+      const off = byteOffset + i * stride + c * componentBytes;
+      out[i * components + c] = readComponent(data, off, accessor.componentType, accessor.normalized);
+    }
+  }
+  return out;
+}
+
+/**
+ * Load a skinned GLB with skeleton + animation clips.
+ * Mesh positions stay in bind/local space (not baked by node transforms).
+ */
+export async function loadGLBSkinned(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+  const buffer = await res.arrayBuffer();
+  const { json, bin } = parseGLB(buffer);
+  if (!json.skins?.length) throw new Error(`No skins in ${url}`);
+
+  const images = await loadEmbeddedImages(json, bin);
+  const skin = json.skins[0];
+  const jointNodeIndices = skin.joints;
+  const inverseBindMatrices = readAccessor(json, bin, skin.inverseBindMatrices);
+
+  const nodes = (json.nodes || []).map((node) => ({
+    name: node.name || null,
+    translation: node.translation ? [...node.translation] : [0, 0, 0],
+    rotation: node.rotation ? [...node.rotation] : [0, 0, 0, 1],
+    scale: node.scale ? [...node.scale] : [1, 1, 1],
+    children: node.children ? [...node.children] : [],
+    matrix: node.matrix ? new Float32Array(node.matrix) : null,
+  }));
+
+  let meshNodeIndex = -1;
+  let primitive = null;
+  for (let i = 0; i < (json.nodes || []).length; i++) {
+    const node = json.nodes[i];
+    if (node.skin === undefined || node.mesh === undefined) continue;
+    const mesh = json.meshes[node.mesh];
+    for (const prim of mesh.primitives || []) {
+      if (prim.mode !== undefined && prim.mode !== 4) continue;
+      if (prim.attributes?.POSITION === undefined) continue;
+      if (prim.attributes?.JOINTS_0 === undefined || prim.attributes?.WEIGHTS_0 === undefined) continue;
+      meshNodeIndex = i;
+      primitive = prim;
+      break;
+    }
+    if (primitive) break;
+  }
+  if (!primitive) throw new Error(`No skinned mesh primitive in ${url}`);
+
+  const positions = readAccessor(json, bin, primitive.attributes.POSITION);
+  const normals = primitive.attributes.NORMAL !== undefined
+    ? readAccessor(json, bin, primitive.attributes.NORMAL)
+    : makeDefaultNormals(positions.length / 3);
+  const joints = readJointsAccessor(json, bin, primitive.attributes.JOINTS_0);
+  const weights = readAccessor(json, bin, primitive.attributes.WEIGHTS_0);
+  const indices = primitive.indices !== undefined
+    ? readAccessor(json, bin, primitive.indices)
+    : makeSequentialIndices(positions.length / 3);
+  const colors = resolveSkinnedColors(json, bin, primitive, positions.length / 3, images);
+
+  const indexArray = indices instanceof Float32Array
+    ? Uint32Array.from(indices)
+    : (positions.length / 3 > 65535
+      ? (indices instanceof Uint32Array ? indices : Uint32Array.from(indices))
+      : (indices instanceof Uint16Array ? indices : Uint16Array.from(indices)));
+
+  const animations = {};
+  for (const anim of json.animations || []) {
+    const name = anim.name || `anim_${Object.keys(animations).length}`;
+    let duration = 0;
+    const channels = [];
+    for (const ch of anim.channels || []) {
+      const sampler = anim.samplers[ch.sampler];
+      if (!sampler || ch.target?.node === undefined || !ch.target.path) continue;
+      const times = readAccessor(json, bin, sampler.input);
+      const values = readAccessor(json, bin, sampler.output);
+      duration = Math.max(duration, times[times.length - 1] || 0);
+      channels.push({
+        node: ch.target.node,
+        path: ch.target.path,
+        interpolation: sampler.interpolation || 'LINEAR',
+        times,
+        values,
+      });
+    }
+    animations[name] = { name, duration, channels };
+  }
+
+  let minY = Infinity, maxY = -Infinity;
+  for (let i = 1; i < positions.length; i += 3) {
+    minY = Math.min(minY, positions[i]);
+    maxY = Math.max(maxY, positions[i]);
+  }
+
+  return {
+    positions,
+    normals,
+    colors,
+    joints,
+    weights,
+    indices: indexArray,
+    inverseBindMatrices,
+    jointNodeIndices,
+    nodes,
+    meshNodeIndex,
+    animations,
+    bounds: { minY, maxY, height: Math.max(maxY - minY, 0.01) },
+  };
+}

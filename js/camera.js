@@ -38,6 +38,17 @@ export class Camera {
     this.view = Mat4.lookAt(this.position, target, up);
   }
 
+  setLookAt(eye, target, up = new Vec3(0, 1, 0)) {
+    this.position.copy(eye);
+    this.view = Mat4.lookAt(eye, target, up);
+    const dx = target.x - eye.x;
+    const dy = target.y - eye.y;
+    const dz = target.z - eye.z;
+    const horiz = Math.sqrt(dx * dx + dz * dz);
+    this.yaw = Math.atan2(dx, dz);
+    this.pitch = Math.atan2(dy, Math.max(horiz, 1e-6));
+  }
+
   getForward() {
     return new Vec3(
       Math.cos(this.pitch) * Math.sin(this.yaw),

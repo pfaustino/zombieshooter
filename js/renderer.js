@@ -85,6 +85,103 @@ fn fs(input : VSOut) -> @location(0) vec4f {
 }
 `;
 
+const WGSL_SKINNED = `
+struct Uniforms {
+  viewProj : mat4x4f,
+  camPos : vec3f,
+  time : f32,
+  ambientColor : vec3f,
+  ambientIntensity : f32,
+  dirLightDir : vec3f,
+  dirLightIntensity : f32,
+  dirLightColor : vec3f,
+  fogNear : f32,
+  fogColor : vec3f,
+  fogFar : f32,
+  pointLightPos : vec3f,
+  pointLightIntensity : f32,
+  pointLightColor : vec3f,
+  pointLightRange : f32,
+};
+@group(0) @binding(0) var<uniform> u : Uniforms;
+
+struct ModelUniforms {
+  model : mat4x4f,
+  color : vec3f,
+  emissive : vec3f,
+  opacity : f32,
+  flags : f32,
+};
+@group(1) @binding(0) var<uniform> mu : ModelUniforms;
+
+struct JointUniforms {
+  joints : array<mat4x4f, 32>,
+};
+@group(1) @binding(1) var<uniform> ju : JointUniforms;
+
+struct VSIn {
+  @location(0) pos : vec3f,
+  @location(1) normal : vec3f,
+  @location(2) color : vec3f,
+  @location(3) jointIds : vec4u,
+  @location(4) weights : vec4f,
+};
+struct VSOut {
+  @builtin(position) clipPos : vec4f,
+  @location(0) worldPos : vec3f,
+  @location(1) worldNormal : vec3f,
+  @location(2) color : vec3f,
+};
+
+@vertex
+fn vs(input : VSIn) -> VSOut {
+  var out : VSOut;
+  let skin =
+    ju.joints[input.jointIds.x] * input.weights.x +
+    ju.joints[input.jointIds.y] * input.weights.y +
+    ju.joints[input.jointIds.z] * input.weights.z +
+    ju.joints[input.jointIds.w] * input.weights.w;
+  let localPos = skin * vec4f(input.pos, 1.0);
+  let worldPos = mu.model * localPos;
+  out.clipPos = u.viewProj * worldPos;
+  out.worldPos = worldPos.xyz;
+  let skinN = mat3x3f(skin[0].xyz, skin[1].xyz, skin[2].xyz);
+  let modelN = mat3x3f(mu.model[0].xyz, mu.model[1].xyz, mu.model[2].xyz);
+  out.worldNormal = normalize(modelN * skinN * input.normal);
+  out.color = input.color;
+  return out;
+}
+
+@fragment
+fn fs(input : VSOut) -> @location(0) vec4f {
+  let N = normalize(input.worldNormal);
+  let L = normalize(-u.dirLightDir);
+  let diffuse = max(dot(N, L), 0.0) * u.dirLightColor * u.dirLightIntensity;
+  let ambient = u.ambientColor * u.ambientIntensity;
+  
+  var pointLight = vec3f(0.0);
+  let toLight = u.pointLightPos - input.worldPos;
+  let dist = length(toLight);
+  if (dist < u.pointLightRange) {
+    let PL = normalize(toLight);
+    let atten = 1.0 - (dist / u.pointLightRange);
+    pointLight = max(dot(N, PL), 0.0) * u.pointLightColor * u.pointLightIntensity * atten * atten;
+  }
+  
+  let V = normalize(u.camPos - input.worldPos);
+  let H = normalize(L + V);
+  let specular = pow(max(dot(N, H), 0.0), 32.0) * u.dirLightColor * u.dirLightIntensity * 0.3;
+  
+  var color = (mu.color * input.color) * (ambient + diffuse + pointLight) + mu.emissive + specular;
+  
+  let distToCam = length(u.camPos - input.worldPos);
+  let fogFactor = clamp((distToCam - u.fogNear) / (u.fogFar - u.fogNear), 0.0, 1.0);
+  color = mix(color, u.fogColor, fogFactor);
+  
+  return vec4f(color, mu.opacity);
+}
+`;
+
 const WGSL_BILLBOARD = `
 struct Uniforms {
   viewProj : mat4x4f,
@@ -285,8 +382,10 @@ export class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.objects = [];
+    this.skinnedObjects = [];
     this.billboards = [];
     this.pointLights = [];
+    this.skinnedGeometries = {};
   }
 
   async init() {
@@ -305,6 +404,7 @@ export class Renderer {
     });
 
     this.meshPipeline = this._createMeshPipeline();
+    this.skinnedPipeline = this._createSkinnedPipeline();
     this.billboardPipeline = this._createBillboardPipeline();
     this.gridPipeline = this._createGridPipeline();
 
@@ -327,6 +427,31 @@ export class Renderer {
           { arrayStride: 12, attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x3' }] },
           { arrayStride: 12, attributes: [{ shaderLocation: 1, offset: 0, format: 'float32x3' }] },
           { arrayStride: 12, attributes: [{ shaderLocation: 2, offset: 0, format: 'float32x3' }] },
+        ],
+      },
+      fragment: { module: shader, entryPoint: 'fs', targets: [{ format: this.format, blend: {
+        color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+        alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' }
+      }}] },
+      primitive: { topology: 'triangle-list', cullMode: 'none' },
+      depthStencil: { format: this.depthFormat, depthWriteEnabled: true, depthCompare: 'less' },
+      multisample: { count: this.sampleCount },
+    });
+  }
+
+  _createSkinnedPipeline() {
+    const shader = this.device.createShaderModule({ code: WGSL_SKINNED });
+    return this.device.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: shader,
+        entryPoint: 'vs',
+        buffers: [
+          { arrayStride: 12, attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x3' }] },
+          { arrayStride: 12, attributes: [{ shaderLocation: 1, offset: 0, format: 'float32x3' }] },
+          { arrayStride: 12, attributes: [{ shaderLocation: 2, offset: 0, format: 'float32x3' }] },
+          { arrayStride: 8, attributes: [{ shaderLocation: 3, offset: 0, format: 'uint16x4' }] },
+          { arrayStride: 16, attributes: [{ shaderLocation: 4, offset: 0, format: 'float32x4' }] },
         ],
       },
       fragment: { module: shader, entryPoint: 'fs', targets: [{ format: this.format, blend: {
@@ -416,6 +541,23 @@ export class Renderer {
     return this.geometries[name];
   }
 
+  registerSkinnedGeometry(name, geo) {
+    if (this.skinnedGeometries[name]) return this.skinnedGeometries[name];
+    const base = this._uploadGeometry(geo);
+    const jointBuf = this.device.createBuffer({
+      size: geo.joints.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(jointBuf, 0, geo.joints);
+    const weightBuf = this.device.createBuffer({
+      size: geo.weights.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(weightBuf, 0, geo.weights);
+    this.skinnedGeometries[name] = { ...base, jointBuf, weightBuf, skinned: true };
+    return this.skinnedGeometries[name];
+  }
+
   _makeDefaultColors(vertexCount) {
     const colors = new Float32Array(vertexCount * 3);
     for (let i = 0; i < colors.length; i += 3) {
@@ -473,7 +615,7 @@ export class Renderer {
       geoName, position: position.clone ? position.clone() : new Vec3(position.x, position.y, position.z),
       scale: scale.clone ? scale.clone() : new Vec3(scale.x || 1, scale.y || 1, scale.z || 1),
       rotationX: 0, rotationY, rotationZ: 0, color, emissive, opacity,
-      visible: true,
+      visible: true, skinned: false,
       modelBuf: this.device.createBuffer({ size: 112, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
       bindGroup: null,
     };
@@ -484,6 +626,43 @@ export class Renderer {
     this._updateModelMatrix(obj);
     this.objects.push(obj);
     return obj;
+  }
+
+  addSkinnedObject(geoName, position, scale = new Vec3(1,1,1), rotationY = 0, color = [1,1,1], emissive = [0,0,0], opacity = 1) {
+    const obj = {
+      geoName, position: position.clone ? position.clone() : new Vec3(position.x, position.y, position.z),
+      scale: scale.clone ? scale.clone() : new Vec3(scale.x || 1, scale.y || 1, scale.z || 1),
+      rotationX: 0, rotationY, rotationZ: 0, color, emissive, opacity,
+      visible: true, skinned: true,
+      modelBuf: this.device.createBuffer({ size: 112, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+      jointBuf: this.device.createBuffer({ size: 32 * 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+      bindGroup: null,
+    };
+    obj.bindGroup = this.device.createBindGroup({
+      layout: this.skinnedPipeline.getBindGroupLayout(1),
+      entries: [
+        { binding: 0, resource: { buffer: obj.modelBuf } },
+        { binding: 1, resource: { buffer: obj.jointBuf } },
+      ],
+    });
+    this._updateModelMatrix(obj);
+    this.skinnedObjects.push(obj);
+    return obj;
+  }
+
+  updateSkinnedJoints(obj, jointMatrices) {
+    if (!obj.jointBuf || !jointMatrices) return;
+    const padded = jointMatrices.length >= 32 * 16
+      ? jointMatrices
+      : (() => {
+          const out = new Float32Array(32 * 16);
+          out.set(jointMatrices);
+          for (let i = Math.floor(jointMatrices.length / 16); i < 32; i++) {
+            out[i * 16] = 1; out[i * 16 + 5] = 1; out[i * 16 + 10] = 1; out[i * 16 + 15] = 1;
+          }
+          return out;
+        })();
+    this.device.queue.writeBuffer(obj.jointBuf, 0, padded, 0, 32 * 16);
   }
 
   _updateModelMatrix(obj) {
@@ -511,9 +690,12 @@ export class Renderer {
   }
 
   removeObject(obj) {
-    const idx = this.objects.indexOf(obj);
+    let idx = this.objects.indexOf(obj);
     if (idx >= 0) this.objects.splice(idx, 1);
+    idx = this.skinnedObjects.indexOf(obj);
+    if (idx >= 0) this.skinnedObjects.splice(idx, 1);
     if (obj.modelBuf) obj.modelBuf.destroy();
+    if (obj.jointBuf) obj.jointBuf.destroy();
   }
 
   addBillboard(center, size, color, yOffset = 0) {
@@ -627,6 +809,28 @@ export class Renderer {
       pass.setVertexBuffer(2, geo.colorBuf);
       pass.setIndexBuffer(geo.idxBuf, geo.indexFormat || 'uint16');
       pass.drawIndexed(geo.indexCount);
+    }
+
+    if (this.skinnedObjects.length > 0) {
+      const skinnedBindGroup = this.device.createBindGroup({
+        layout: this.skinnedPipeline.getBindGroupLayout(0),
+        entries: [{ binding: 0, resource: { buffer: this.uniformBuffer } }],
+      });
+      pass.setPipeline(this.skinnedPipeline);
+      pass.setBindGroup(0, skinnedBindGroup);
+      for (const obj of this.skinnedObjects) {
+        if (!obj.visible) continue;
+        const geo = this.skinnedGeometries[obj.geoName];
+        if (!geo) continue;
+        pass.setBindGroup(1, obj.bindGroup);
+        pass.setVertexBuffer(0, geo.posBuf);
+        pass.setVertexBuffer(1, geo.normBuf);
+        pass.setVertexBuffer(2, geo.colorBuf);
+        pass.setVertexBuffer(3, geo.jointBuf);
+        pass.setVertexBuffer(4, geo.weightBuf);
+        pass.setIndexBuffer(geo.idxBuf, geo.indexFormat || 'uint16');
+        pass.drawIndexed(geo.indexCount);
+      }
     }
 
     const bbBindGroup = this.device.createBindGroup({
