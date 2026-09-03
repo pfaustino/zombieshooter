@@ -363,7 +363,7 @@ export class Player {
       if (this.game.audioManager) this.game.audioManager.playEnemyHit();
       if (this.game.particleSystem) {
         const hitPos = origin.add(dir.mul(enemyHit.distance));
-        this.game.particleSystem.emit(hitPos, 8, [0.8, 0, 0]);
+        this.game.particleSystem.emitBlood(hitPos, dir, 20);
       }
     } else if (worldHit) {
       if (this.game.audioManager) this.game.audioManager.playHit();

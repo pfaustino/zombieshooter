@@ -1,13 +1,14 @@
-import { Renderer } from './renderer.js?v=0.1.4';
+import { Renderer } from './renderer.js?v=0.1.4e';
 import { Camera } from './camera.js';
-import { Player } from './player.js';
-import { World } from './world.js';
+import { Player } from './player.js?v=0.1.4c';
+import { World } from './world.js?v=0.1.4g';
 import { InputManager } from './input-manager.js';
-import { EnemyManager } from './enemy-manager.js?v=0.1.4';
-import { AudioManager } from './audio-manager.js?v=0.1.4';
+import { EnemyManager } from './enemy-manager.js?v=0.1.4m';
+import { AudioManager } from './audio-manager.js?v=0.1.4h';
 import { LootManager } from './loot-manager.js';
-import { ParticleSystem } from './particle-system.js';
+import { ParticleSystem } from './particle-system.js?v=0.1.4c';
 import { VehicleManager } from './vehicle-manager.js?v=0.1.4';
+import { NpcManager } from './npc-manager.js?v=0.1.4k';
 import { loadEngine } from './engine-loader.js';
 
 export class Game {
@@ -56,6 +57,7 @@ export class Game {
     this.lootManager = new LootManager(this);
     this.particleSystem = new ParticleSystem(this);
     this.vehicleManager = new VehicleManager(this);
+    this.npcManager = new NpcManager(this);
 
     this._updateLoading(40, 'Loading world assets...');
     this.world.init();
@@ -70,6 +72,7 @@ export class Game {
     this.player.init();
     this.inputManager.init();
     await this.enemyManager.init();
+    await this.npcManager.init();
     this.audioManager.init();
     this.lootManager.init();
     this.particleSystem.init();
@@ -97,16 +100,8 @@ export class Game {
   }
 
   setupUI() {
-    this.settings = {
-      renderScale: 1.0, fov: 75, aa: true, shadows: true, bloom: true, grid: true,
-      fpsCap: 60, particleQuality: 'medium',
-      masterVolume: 0.8, musicVolume: 0.3, sfxVolume: 0.7, voiceVolume: 0.6,
-      difficulty: 3, sensitivity: 0.002, crosshairStyle: 'cross-dot',
-      showFps: false, showPosition: true, autoReload: true,
-      theme: 'dark', accentColor: '#00ff88', uiScale: 100, motionEffects: true,
-      invertMouse: false, language: 'English',
-      debugOverlay: false, consoleLogs: true, experimentalFlags: false, shaderCache: true,
-    };
+    this.settings = this._defaultSettings();
+    this._loadSettings();
     this._pendingSettings = null;
 
     const screens = {
@@ -134,6 +129,8 @@ export class Game {
     });
 
     this._setupSettingsControlCenter(showScreen);
+    this._applySettingsToUI();
+    this._applyAllSettings();
 
     document.addEventListener('pointerlockchange', () => {
       if (document.pointerLockElement === this.canvas) {
@@ -206,6 +203,7 @@ export class Game {
         this.settings[key] = v;
         if (instant !== false) {
           if (callback) callback(v);
+          this._persistSettings();
           this._showFeedback('Saved');
         }
       });
@@ -220,6 +218,7 @@ export class Game {
         this.settings[key] = transform ? transform(v) : v;
         if (valEl) valEl.textContent = v + (valEl.textContent.includes('%') ? '%' : '');
         if (callback) callback(v);
+        this._persistSettings();
         this._showFeedback('Saved');
       });
     };
@@ -230,6 +229,7 @@ export class Game {
       el.addEventListener('change', (e) => {
         this.settings[key] = e.target.value;
         if (callback) callback(e.target.value);
+        this._persistSettings();
         this._showFeedback('Saved');
       });
     };
@@ -259,7 +259,9 @@ export class Game {
           try {
             const imported = JSON.parse(ev.target.result);
             Object.assign(this.settings, imported);
+            this._persistSettings();
             this._applySettingsToUI();
+            this._applyAllSettings();
             this._showFeedback('Settings imported');
           } catch (err) { this._showFeedback('Import failed'); }
         };
@@ -276,6 +278,7 @@ export class Game {
         sw.classList.add('selected');
         this.settings.accentColor = sw.dataset.color;
         this._applyAccentColor(sw.dataset.color);
+        this._persistSettings();
         this._showFeedback('Saved');
       });
     });
@@ -314,6 +317,7 @@ export class Game {
           else if (amKey === 'musicVolume' && am.setMusicVolume) am.setMusicVolume(v / 100);
           else am[amKey] = v / 100;
         }
+        this._persistSettings();
         this._showFeedback('Saved');
       });
     };
@@ -377,9 +381,42 @@ export class Game {
     document.getElementById('set-footer-cancel')?.addEventListener('click', () => showScreen('main'));
     document.getElementById('set-footer-apply')?.addEventListener('click', () => {
       this._applyAllSettings();
+      this._persistSettings();
       this._showFeedback('Settings applied');
       showScreen('main');
     });
+  }
+
+  _defaultSettings() {
+    return {
+      renderScale: 1.0, fov: 75, aa: true, shadows: true, bloom: true, grid: true,
+      fpsCap: 60, particleQuality: 'medium',
+      masterVolume: 0.8, musicVolume: 0.3, sfxVolume: 0.7, voiceVolume: 0.6,
+      difficulty: 3, sensitivity: 0.002, crosshairStyle: 'cross-dot',
+      showFps: false, showPosition: true, autoReload: true,
+      theme: 'dark', accentColor: '#00ff88', uiScale: 100, motionEffects: true,
+      invertMouse: false, language: 'English',
+      debugOverlay: false, consoleLogs: true, experimentalFlags: false, shaderCache: true,
+    };
+  }
+
+  _persistSettings() {
+    try {
+      localStorage.setItem('zombie-shooter-settings', JSON.stringify(this.settings));
+    } catch (e) {
+      console.warn('Failed to save settings:', e);
+    }
+  }
+
+  _loadSettings() {
+    try {
+      const raw = localStorage.getItem('zombie-shooter-settings');
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') Object.assign(this.settings, saved);
+    } catch (e) {
+      console.warn('Failed to load settings:', e);
+    }
   }
 
   _applySettingsToUI() {
@@ -467,16 +504,8 @@ export class Game {
   }
 
   _resetAllSettings() {
-    this.settings = {
-      renderScale: 1.0, fov: 75, aa: true, shadows: true, bloom: true, grid: true,
-      fpsCap: 60, particleQuality: 'medium',
-      masterVolume: 0.8, musicVolume: 0.3, sfxVolume: 0.7, voiceVolume: 0.6,
-      difficulty: 3, sensitivity: 0.002, crosshairStyle: 'cross-dot',
-      showFps: false, showPosition: true, autoReload: true,
-      theme: 'dark', accentColor: '#00ff88', uiScale: 100, motionEffects: true,
-      invertMouse: false, language: 'English',
-      debugOverlay: false, consoleLogs: true, experimentalFlags: false, shaderCache: true,
-    };
+    this.settings = this._defaultSettings();
+    this._persistSettings();
     this._applySettingsToUI();
     this._applyAllSettings();
   }
@@ -539,6 +568,7 @@ export class Game {
       this.player.update(delta);
       this.world.update(delta);
       this.enemyManager.update(delta);
+      this.npcManager?.update(delta);
       this.lootManager.update(delta);
       this.particleSystem.update(delta);
       if (!this.player.isInVehicle) this.vehicleManager.update(delta);

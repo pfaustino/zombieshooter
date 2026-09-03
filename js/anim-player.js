@@ -1,6 +1,6 @@
 import { Mat4 } from './math.js';
 
-const MAX_JOINTS = 32;
+const MAX_JOINTS = 64;
 
 function quatSlerp(a, b, t) {
   let ax = a[0], ay = a[1], az = a[2], aw = a[3];

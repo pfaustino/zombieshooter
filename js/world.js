@@ -1,6 +1,7 @@
 import { Vec3, AABB } from './math.js';
 import { loadGLBGeometry } from './gltf-loader.js';
 import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.4';
+import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.4k';
 
 export class World {
   constructor(game) {
@@ -91,7 +92,10 @@ export class World {
         const staticVehicles = data.vehicles.filter(v => !DRIVABLE_MODELS.includes(v.model));
         jobs.push(...staticVehicles.map(v => this.loadModel(v, true)));
       }
-      if (data.props) jobs.push(...data.props.map(p => this.loadModel(p, false)));
+      if (data.props) {
+        const staticProps = data.props.filter(p => !NPC_PROP_MODELS.has(p.model));
+        jobs.push(...staticProps.map(p => this.loadModel(p, false)));
+      }
       this.loadedWorldData = data;
       await Promise.all(jobs);
     } catch (e) {

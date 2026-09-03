@@ -1,5 +1,5 @@
 import { Vec3, AABB } from './math.js';
-import { loadGLBGeometry, loadGLBSkinned } from './gltf-loader.js?v=0.1.4';
+import { loadGLBGeometry, loadGLBSkinned } from './gltf-loader.js?v=0.1.4k';
 import { AnimPlayer } from './anim-player.js?v=0.1.4';
 
 const ZOMBIE_GLB_ANIM = 'assets/pixellabs-zombie-3403-a.glb';
@@ -83,6 +83,7 @@ export class Enemy {
     this.floatOffset = 0;
     this.facingYaw = 0;
     this.anim = null;
+    this.forcedAggro = false;
     this.parts = [];
     this.healthBar = null;
     this.healthBarBg = null;
@@ -98,7 +99,8 @@ export class Enemy {
       case Enemy.TYPE.GHOST:
         this.health = 60; this.maxHealth = 60; this.damage = 8; this.speed = walk * 0.4; this.chaseSpeed = chase; this.detectionRange = 25; break;
       case Enemy.TYPE.ZOMBIE:
-        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = walk * 0.3; this.chaseSpeed = chase; this.attackRate = 1.5; break;
+        this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = walk * 0.3; this.chaseSpeed = chase; this.attackRate = 1.5;
+        this.detectionRange = 45; this.loseInterestRange = 65; break;
       case Enemy.TYPE.DEMON:
         this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = walk * 0.4; this.chaseSpeed = chase; this.attackRate = 0.8; break;
     }
@@ -260,14 +262,14 @@ export class Enemy {
       case Enemy.STATE.ATTACK: this._updateAttack(delta); break;
     }
 
-    if (this.state === Enemy.STATE.CHASE || this.state === Enemy.STATE.ATTACK || this.canSeePlayer()) {
+    if (this.state === Enemy.STATE.CHASE || this.state === Enemy.STATE.ATTACK || this.forcedAggro || this.canSeePlayer()) {
       const player = this.getPlayerPosition();
       this._faceToward(player.x, player.z);
     }
 
     if (this.state !== Enemy.STATE.DEAD && this.state !== Enemy.STATE.ATTACK) {
-      if (this.canSeePlayer()) {
-        if (this.state === Enemy.STATE.IDLE || this.state === Enemy.STATE.PATROL) {
+      if (this.forcedAggro || this.canSeePlayer()) {
+        if ((this.state === Enemy.STATE.IDLE || this.state === Enemy.STATE.PATROL) && this.canSeePlayer()) {
           if (this.game.audioManager) this.game.audioManager.playEnemyAttack(this.type);
         }
         if (this.distanceToPlayer() <= this.attackRange) {
@@ -391,7 +393,21 @@ export class Enemy {
     if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return;
     this.health -= amount;
     this._flashDamage();
-    if (this.health <= 0) this.die();
+    if (this.health <= 0) {
+      this.die();
+      return;
+    }
+    this._aggroFromHit();
+  }
+
+  _aggroFromHit() {
+    const wasPassive = this.state === Enemy.STATE.IDLE || this.state === Enemy.STATE.PATROL;
+    this.forcedAggro = true;
+    const player = this.getPlayerPosition();
+    this._faceToward(player.x, player.z);
+    if (this.distanceToPlayer() <= this.attackRange) this.state = Enemy.STATE.ATTACK;
+    else this.state = Enemy.STATE.CHASE;
+    if (wasPassive && this.game.audioManager) this.game.audioManager.playEnemyAttack(this.type);
   }
 
   ragdoll(impactVel) {

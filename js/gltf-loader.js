@@ -406,7 +406,7 @@ export async function loadGLBSkinned(url) {
   }));
 
   let meshNodeIndex = -1;
-  let primitive = null;
+  const skinnedPrims = [];
   for (let i = 0; i < (json.nodes || []).length; i++) {
     const node = json.nodes[i];
     if (node.skin === undefined || node.mesh === undefined) continue;
@@ -415,30 +415,56 @@ export async function loadGLBSkinned(url) {
       if (prim.mode !== undefined && prim.mode !== 4) continue;
       if (prim.attributes?.POSITION === undefined) continue;
       if (prim.attributes?.JOINTS_0 === undefined || prim.attributes?.WEIGHTS_0 === undefined) continue;
-      meshNodeIndex = i;
-      primitive = prim;
-      break;
+      if (meshNodeIndex < 0) meshNodeIndex = i;
+      // Only merge primitives from the first skinned mesh node (same bind space / skin).
+      if (i !== meshNodeIndex) continue;
+      skinnedPrims.push(prim);
     }
-    if (primitive) break;
+    if (skinnedPrims.length) break;
   }
-  if (!primitive) throw new Error(`No skinned mesh primitive in ${url}`);
+  if (!skinnedPrims.length) throw new Error(`No skinned mesh primitive in ${url}`);
 
-  const positions = readAccessor(json, bin, primitive.attributes.POSITION);
-  const normals = primitive.attributes.NORMAL !== undefined
-    ? readAccessor(json, bin, primitive.attributes.NORMAL)
-    : makeDefaultNormals(positions.length / 3);
-  const joints = readJointsAccessor(json, bin, primitive.attributes.JOINTS_0);
-  const weights = readAccessor(json, bin, primitive.attributes.WEIGHTS_0);
-  const indices = primitive.indices !== undefined
-    ? readAccessor(json, bin, primitive.indices)
-    : makeSequentialIndices(positions.length / 3);
-  const colors = resolveSkinnedColors(json, bin, primitive, positions.length / 3, images);
+  const primMeshes = skinnedPrims.map((primitive) => {
+    const positions = readAccessor(json, bin, primitive.attributes.POSITION);
+    const normals = primitive.attributes.NORMAL !== undefined
+      ? readAccessor(json, bin, primitive.attributes.NORMAL)
+      : makeDefaultNormals(positions.length / 3);
+    const joints = readJointsAccessor(json, bin, primitive.attributes.JOINTS_0);
+    const weights = readAccessor(json, bin, primitive.attributes.WEIGHTS_0);
+    const indices = primitive.indices !== undefined
+      ? readAccessor(json, bin, primitive.indices)
+      : makeSequentialIndices(positions.length / 3);
+    const colors = resolveSkinnedColors(json, bin, primitive, positions.length / 3, images);
+    return { positions, normals, colors, joints, weights, indices };
+  });
 
-  const indexArray = indices instanceof Float32Array
-    ? Uint32Array.from(indices)
-    : (positions.length / 3 > 65535
-      ? (indices instanceof Uint32Array ? indices : Uint32Array.from(indices))
-      : (indices instanceof Uint16Array ? indices : Uint16Array.from(indices)));
+  let vertexCount = 0;
+  let indexCount = 0;
+  for (const m of primMeshes) {
+    vertexCount += m.positions.length / 3;
+    indexCount += m.indices.length;
+  }
+  const positions = new Float32Array(vertexCount * 3);
+  const normals = new Float32Array(vertexCount * 3);
+  const colors = new Float32Array(vertexCount * 3);
+  const joints = new Uint16Array(vertexCount * 4);
+  const weights = new Float32Array(vertexCount * 4);
+  const indexArray = vertexCount > 65535 ? new Uint32Array(indexCount) : new Uint16Array(indexCount);
+  let vo = 0;
+  let jo = 0;
+  let io = 0;
+  for (const m of primMeshes) {
+    const base = vo / 3;
+    positions.set(m.positions, vo);
+    normals.set(m.normals, vo);
+    colors.set(m.colors, vo);
+    joints.set(m.joints, jo);
+    weights.set(m.weights, jo);
+    for (let i = 0; i < m.indices.length; i++) indexArray[io + i] = m.indices[i] + base;
+    vo += m.positions.length;
+    jo += m.joints.length;
+    io += m.indices.length;
+  }
 
   const animations = {};
   for (const anim of json.animations || []) {

@@ -115,7 +115,7 @@ struct ModelUniforms {
 @group(1) @binding(0) var<uniform> mu : ModelUniforms;
 
 struct JointUniforms {
-  joints : array<mat4x4f, 32>,
+  joints : array<mat4x4f, 64>,
 };
 @group(1) @binding(1) var<uniform> ju : JointUniforms;
 
@@ -635,7 +635,7 @@ export class Renderer {
       rotationX: 0, rotationY, rotationZ: 0, color, emissive, opacity,
       visible: true, skinned: true,
       modelBuf: this.device.createBuffer({ size: 112, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
-      jointBuf: this.device.createBuffer({ size: 32 * 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+      jointBuf: this.device.createBuffer({ size: 64 * 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
       bindGroup: null,
     };
     obj.bindGroup = this.device.createBindGroup({
@@ -652,17 +652,17 @@ export class Renderer {
 
   updateSkinnedJoints(obj, jointMatrices) {
     if (!obj.jointBuf || !jointMatrices) return;
-    const padded = jointMatrices.length >= 32 * 16
+    const padded = jointMatrices.length >= 64 * 16
       ? jointMatrices
       : (() => {
-          const out = new Float32Array(32 * 16);
+          const out = new Float32Array(64 * 16);
           out.set(jointMatrices);
-          for (let i = Math.floor(jointMatrices.length / 16); i < 32; i++) {
+          for (let i = Math.floor(jointMatrices.length / 16); i < 64; i++) {
             out[i * 16] = 1; out[i * 16 + 5] = 1; out[i * 16 + 10] = 1; out[i * 16 + 15] = 1;
           }
           return out;
         })();
-    this.device.queue.writeBuffer(obj.jointBuf, 0, padded, 0, 32 * 16);
+    this.device.queue.writeBuffer(obj.jointBuf, 0, padded, 0, 64 * 16);
   }
 
   _updateModelMatrix(obj) {

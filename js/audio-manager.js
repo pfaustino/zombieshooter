@@ -1,5 +1,6 @@
 const AUDIO_ASSETS = {
   music: 'assets/melodyayresgriffiths-what-we-lost-tv-movie-game-theme-zombie-virus-apocalypse-143267.mp3',
+  reload: 'assets/dragon-studio-gun-reload-2-511308.mp3',
   zombieGrowl: [
     'assets/dragon-studio-zombie-sound-357975.mp3',
     'assets/dragon-studio-zombie-sound-2-357976.mp3',
@@ -54,6 +55,7 @@ export class AudioManager {
       }
     };
     await loadOne('music', AUDIO_ASSETS.music);
+    await loadOne('reload', AUDIO_ASSETS.reload);
     for (let i = 0; i < AUDIO_ASSETS.zombieGrowl.length; i++) {
       await loadOne(`zombie${i}`, AUDIO_ASSETS.zombieGrowl[i]);
     }
@@ -262,6 +264,13 @@ export class AudioManager {
 
   playReload() {
     if (!this.initialized) return;
+    if (this.buffers.reload) {
+      this._playBuffer(this.buffers.reload, {
+        volume: 0.75 * this.sfxVolume,
+        rate: 0.96 + Math.random() * 0.08,
+      });
+      return;
+    }
     const ctx = this.context;
     const now = ctx.currentTime;
     const times = [0, 0.12, 0.25, 0.38];

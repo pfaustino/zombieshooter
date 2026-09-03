@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Enemy } from './enemy.js?v=0.1.4';
+import { Enemy } from './enemy.js?v=0.1.4k';
 
 export class EnemyManager {
   constructor(game) {
@@ -11,6 +11,7 @@ export class EnemyManager {
     this.waveEnemiesSpawned = 0;
     this.waveKilled = 0;
     this.waveInProgress = false;
+    this._difficultyCap = 8;
     this.maxSimultaneousEnemies = 8;
     this.targetActiveEnemies = 8;
     this.waveTimeLimit = 120;
@@ -25,6 +26,8 @@ export class EnemyManager {
     this.waveTimerDisplay = null;
     this.notificationDisplay = null;
     this.spawnClearance = 1.5;
+    this._perfCap = 40;
+    this._spawnsPerTick = 8;
   }
 
   _ensureHUDRefs() {
@@ -51,11 +54,17 @@ export class EnemyManager {
     const baseEnemies = 5 + (this.currentWave - 1) * 3;
     const multiplier = this.spawnMultiplier || 1.5;
     this.waveTotalEnemies = Math.ceil(baseEnemies * multiplier);
+    // Late waves put the full quota on the field (not drip-fed behind a low cap).
+    this.maxSimultaneousEnemies = Math.min(
+      this._perfCap,
+      Math.max(this._difficultyCap, this.waveTotalEnemies)
+    );
+    this.targetActiveEnemies = this.maxSimultaneousEnemies;
     this.updateWaveDisplay();
     this.updateWaveTimerDisplay();
     this.updateKillDisplay();
     this.showNotification(`Wave ${this.currentWave}`);
-    this.checkSpawns();
+    this._fillSpawns();
   }
 
   _activeCount() {
@@ -66,9 +75,20 @@ export class EnemyManager {
 
   checkSpawns() {
     if (!this.waveInProgress) return;
-    const activeCount = this._activeCount();
-    if (this.waveEnemiesSpawned < this.waveTotalEnemies && activeCount < this.maxSimultaneousEnemies) {
+    this._fillSpawns();
+  }
+
+  _fillSpawns() {
+    let spawned = 0;
+    while (
+      spawned < this._spawnsPerTick &&
+      this.waveEnemiesSpawned < this.waveTotalEnemies &&
+      this._activeCount() < this.maxSimultaneousEnemies
+    ) {
+      const before = this.waveEnemiesSpawned;
       this.spawnEnemy();
+      if (this.waveEnemiesSpawned === before) break;
+      spawned++;
     }
   }
 
@@ -79,7 +99,8 @@ export class EnemyManager {
 
     let attempts = 0;
     let position = null;
-    while (attempts < 40) {
+    const maxAttempts = this.waveTotalEnemies > 20 ? 60 : 40;
+    while (attempts < maxAttempts) {
       const angle = Math.random() * Math.PI * 2;
       const distance = this.minSpawnDistance + Math.random() * (this.spawnRadius - this.minSpawnDistance);
       const candidate = new Vec3(
@@ -101,8 +122,9 @@ export class EnemyManager {
   }
 
   isValidSpawnPosition(position) {
+    const minSep = this.waveTotalEnemies > 20 ? 2.2 : 3;
     for (const enemy of this.enemies) {
-      if (enemy.state !== Enemy.STATE.DEAD && enemy.position.distanceTo(position) < 3) return false;
+      if (enemy.state !== Enemy.STATE.DEAD && enemy.position.distanceTo(position) < minSep) return false;
     }
     const world = this.game.world;
     if (world.cityBounds) {
@@ -239,9 +261,17 @@ export class EnemyManager {
   setDifficulty(level) {
     this.difficulty = level;
     const caps = [5, 6, 8, 10, 12, 15];
-    this.maxSimultaneousEnemies = caps[level - 1] || 8;
-    this.targetActiveEnemies = this.maxSimultaneousEnemies;
+    this._difficultyCap = caps[level - 1] || 8;
     this.spawnMultiplier = 0.5 + (level * 0.5);
+    if (this.waveInProgress) {
+      this.maxSimultaneousEnemies = Math.min(
+        this._perfCap,
+        Math.max(this._difficultyCap, this.waveTotalEnemies)
+      );
+    } else {
+      this.maxSimultaneousEnemies = this._difficultyCap;
+    }
+    this.targetActiveEnemies = this.maxSimultaneousEnemies;
   }
 
   raycastEnemies(origin, dir, maxDist = 1000) {
