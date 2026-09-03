@@ -1,13 +1,41 @@
 import { Vec3, AABB } from './math.js';
-import { loadGLBGeometry, loadGLBSkinned } from './gltf-loader.js?v=0.1.4k';
-import { AnimPlayer } from './anim-player.js?v=0.1.4';
+import { loadGLBGeometry, loadGLBSkinned } from './gltf-loader.js?v=0.1.4n';
+import { AnimPlayer } from './anim-player.js?v=0.1.4n';
 
 const ZOMBIE_GLB_ANIM = 'assets/pixellabs-zombie-3403-a.glb';
 const ZOMBIE_GLB_STATIC = 'assets/pixellabs-zombie-3403.glb';
+const BIGARM_GLB = 'assets/big-arm.glb';
+
+function skinnedRestBounds(skinned, clipName = 'idle') {
+  const player = new AnimPlayer(skinned);
+  if (skinned.animations[clipName]) player.play(clipName);
+  player.update(0);
+  const JM = player.jointMatrices;
+  const { positions, joints, weights } = skinned;
+  let minY = Infinity, maxY = -Infinity;
+  for (let i = 0; i < positions.length / 3; i++) {
+    const px = positions[i * 3], py = positions[i * 3 + 1], pz = positions[i * 3 + 2];
+    let x = 0, y = 0, z = 0;
+    for (let k = 0; k < 4; k++) {
+      const ji = joints[i * 4 + k];
+      const w = weights[i * 4 + k];
+      if (!(w > 0) || ji * 16 + 15 >= JM.length) continue;
+      const o = ji * 16;
+      x += w * (JM[o] * px + JM[o + 4] * py + JM[o + 8] * pz + JM[o + 12]);
+      y += w * (JM[o + 1] * px + JM[o + 5] * py + JM[o + 9] * pz + JM[o + 13]);
+      z += w * (JM[o + 2] * px + JM[o + 6] * py + JM[o + 10] * pz + JM[o + 14]);
+    }
+    if (!Number.isFinite(y)) continue;
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  }
+  if (!Number.isFinite(minY)) return { minY: 0, maxY: 1.7, height: 1.7 };
+  return { minY, maxY, height: Math.max(maxY - minY, 0.01) };
+}
 
 export class Enemy {
   static STATE = { IDLE: 'idle', PATROL: 'patrol', CHASE: 'chase', ATTACK: 'attack', DEAD: 'dead', RAGDOLL: 'ragdoll', DYING: 'dying' };
-  static TYPE = { ROBOT: 'robot', GHOST: 'ghost', ZOMBIE: 'zombie', DEMON: 'demon' };
+  static TYPE = { ROBOT: 'robot', GHOST: 'ghost', ZOMBIE: 'zombie', DEMON: 'demon', BIGARM: 'bigarm' };
 
   static zombieGeo = null;
   static zombieSkinned = null;
@@ -15,14 +43,26 @@ export class Enemy {
   static zombieYOffset = 0.85;
   static zombieYawOffset = 0;
 
+  static bigArmGeo = null;
+  static bigArmSkinned = null;
+  static bigArmScale = 1.3;
+  static bigArmYOffset = 0;
+  static bigArmYawOffset = 0;
+
   static async preloadAssets(game) {
+    await Enemy._preloadZombie(game);
+    await Enemy._preloadBigArm(game);
+  }
+
+  static async _preloadZombie(game) {
     if (Enemy.zombieGeo || Enemy.zombieSkinned) return;
     const animUrls = [ZOMBIE_GLB_ANIM, `3dfps-main/${ZOMBIE_GLB_ANIM}`];
     for (const url of animUrls) {
       try {
         const skinned = await loadGLBSkinned(url);
-        Enemy.zombieScale = 1.75 / skinned.bounds.height;
-        Enemy.zombieYOffset = -skinned.bounds.minY * Enemy.zombieScale;
+        const bounds = skinnedRestBounds(skinned, 'idle');
+        Enemy.zombieScale = 1.75 / bounds.height;
+        Enemy.zombieYOffset = -bounds.minY * Enemy.zombieScale;
         Enemy.zombieYawOffset = 0;
         const name = 'enemy:zombie-skinned';
         game.renderer.registerSkinnedGeometry(name, skinned);
@@ -57,6 +97,27 @@ export class Enemy {
       }
     }
     console.warn('Zombie GLB unavailable — using primitive fallback');
+  }
+
+  static async _preloadBigArm(game) {
+    if (Enemy.bigArmGeo || Enemy.bigArmSkinned) return;
+    const urls = [BIGARM_GLB, `3dfps-main/${BIGARM_GLB}`];
+    for (const url of urls) {
+      try {
+        const skinned = await loadGLBSkinned(url);
+        const bounds = skinnedRestBounds(skinned, 'idle');
+        Enemy.bigArmScale = 1.95 / bounds.height;
+        Enemy.bigArmYOffset = -bounds.minY * Enemy.bigArmScale;
+        Enemy.bigArmYawOffset = 0;
+        const name = 'enemy:bigarm-skinned';
+        game.renderer.registerSkinnedGeometry(name, skinned);
+        Enemy.bigArmGeo = name;
+        Enemy.bigArmSkinned = skinned;
+        return;
+      } catch (error) {
+        console.warn(`Failed to load big-arm from ${url}:`, error);
+      }
+    }
   }
 
   constructor(game, position, type = null) {
@@ -101,6 +162,10 @@ export class Enemy {
       case Enemy.TYPE.ZOMBIE:
         this.health = 120; this.maxHealth = 120; this.damage = 12; this.speed = walk * 0.3; this.chaseSpeed = chase; this.attackRate = 1.5;
         this.detectionRange = 45; this.loseInterestRange = 65; break;
+      case Enemy.TYPE.BIGARM:
+        this.health = 200; this.maxHealth = 200; this.damage = 18; this.speed = walk * 0.28; this.chaseSpeed = chase * 0.9;
+        this.attackRate = 1.2; this.attackRange = 2.4;
+        this.detectionRange = 45; this.loseInterestRange = 65; break;
       case Enemy.TYPE.DEMON:
         this.health = 100; this.maxHealth = 100; this.damage = 20; this.speed = walk * 0.4; this.chaseSpeed = chase; this.attackRate = 0.8; break;
     }
@@ -128,6 +193,7 @@ export class Enemy {
       case Enemy.TYPE.ROBOT: this._createRobot(); break;
       case Enemy.TYPE.GHOST: this._createGhost(); break;
       case Enemy.TYPE.ZOMBIE: this._createZombie(); break;
+      case Enemy.TYPE.BIGARM: this._createBigArm(); break;
       case Enemy.TYPE.DEMON: this._createDemon(); break;
     }
   }
@@ -194,6 +260,25 @@ export class Enemy {
     this._addPart('cylinder', { x: 0.18, y: 0.3, z: 0 }, { x: 0.1, y: 0.6, z: 0.12 }, [0.29, 0.35, 0.24]);
   }
 
+  _createBigArm() {
+    if (Enemy.bigArmGeo && Enemy.bigArmSkinned) {
+      const s = Enemy.bigArmScale;
+      const y = Enemy.bigArmYOffset;
+      const obj = this.game.renderer.addSkinnedObject(Enemy.bigArmGeo,
+        new Vec3(this.position.x, this.position.y + y, this.position.z),
+        new Vec3(s, s, s), 0, [1, 1, 1], [0, 0, 0], 1);
+      this.anim = new AnimPlayer(Enemy.bigArmSkinned);
+      this.anim.time = Math.random() * 0.5;
+      this.game.renderer.updateSkinnedJoints(obj, this.anim.jointMatrices);
+      this.parts.push({
+        obj, offsetX: 0, offsetY: y, offsetZ: 0, baseColor: [1, 1, 1],
+        meshPart: true, yawOffset: Enemy.bigArmYawOffset, skinned: true,
+      });
+      return;
+    }
+    this._createZombiePrimitive();
+  }
+
   _createDemon() {
     this._addPart('cylinder', { x: 0, y: 0.95, z: 0 }, { x: 0.3, y: 1.3, z: 0.45 }, [0.55, 0, 0], [0.1, 0, 0]);
     this._addPart('sphere', { x: 0, y: 1.75, z: 0 }, 0.3, [0.67, 0.13, 0.13], [0.1, 0, 0]);
@@ -208,7 +293,9 @@ export class Enemy {
   }
 
   createHealthBar() {
-    const barY = (this.type === Enemy.TYPE.ZOMBIE && Enemy.zombieGeo) ? 2.05 : 2.2;
+    let barY = 2.2;
+    if (this.type === Enemy.TYPE.ZOMBIE && Enemy.zombieGeo) barY = 2.05;
+    if (this.type === Enemy.TYPE.BIGARM && Enemy.bigArmGeo) barY = 2.35;
     this.healthBarBg = this.game.renderer.addBillboard(
       new Vec3(this.position.x, this.position.y + barY, this.position.z),
       new Vec3(1, 0.1), [0.2, 0.2, 0.2], 0);
@@ -558,8 +645,8 @@ export class Enemy {
       else if (rand < 0.8) this.game.lootManager.spawnLoot(this.position, 'coin');
     }
 
-    // Animated zombies play death clip; static zombies topple; others shrink/fade
-    if (this.type === Enemy.TYPE.ZOMBIE && this.anim) {
+    // Skinned monsters play death clip; static zombies topple; others shrink/fade
+    if (this.anim) {
       this.state = Enemy.STATE.DYING;
       this.anim.play('death', { loop: false, reset: true });
       return;
@@ -651,6 +738,7 @@ export class Enemy {
       case Enemy.TYPE.ROBOT: return { w: 0.9, h: 2.0, d: 0.6 };
       case Enemy.TYPE.GHOST: return { w: 0.6, h: 1.8, d: 0.5 };
       case Enemy.TYPE.ZOMBIE: return { w: 0.65, h: 1.75, d: 0.55 };
+      case Enemy.TYPE.BIGARM: return { w: 0.85, h: 2.0, d: 0.7 };
       case Enemy.TYPE.DEMON: return { w: 0.7, h: 2.1, d: 0.6 };
       default: return { w: 0.7, h: 1.8, d: 0.5 };
     }

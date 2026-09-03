@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Enemy } from './enemy.js?v=0.1.4k';
+import { Enemy } from './enemy.js?v=0.1.4n';
 
 export class EnemyManager {
   constructor(game) {
@@ -115,7 +115,10 @@ export class EnemyManager {
     if (!position) return;
 
     position.y = this.game.world.getGroundHeight(position.x, position.z);
-    const enemy = new Enemy(this.game, position, Enemy.TYPE.ZOMBIE);
+    // Mix in tanky Big Arm brutes (~25% when the asset loaded).
+    let type = Enemy.TYPE.ZOMBIE;
+    if (Enemy.bigArmSkinned && Math.random() < 0.25) type = Enemy.TYPE.BIGARM;
+    const enemy = new Enemy(this.game, position, type);
     enemy.init();
     this.enemies.push(enemy);
     if (!reinforcement) this.waveEnemiesSpawned++;

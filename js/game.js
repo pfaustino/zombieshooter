@@ -3,7 +3,7 @@ import { Camera } from './camera.js';
 import { Player } from './player.js?v=0.1.4c';
 import { World } from './world.js?v=0.1.4g';
 import { InputManager } from './input-manager.js';
-import { EnemyManager } from './enemy-manager.js?v=0.1.4m';
+import { EnemyManager } from './enemy-manager.js?v=0.1.4n';
 import { AudioManager } from './audio-manager.js?v=0.1.4h';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
