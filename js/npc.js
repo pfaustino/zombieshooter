@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { AnimPlayer } from './anim-player.js?v=0.1.4e';
+import { AnimPlayer } from './anim-player.js?v=0.1.4n';
 
 /**
  * Non-hostile city NPC using the people pack models' own idle/walk clips.
@@ -134,31 +134,39 @@ export class Npc {
     const dz = target.z - this.position.z;
     const len = Math.hypot(dx, dz);
     if (len < 1e-6) return;
-    const nx = dx / len;
-    const nz = dz / len;
+
+    // Face the destination, then step along that facing so the walk clip matches travel.
+    this.facingYaw = Math.atan2(dx, dz);
+    const mx = Math.sin(this.facingYaw);
+    const mz = Math.cos(this.facingYaw);
     const step = speed * delta;
     const oldX = this.position.x;
     const oldZ = this.position.z;
-    const newX = oldX + nx * step;
-    const newZ = oldZ + nz * step;
+    const newX = oldX + mx * step;
+    const newZ = oldZ + mz * step;
     const r = 0.45;
+
     if (!this.game.world.checkCollision(newX, newZ, r)) {
       this.position.x = newX;
       this.position.z = newZ;
-    } else if (!this.game.world.checkCollision(newX, oldZ, r)) {
-      this.position.x = newX;
-    } else if (!this.game.world.checkCollision(oldX, newZ, r)) {
-      this.position.z = newZ;
-    } else {
-      this.state = Npc.STATE.IDLE;
-      this.stateTimer = 1 + Math.random() * 2;
-      this._pickPatrolTarget();
       return;
     }
-    // Face actual travel direction (not blocked desired heading) so wall slides don't moonwalk.
-    const ax = this.position.x - oldX;
-    const az = this.position.z - oldZ;
-    if (ax * ax + az * az > 1e-10) this.facingYaw = Math.atan2(ax, az);
+
+    // Axis slide only if it still roughly matches facing; then face the slide direction.
+    if (!this.game.world.checkCollision(newX, oldZ, r) && Math.abs(mx) >= 0.25) {
+      this.position.x = newX;
+      this.facingYaw = Math.atan2(Math.sign(mx), 0);
+      return;
+    }
+    if (!this.game.world.checkCollision(oldX, newZ, r) && Math.abs(mz) >= 0.25) {
+      this.position.z = newZ;
+      this.facingYaw = Math.atan2(0, Math.sign(mz) || 1);
+      return;
+    }
+
+    this.state = Npc.STATE.IDLE;
+    this.stateTimer = 1 + Math.random() * 2;
+    this._pickPatrolTarget();
   }
 
   dispose() {

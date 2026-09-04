@@ -1,7 +1,7 @@
 import { Vec3 } from './math.js';
-import { loadGLBSkinned } from './gltf-loader.js?v=0.1.4k';
-import { AnimPlayer } from './anim-player.js?v=0.1.4e';
-import { Npc } from './npc.js?v=0.1.4k';
+import { loadGLBSkinned } from './gltf-loader.js?v=0.1.4n';
+import { AnimPlayer } from './anim-player.js?v=0.1.4n';
+import { Npc } from './npc.js?v=0.1.4p';
 
 /** City people prop models replaced by animated NPCs. */
 export const NPC_PROP_MODELS = new Set([
@@ -112,6 +112,7 @@ export class NpcManager {
       const targetH = 1.7;
       const scale = targetH / bounds.height;
       const yOffset = -bounds.minY * scale;
+      const yawOffset = 0; // CityPack people face +Z; game yaw 0 is also +Z.
       const geoName = `npc:${key}`;
       this.game.renderer.registerSkinnedGeometry(geoName, loaded);
       this.assets[key] = {
@@ -119,7 +120,7 @@ export class NpcManager {
         skinned: loaded,
         scale,
         yOffset,
-        yawOffset: Math.PI,
+        yawOffset,
         idleClip,
         walkClip,
       };

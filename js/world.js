@@ -1,7 +1,7 @@
 import { Vec3, AABB } from './math.js';
 import { loadGLBGeometry } from './gltf-loader.js';
 import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.4';
-import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.4k';
+import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.4p';
 
 export class World {
   constructor(game) {

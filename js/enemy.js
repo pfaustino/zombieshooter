@@ -386,13 +386,16 @@ export class Enemy {
   _updateAnim(delta) {
     let clip = 'idle';
     let loop = true;
+    let speed = 1;
     if (this.state === Enemy.STATE.PATROL) clip = 'walk';
     else if (this.state === Enemy.STATE.CHASE) clip = 'chase';
     else if (this.state === Enemy.STATE.ATTACK) clip = 'attack';
     else if (this.state === Enemy.STATE.DYING) {
       clip = 'death';
       loop = false;
+      speed = 1 / 6;
     }
+    this.anim.speed = speed;
     this.anim.play(clip, { loop, reset: this.anim.clipName !== clip });
     this.anim.update(delta);
     for (const p of this.parts) {
@@ -654,7 +657,7 @@ export class Enemy {
     if (this.type === Enemy.TYPE.ZOMBIE) {
       this.state = Enemy.STATE.DYING;
       this.deathTime = 0;
-      this.deathDuration = 0.95;
+      this.deathDuration = 0.95 * 6;
       this.deathFallSign = Math.random() < 0.5 ? 1 : -1;
       const toPlayer = Vec3.sub(this.getPlayerPosition(), this.position);
       toPlayer.y = 0;

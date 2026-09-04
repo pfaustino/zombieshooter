@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Enemy } from './enemy.js?v=0.1.4n';
+import { Enemy } from './enemy.js?v=0.1.4r';
 
 export class EnemyManager {
   constructor(game) {

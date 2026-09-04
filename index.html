@@ -426,6 +426,25 @@
       letter-spacing: 4px;
     }
 
+    /* ===== Death cinematic ===== */
+    #death-overlay {
+      position: fixed; inset: 0; z-index: 150;
+      pointer-events: none; opacity: 0;
+      background:
+        radial-gradient(ellipse at center, transparent 20%, rgba(80, 0, 0, 0.85) 100%),
+        rgba(40, 0, 0, 0.35);
+      transition: opacity 0.15s linear;
+    }
+    #death-overlay.active { opacity: 1; }
+    #death-overlay .death-banner {
+      position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(2rem, 6vw, 3.4rem);
+      letter-spacing: 0.35em; color: #ff3344;
+      text-shadow: 0 0 30px rgba(255, 40, 40, 0.7);
+      opacity: 0; transition: opacity 0.6s ease;
+    }
+    #death-overlay.banner-on .death-banner { opacity: 1; }
+
     /* ===== Game Over ===== */
     #game-over {
       position: fixed; inset: 0; z-index: 200;
@@ -808,6 +827,10 @@
     </div>
   </div>
 
+  <div id="death-overlay">
+    <div class="death-banner">YOU DIED</div>
+  </div>
+
   <!-- ===== Game Over ===== -->
   <div id="game-over" class="hidden">
     <div class="menu-panel">
@@ -817,7 +840,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/crikket-capture.js?v=0.1.4n"></script>
-  <script type="module" src="js/main.js?v=0.1.4n"></script>
+  <script type="module" src="js/crikket-capture.js?v=0.1.4s"></script>
+  <script type="module" src="js/main.js?v=0.1.4s"></script>
 </body>
 </html>

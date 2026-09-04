@@ -1,14 +1,14 @@
 import { Renderer } from './renderer.js?v=0.1.4e';
 import { Camera } from './camera.js';
-import { Player } from './player.js?v=0.1.4c';
+import { Player } from './player.js?v=0.1.4s';
 import { World } from './world.js?v=0.1.4g';
 import { InputManager } from './input-manager.js';
-import { EnemyManager } from './enemy-manager.js?v=0.1.4n';
-import { AudioManager } from './audio-manager.js?v=0.1.4h';
+import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
+import { AudioManager } from './audio-manager.js?v=0.1.4s';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
 import { VehicleManager } from './vehicle-manager.js?v=0.1.4';
-import { NpcManager } from './npc-manager.js?v=0.1.4k';
+import { NpcManager } from './npc-manager.js?v=0.1.4p';
 import { loadEngine } from './engine-loader.js';
 
 export class Game {
@@ -552,6 +552,11 @@ export class Game {
     this.isRunning = false;
     if (document.exitPointerLock) document.exitPointerLock();
     if (this.blocker) this.blocker.classList.remove('hidden');
+    const deathOverlay = document.getElementById('death-overlay');
+    if (deathOverlay) {
+      deathOverlay.classList.remove('active', 'banner-on');
+      deathOverlay.style.opacity = '';
+    }
     const gameOverEl = document.getElementById('game-over');
     if (gameOverEl) gameOverEl.classList.remove('hidden');
     const finalKills = document.getElementById('final-kills');
@@ -565,13 +570,20 @@ export class Game {
     this.lastTime = now;
 
     if (this.isRunning) {
+      const dying = !!this.player?.isDying;
+      const worldDelta = dying ? delta * 0.22 : delta;
       this.player.update(delta);
-      this.world.update(delta);
-      this.enemyManager.update(delta);
-      this.npcManager?.update(delta);
-      this.lootManager.update(delta);
+      if (!dying) {
+        this.world.update(delta);
+        this.enemyManager.update(delta);
+        this.npcManager?.update(delta);
+        this.lootManager.update(delta);
+        if (!this.player.isInVehicle) this.vehicleManager.update(delta);
+      } else {
+        this.enemyManager.update(worldDelta);
+        this.npcManager?.update(worldDelta);
+      }
       this.particleSystem.update(delta);
-      if (!this.player.isInVehicle) this.vehicleManager.update(delta);
 
       if (this.player.isInVehicle && this.player.vehicle) {
         const speedEl = document.getElementById('vehicle-speed');

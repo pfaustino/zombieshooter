@@ -50,6 +50,13 @@ export class Player {
     this.isSprinting = false;
     this.muzzleFlashObj = null;
     this.muzzleFlashTimer = 0;
+    this.isDying = false;
+    this.isDead = false;
+    this.deathTime = 0;
+    this.deathDuration = 3.5;
+    this._deathStartPitch = 0;
+    this._deathStartY = 1.7;
+    this._deathYawDrift = 0;
     this.healthDisplay = document.getElementById('health');
     this.ammoDisplay = document.getElementById('ammo');
     this.reloadPrompt = document.getElementById('reload-prompt');
@@ -283,7 +290,7 @@ export class Player {
   }
 
   onMouseDown(event) {
-    if (!this.game.isRunning) return;
+    if (!this.game.isRunning || this.isDying || this.isDead) return;
     if (this.isInVehicle) return;
     if (event.button === 0) { this.isFiring = true; this.shoot(); }
   }
@@ -293,7 +300,7 @@ export class Player {
   }
 
   onMouseMove(event) {
-    if (!this.isLocked) return;
+    if (!this.isLocked || this.isDying || this.isDead) return;
     if (this.isInVehicle) return;
     if (this._pointerLockJustAcquired) {
       this._pointerLockJustAcquired = false;
@@ -333,6 +340,7 @@ export class Player {
   }
 
   shoot() {
+    if (this.isDying || this.isDead) return;
     if (this.shootCooldown > 0 || this.isReloading) return;
     if (this.ammo <= 0) {
       if (this.game.audioManager) this.game.audioManager.playEmptyGun();
@@ -383,6 +391,7 @@ export class Player {
   }
 
   takeDamage(amount) {
+    if (this.isDying || this.isDead) return;
     if (this.armor > 0) {
       const absorbed = Math.min(this.armor, amount * 0.5);
       this.armor -= absorbed;
@@ -395,9 +404,76 @@ export class Player {
   }
 
   die() {
+    if (this.isDying || this.isDead) return;
+    this.isDying = true;
     this.health = 0;
+    this.isFiring = false;
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.isReloading = false;
+    this.deathTime = 0;
+    this._deathStartPitch = this.pitch;
+    this._deathStartY = this.position.y;
+    this._deathYawDrift = (Math.random() < 0.5 ? 1 : -1) * (0.35 + Math.random() * 0.45);
+    if (this.isInVehicle) this.exitVehicle();
     this.updateHUD();
-    this.game.gameOver();
+
+    const overlay = document.getElementById('death-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      overlay.classList.remove('banner-on');
+      overlay.style.opacity = '0.45';
+    }
+    const ch = document.getElementById('crosshair');
+    if (ch) ch.classList.remove('visible');
+
+    if (this.game.audioManager) this.game.audioManager.playPlayerDeath?.();
+    if (this.game.particleSystem) {
+      const fwd = this.game.camera.getForward();
+      this.game.particleSystem.emitBlood(
+        new Vec3(this.position.x, this.position.y - 0.2, this.position.z),
+        new Vec3(-fwd.x, 0.4, -fwd.z),
+        28
+      );
+      this.game.particleSystem.emit(
+        new Vec3(this.position.x, this.position.y - 0.1, this.position.z),
+        18,
+        [0.35, 0.02, 0.02]
+      );
+    }
+  }
+
+  _updateDeath(delta) {
+    this.deathTime += delta;
+    const t = Math.min(this.deathTime / this.deathDuration, 1);
+    const ease = t * t * (3 - 2 * t);
+    const cam = this.game.camera;
+    const ground = this.game.world.getGroundHeight(this.position.x, this.position.z);
+    const fallY = this._deathStartY + (ground + 0.28 - this._deathStartY) * ease;
+    this.position.y = fallY;
+    this.pitch = this._deathStartPitch + (-1.15 - this._deathStartPitch) * ease;
+    this.yaw += this._deathYawDrift * delta * (0.35 + ease);
+    this.weaponRecoil = Math.min(1, 0.2 + ease * 0.9);
+
+    cam.position.copy(this.position);
+    cam.yaw = this.yaw;
+    cam.pitch = this.pitch;
+    cam.updateView();
+    this._updateWeaponModel();
+
+    const overlay = document.getElementById('death-overlay');
+    if (overlay) {
+      overlay.style.opacity = String(0.35 + ease * 0.65);
+      if (t >= 0.35) overlay.classList.add('banner-on');
+    }
+
+    if (t >= 1) {
+      this.isDying = false;
+      this.isDead = true;
+      this.game.gameOver();
+    }
   }
 
   collectLoot(type) {
@@ -425,6 +501,11 @@ export class Player {
   }
 
   update(delta) {
+    if (this.isDying) {
+      this._updateDeath(delta);
+      return;
+    }
+    if (this.isDead) return;
     if (!this.isLocked) return;
     if (this.isInVehicle) {
       this._updateVehicleMode(delta);

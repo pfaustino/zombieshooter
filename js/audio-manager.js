@@ -213,6 +213,36 @@ export class AudioManager {
     this.playTone(60, 0.08, 0.4, 'square');
   }
 
+  playPlayerDeath() {
+    if (!this.initialized) return;
+    const now = this.context.currentTime;
+    const boom = this.context.createOscillator();
+    boom.type = 'sine';
+    boom.frequency.setValueAtTime(90, now);
+    boom.frequency.exponentialRampToValueAtTime(28, now + 0.9);
+    const boomGain = this.context.createGain();
+    boomGain.gain.setValueAtTime(0.55 * this.sfxVolume, now);
+    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 1.4);
+    boom.connect(boomGain); boomGain.connect(this.masterGain);
+    boom.start(now); boom.stop(now + 1.4);
+
+    const ring = this.context.createOscillator();
+    ring.type = 'triangle';
+    ring.frequency.setValueAtTime(420, now);
+    ring.frequency.exponentialRampToValueAtTime(110, now + 1.8);
+    const ringFilter = this.context.createBiquadFilter();
+    ringFilter.type = 'lowpass';
+    ringFilter.frequency.setValueAtTime(1200, now);
+    ringFilter.frequency.exponentialRampToValueAtTime(180, now + 2);
+    const ringGain = this.context.createGain();
+    ringGain.gain.setValueAtTime(0.22 * this.sfxVolume, now + 0.05);
+    ringGain.gain.exponentialRampToValueAtTime(0.01, now + 2.2);
+    ring.connect(ringFilter); ringFilter.connect(ringGain); ringGain.connect(this.masterGain);
+    ring.start(now); ring.stop(now + 2.2);
+
+    this.playTone(48, 0.35, 0.45, 'sawtooth');
+  }
+
   playEnemyAttack(type) {
     if (!this.initialized) return;
     if (this._playZombieVoice({ volume: 0.65, minGap: 0.45 })) return;
