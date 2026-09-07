@@ -1,6 +1,6 @@
 # Zombie Shooter
 
-Survive endless waves of the undead in a sprawling low-poly city. Switch guns, loot the streets, steal a ride, and don't get cornered.
+Survive endless waves of the undead in a sprawling low-poly city. Switch guns, loot the streets, steal a ride, run zombies down, and don't get cornered.
 
 A browser FPS powered by **WebGPU** — no install, just click Play.
 
@@ -12,7 +12,7 @@ A browser FPS powered by **WebGPU** — no install, just click Play.
 - **Four enemy types** — robots, ghosts, zombies, and demons
 - **Two weapons** — pistol for precision, assault rifle for panic
 - **City sandbox** — buildings, cars, and streets to fight through
-- **Vehicles** — hop in and out of cars when walking gets you killed
+- **Vehicles** — hop in and out of cars; ram traffic and **run over the undead** when walking gets you killed
 - **Loot drops** — coins, hats, and potions
 - **Double jump** — plus a ghost/noclip mode for when you just want to explore
 
