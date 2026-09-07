@@ -404,6 +404,26 @@
       color: #88ccff; font-family: 'Orbitron', sans-serif; font-size: 0.9em; font-weight: 700;
     }
 
+    #trader-prompt {
+      position: fixed; top: calc(50% + 98px); left: 50%; transform: translateX(-50%);
+      font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1.1em;
+      color: #ffd75e; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.55); padding: 8px 18px; border-radius: 6px;
+      border: 1px solid rgba(255, 215, 94, 0.35); backdrop-filter: blur(4px);
+      z-index: 50; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+      letter-spacing: 1px; white-space: nowrap;
+    }
+    #trader-prompt.visible { opacity: 1; }
+    #trader-prompt.broke { color: #ff7a7a; border-color: rgba(255, 122, 122, 0.4); }
+    #trader-prompt .key {
+      display: inline-block; padding: 2px 8px; border-radius: 4px; margin: 0 4px;
+      background: rgba(255, 215, 94, 0.15); border: 1px solid rgba(255, 215, 94, 0.4);
+      color: #ffd75e; font-family: 'Orbitron', sans-serif; font-size: 0.9em; font-weight: 700;
+    }
+    #trader-prompt.broke .key {
+      background: rgba(255, 122, 122, 0.15); border-color: rgba(255, 122, 122, 0.45); color: #ff7a7a;
+    }
+
     /* HUD top-right stats */
     #hud-top {
       position: fixed; top: 15px; right: 15px;
@@ -596,6 +616,7 @@
   <div id="notification"></div>
   <div id="reload-prompt">Press <span class="key">R</span> to reload</div>
   <div id="vehicle-prompt">Press <span class="key">F</span> to ride car</div>
+  <div id="trader-prompt"></div>
 
   <div id="blocker">
     <!-- ===== Main Menu ===== -->
@@ -831,7 +852,7 @@
               <div class="set-card-info"><div class="set-card-name">GPU Adapter</div><div class="set-card-desc" id="set-gpu-info">Detecting...</div></div>
             </div>
             <div class="set-card" data-search="credits">
-              <div class="set-card-info"><div class="set-card-name">Credits</div><div class="set-card-desc">Engine: BTSpaniel | Original: pfaustino | Assets: CityPack</div></div>
+              <div class="set-card-info"><div class="set-card-name">Credits</div><div class="set-card-desc">Engine: BTSpaniel | Original: pfaustino | Assets: KayKit, CityPack</div></div>
             </div>
           </div>
         </div>
@@ -887,7 +908,11 @@
         <div class="credits-name">Particle Realms Engine Team</div>
       </div>
       <div class="credits-row">
-        <div class="credits-role">City Assets</div>
+        <div class="credits-role">Buildings</div>
+        <div class="credits-name">KayKit City Builder Bits by Kay Lousberg</div>
+      </div>
+      <div class="credits-row">
+        <div class="credits-role">Vehicles &amp; Props</div>
         <div class="credits-name">CityPack 3D Models</div>
       </div>
       <button class="btn btn-back" data-target="main" style="margin-top:20px;">Back</button>
@@ -933,7 +958,7 @@
       writeKey: "__LEADERBOARD_WRITE_KEY__"
     };
   </script>
-  <script type="module" src="js/crikket-capture.js?v=0.1.32"></script>
-  <script type="module" src="js/main.js?v=0.1.32"></script>
+  <script type="module" src="js/crikket-capture.js?v=0.1.33"></script>
+  <script type="module" src="js/main.js?v=0.1.33"></script>
 </body>
 </html>

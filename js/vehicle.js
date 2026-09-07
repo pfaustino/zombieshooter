@@ -603,7 +603,7 @@ export class Vehicle {
     if (!npcs) return;
     for (let i = npcs.length - 1; i >= 0; i--) {
       const npc = npcs[i];
-      if (!npc || npc.dead) continue;
+      if (!npc || npc.dead || npc.isTrader?.()) continue;
       const dist = npc.position.distanceTo(this.position);
       if (dist >= hitR) continue;
       const toNpc = Vec3.sub(npc.position, this.position);

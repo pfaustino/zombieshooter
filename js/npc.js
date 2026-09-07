@@ -5,13 +5,16 @@ import { AnimPlayer } from './anim-player.js?v=0.1.4n';
  * Non-hostile city NPC using the people pack models' own idle/walk clips.
  */
 export class Npc {
-  static STATE = { IDLE: 'idle', PATROL: 'patrol' };
+  static STATE = { IDLE: 'idle', PATROL: 'patrol', FLEE: 'flee' };
+  static ROLE = { CIVILIAN: 'civilian', TRADER: 'trader' };
 
-  constructor(game, position, yaw = 0, asset = null) {
+  constructor(game, position, yaw = 0, asset = null, options = {}) {
     this.game = game;
     this.position = position.clone();
     this.facingYaw = yaw;
-    this.state = Npc.STATE.PATROL;
+    this.role = options.role || Npc.ROLE.CIVILIAN;
+    this.offer = options.offer || null;
+    this.state = this.role === Npc.ROLE.TRADER ? Npc.STATE.IDLE : Npc.STATE.PATROL;
     this.stateTimer = 1 + Math.random() * 2;
     this.patrolRadius = 8 + Math.random() * 10;
     this.speed = 1.4 + Math.random() * 0.8;
@@ -23,7 +26,13 @@ export class Npc {
     this.idleClip = null;
     this.walkClip = null;
     this.dead = false;
+    this.fleeTimer = 0;
+    this.threatPos = null;
+    this.markerObj = null;
+    this._markerPhase = Math.random() * Math.PI * 2;
   }
+
+  isTrader() { return this.role === Npc.ROLE.TRADER && !!this.offer; }
 
   init() {
     if (!this.asset) return false;
@@ -50,14 +59,71 @@ export class Npc {
       offsetZ: 0,
       yawOffset: yawOffset || 0,
     });
-    this._pickPatrolTarget();
+    if (this.isTrader()) this._createMarker();
+    else this._pickPatrolTarget();
     return true;
+  }
+
+  /** Floating icon so stalls stay findable across the city. */
+  _createMarker() {
+    this.markerObj = this.game.renderer.addObject(
+      'sphere',
+      new Vec3(this.position.x, this.position.y + 2.5, this.position.z),
+      new Vec3(0.22, 0.22, 0.22),
+      0,
+      this.offer.color,
+      this.offer.emissive,
+      1
+    );
+  }
+
+  _updateMarker(delta) {
+    if (!this.markerObj) return;
+    this._markerPhase += delta * 2.4;
+    this.markerObj.position.set(
+      this.position.x,
+      this.position.y + 2.5 + Math.sin(this._markerPhase) * 0.14,
+      this.position.z
+    );
+    this.markerObj.rotationY += delta * 1.6;
+    this.game.renderer.updateObjectTransform(this.markerObj);
+  }
+
+  /**
+   * Sells this stall's single item. Returns why it failed so the HUD can say so.
+   */
+  purchase(player) {
+    if (!this.isTrader() || this.dead) return { ok: false, reason: 'none' };
+    const offer = this.offer;
+    if (player.money < offer.price) return { ok: false, reason: 'money', offer };
+    if (!offer.apply(player)) return { ok: false, reason: 'full', offer };
+    player.money -= offer.price;
+    player.updateHUD();
+    return { ok: true, offer };
   }
 
   update(delta) {
     if (this.dead || !this.anim || this.parts.length === 0) return;
 
-    if (this.state === Npc.STATE.IDLE) {
+    if (this.isTrader()) {
+      this.anim.speed = 1;
+      this.position.y = 0;
+      this._updateAnim(delta);
+      this._syncParts();
+      this._updateMarker(delta);
+      return;
+    }
+
+    if (this.state === Npc.STATE.FLEE) {
+      this.fleeTimer -= delta;
+      if (this.fleeTimer <= 0) {
+        this.threatPos = null;
+        this.state = Npc.STATE.PATROL;
+        this._pickPatrolTarget();
+      } else {
+        this._updateFlee(delta);
+      }
+    } else if (this.state === Npc.STATE.IDLE) {
       this.stateTimer -= delta;
       if (this.stateTimer <= 0) {
         this.state = Npc.STATE.PATROL;
@@ -75,12 +141,46 @@ export class Npc {
     }
 
     this.position.y = 0;
+    this.anim.speed = this.state === Npc.STATE.FLEE ? 1.9 : 1;
     this._updateAnim(delta);
     this._syncParts();
   }
 
+  /**
+   * Scares a civilian into a sprint away from a threat. Traders hold their post.
+   */
+  panic(threatPos, duration = 3.5) {
+    if (this.dead || this.isTrader() || !threatPos) return;
+    this.threatPos = threatPos.clone ? threatPos.clone() : new Vec3(threatPos.x, 0, threatPos.z);
+    this.state = Npc.STATE.FLEE;
+    this.fleeTimer = Math.max(this.fleeTimer, duration);
+    this.targetPosition = null;
+  }
+
+  _updateFlee(delta) {
+    const away = new Vec3(
+      this.position.x - (this.threatPos?.x ?? this.position.x - 1),
+      0,
+      this.position.z - (this.threatPos?.z ?? this.position.z)
+    );
+    let len = Math.hypot(away.x, away.z);
+    if (len < 1e-4) {
+      away.x = Math.sin(this.facingYaw);
+      away.z = Math.cos(this.facingYaw);
+      len = 1;
+    }
+    const target = new Vec3(
+      this.position.x + (away.x / len) * 6,
+      0,
+      this.position.z + (away.z / len) * 6
+    );
+    // Roads are fair game while panicking — that's how they end up under your bumper.
+    this._moveToward(target, this.speed * 2.6, delta, true);
+  }
+
   _updateAnim(delta) {
-    const clip = this.state === Npc.STATE.PATROL ? this.walkClip : this.idleClip;
+    const moving = this.state === Npc.STATE.PATROL || this.state === Npc.STATE.FLEE;
+    const clip = moving ? this.walkClip : this.idleClip;
     if (clip) this.anim.play(clip, { loop: true, reset: this.anim.clipName !== clip });
     this.anim.update(delta);
     for (const p of this.parts) {
@@ -130,7 +230,7 @@ export class Npc {
       : this.position.clone();
   }
 
-  _moveToward(target, speed, delta) {
+  _moveToward(target, speed, delta, allowRoad = false) {
     const dx = target.x - this.position.x;
     const dz = target.z - this.position.z;
     const len = Math.hypot(dx, dz);
@@ -147,7 +247,8 @@ export class Npc {
     const newZ = oldZ + mz * step;
     const r = 0.45;
     const blocked = (x, z) =>
-      this.game.world.checkCollision(x, z, r) || this.game.world.isOnRoad?.(x, z, 0.5);
+      this.game.world.checkCollision(x, z, r) ||
+      (!allowRoad && this.game.world.isOnRoad?.(x, z, 0.5));
 
     if (!blocked(newX, newZ)) {
       this.position.x = newX;
@@ -167,13 +268,20 @@ export class Npc {
       return;
     }
 
+    // Cornered while fleeing: veer instead of freezing up against the wall.
+    if (this.state === Npc.STATE.FLEE) {
+      this.facingYaw += (Math.random() < 0.5 ? -1 : 1) * (Math.PI * 0.4);
+      return;
+    }
+
     this.state = Npc.STATE.IDLE;
     this.stateTimer = 1 + Math.random() * 2;
     this._pickPatrolTarget();
   }
 
   hitByVehicle(impactDir, speed = 10) {
-    if (this.dead) return;
+    // Stalls survive traffic; losing a shop to a stray bumper would gut the economy.
+    if (this.dead || this.isTrader()) return;
     this.dead = true;
     const bloodPos = this.position.clone();
     bloodPos.y = 0.5;
@@ -186,6 +294,10 @@ export class Npc {
   dispose() {
     for (const p of this.parts) this.game.renderer.removeObject(p.obj);
     this.parts = [];
+    if (this.markerObj) {
+      this.game.renderer.removeObject(this.markerObj);
+      this.markerObj = null;
+    }
     this.anim = null;
   }
 }

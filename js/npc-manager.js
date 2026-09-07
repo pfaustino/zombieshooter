@@ -1,7 +1,7 @@
 import { Vec3 } from './math.js';
 import { loadGLBSkinned } from './gltf-loader.js?v=0.1.4n';
 import { AnimPlayer } from './anim-player.js?v=0.1.4n';
-import { Npc } from './npc.js?v=0.1.5';
+import { Npc } from './npc.js?v=0.1.33';
 
 /** City people prop models replaced by animated NPCs. */
 export const NPC_PROP_MODELS = new Set([
@@ -63,19 +63,80 @@ function resolveAssetKey(modelName) {
   return 'man';
 }
 
+/**
+ * Street vendors give coins a purpose. One fixed item each so buying stays a
+ * single keypress, and each stall reads as a landmark you learn to drive back to.
+ */
+export const TRADER_OFFERS = [
+  {
+    id: 'ammo',
+    label: 'AMMO REFILL',
+    price: 30,
+    color: [1, 0.72, 0.15],
+    emissive: [0.7, 0.45, 0.05],
+    apply(player) {
+      let filled = false;
+      for (const w of player.weapons) {
+        if (w.ammo < w.maxAmmo) { w.ammo = w.maxAmmo; filled = true; }
+      }
+      if (player.ammo < player.maxAmmo) { player.ammo = player.maxAmmo; filled = true; }
+      if (!filled) return false;
+      player.isReloading = false;
+      player.reloadTimer = 0;
+      player.reloadDuration = 0;
+      return true;
+    },
+  },
+  {
+    id: 'medkit',
+    label: 'MEDKIT +40 HP',
+    price: 50,
+    color: [0.25, 0.9, 0.35],
+    emissive: [0.05, 0.6, 0.12],
+    apply(player) {
+      if (player.health >= 100) return false;
+      player.health = Math.min(100, player.health + 40);
+      return true;
+    },
+  },
+  {
+    id: 'armor',
+    label: 'BODY ARMOR +50',
+    price: 70,
+    color: [0.35, 0.66, 1],
+    emissive: [0.06, 0.3, 0.7],
+    apply(player) {
+      if (player.armor >= 100) return false;
+      player.armor = Math.min(100, player.armor + 50);
+      return true;
+    },
+  },
+];
+
+const TRADER_EVERY = 3;
+const PANIC_SCAN_INTERVAL = 0.3;
+const ZOMBIE_PANIC_RANGE = 13;
+
 export class NpcManager {
   constructor(game) {
     this.game = game;
     this.npcs = [];
     this.assets = {};
+    this._panicScanTimer = 0;
   }
 
   async init() {
     await this._preloadAssets();
+    this._spawnFromProps();
+  }
+
+  _spawnFromProps() {
     const props = this.game.world?.loadedWorldData?.props || [];
     // World props are mostly Animated Woman variants in one area; alternate those
     // onto the man mesh so streets aren't all female.
     let womanSlot = 0;
+    let placed = 0;
+    let traderSlot = 0;
     for (const p of props) {
       if (!p?.model || !NPC_PROP_MODELS.has(p.model)) continue;
       if (this.game.world.isOnRoad?.(p.x, p.z, 1)) continue;
@@ -86,8 +147,18 @@ export class NpcManager {
       }
       const asset = this.assets[key] || this.assets.man || this.assets.woman;
       if (!asset) continue;
-      const npc = new Npc(this.game, new Vec3(p.x, 0, p.z), p.rotY || 0, asset);
-      if (npc.init()) this.npcs.push(npc);
+
+      const isTrader = placed % TRADER_EVERY === 0;
+      const options = isTrader
+        ? { role: Npc.ROLE.TRADER, offer: TRADER_OFFERS[traderSlot % TRADER_OFFERS.length] }
+        : {};
+      if (isTrader) traderSlot += 1;
+
+      const npc = new Npc(this.game, new Vec3(p.x, 0, p.z), p.rotY || 0, asset, options);
+      if (npc.init()) {
+        this.npcs.push(npc);
+        placed += 1;
+      }
     }
   }
 
@@ -129,6 +200,11 @@ export class NpcManager {
   }
 
   update(delta) {
+    this._panicScanTimer -= delta;
+    if (this._panicScanTimer <= 0) {
+      this._panicScanTimer = PANIC_SCAN_INTERVAL;
+      this._scanForThreats();
+    }
     for (let i = this.npcs.length - 1; i >= 0; i--) {
       const npc = this.npcs[i];
       if (npc.dead) {
@@ -137,5 +213,79 @@ export class NpcManager {
       }
       npc.update(delta);
     }
+  }
+
+  /** Civilians bolt when the undead — or a speeding car — get close. */
+  _scanForThreats() {
+    const enemies = this.game.enemyManager?.enemies;
+    const vehicles = this.game.vehicleManager?.vehicles;
+    const zr2 = ZOMBIE_PANIC_RANGE * ZOMBIE_PANIC_RANGE;
+
+    for (const npc of this.npcs) {
+      if (npc.dead || npc.isTrader()) continue;
+
+      if (enemies) {
+        for (const e of enemies) {
+          if (!e || e.state === 'dead' || e.state === 'dying' || e.state === 'ragdoll') continue;
+          const dx = e.position.x - npc.position.x;
+          const dz = e.position.z - npc.position.z;
+          if (dx * dx + dz * dz > zr2) continue;
+          npc.panic(e.position, 3);
+          break;
+        }
+      }
+
+      if (vehicles && npc.state !== Npc.STATE.FLEE) {
+        for (const v of vehicles) {
+          if (!v?.loaded || v.destroyed) continue;
+          const speed = Math.hypot(v.velocity?.x || 0, v.velocity?.z || 0);
+          if (speed < 6) continue;
+          const dx = v.position.x - npc.position.x;
+          const dz = v.position.z - npc.position.z;
+          if (dx * dx + dz * dz > 289) continue; // 17m
+          npc.panic(v.position, 2.5);
+          break;
+        }
+      }
+    }
+  }
+
+  /** Gunfire scatters bystanders the same way it draws the horde. */
+  panicNear(origin, radius = 30) {
+    if (!origin) return;
+    const r2 = radius * radius;
+    for (const npc of this.npcs) {
+      if (npc.dead || npc.isTrader()) continue;
+      const dx = npc.position.x - origin.x;
+      const dz = npc.position.z - origin.z;
+      if (dx * dx + dz * dz > r2) continue;
+      npc.panic(origin, 3);
+    }
+  }
+
+  getTraderNear(position, range = 3.4) {
+    if (!position) return null;
+    let best = null;
+    let bestDist = range * range;
+    for (const npc of this.npcs) {
+      if (npc.dead || !npc.isTrader()) continue;
+      const dx = npc.position.x - position.x;
+      const dz = npc.position.z - position.z;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < bestDist) {
+        bestDist = d2;
+        best = npc;
+      }
+    }
+    return best;
+  }
+
+  resetForNewRun() {
+    for (const npc of this.npcs) {
+      try { npc.dispose(); } catch (_) {}
+    }
+    this.npcs = [];
+    this._panicScanTimer = 0;
+    this._spawnFromProps();
   }
 }

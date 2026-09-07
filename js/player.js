@@ -61,6 +61,7 @@ export class Player {
     this.ammoDisplay = document.getElementById('ammo');
     this.reloadPrompt = document.getElementById('reload-prompt');
     this.vehiclePrompt = document.getElementById('vehicle-prompt');
+    this.traderPrompt = document.getElementById('trader-prompt');
   }
 
   init() {
@@ -309,6 +310,12 @@ export class Player {
         if (event.repeat) break;
         this.toggleVehicle();
         break;
+      case 'KeyE':
+        if (!this.game.isRunning || !this.isLocked) break;
+        event.preventDefault();
+        if (event.repeat) break;
+        this.tryTrade();
+        break;
     }
   }
 
@@ -389,6 +396,7 @@ export class Player {
     this.pitch = clamp(this.pitch + (weapon.cameraRecoil || 0), -1.45, 1.45);
     // Muzzle noise draws nearby undead whether the shot hits or not.
     this.game.enemyManager?.alertNearby?.(this.position, 42);
+    this.game.npcManager?.panicNear?.(this.position, 30);
 
     const cam = this.game.camera;
     const origin = cam.position.clone();
@@ -510,6 +518,26 @@ export class Player {
     }
   }
 
+  /** Buys from the street vendor you're standing at, if you can afford it. */
+  tryTrade() {
+    if (this.isInVehicle || this.isDying || this.isDead) return;
+    const trader = this.game.npcManager?.getTraderNear?.(this.position);
+    if (!trader) return;
+
+    const result = trader.purchase(this);
+    const notify = (text, ms) => this.game.enemyManager?.showNotification?.(text, ms);
+    if (result.ok) {
+      notify(`BOUGHT ${result.offer.label} · -$${result.offer.price}`, 1600);
+      this.game.audioManager?.playLootPickup?.('coin');
+    } else if (result.reason === 'money') {
+      notify(`NEED $${result.offer.price} FOR ${result.offer.label}`, 1400);
+      this.game.audioManager?.playEmptyGun?.();
+    } else if (result.reason === 'full') {
+      notify(`ALREADY FULL · ${result.offer.label}`, 1400);
+      this.game.audioManager?.playEmptyGun?.();
+    }
+  }
+
   collectLoot(type) {
     if (type === 'coin') { this.money += 10; }
     else if (type === 'cowboyhat') { this.armor = Math.min(100, this.armor + 25); }
@@ -563,6 +591,22 @@ export class Player {
     if (this.vehiclePrompt) {
       const nearVehicle = !this.isInVehicle && this.game.vehicleManager?.getEnterableVehicle(this.position);
       this.vehiclePrompt.classList.toggle('visible', !!nearVehicle);
+    }
+    if (this.traderPrompt) {
+      const trader = !this.isInVehicle && this.game.npcManager?.getTraderNear?.(this.position);
+      if (trader) {
+        const offer = trader.offer;
+        const afford = this.money >= offer.price;
+        const markup = `<span class="key">E</span> ${offer.label} &mdash; $${offer.price}`;
+        if (this._traderMarkup !== markup) {
+          this.traderPrompt.innerHTML = markup;
+          this._traderMarkup = markup;
+        }
+        this.traderPrompt.classList.toggle('broke', !afford);
+        this.traderPrompt.classList.add('visible');
+      } else {
+        this.traderPrompt.classList.remove('visible');
+      }
     }
     const moneyDisp = document.getElementById('money');
     if (moneyDisp) moneyDisp.textContent = `Money: $${this.money}`;

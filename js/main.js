@@ -1,4 +1,4 @@
-import { Game } from './game.js?v=0.1.17';
+import { Game } from './game.js?v=0.1.33';
 
 window.addEventListener('DOMContentLoaded', async () => {
   const game = new Game();

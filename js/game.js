@@ -1,14 +1,14 @@
 import { Renderer } from './renderer.js?v=0.1.4e';
 import { Camera } from './camera.js';
-import { Player } from './player.js?v=0.1.17';
+import { Player } from './player.js?v=0.1.33';
 import { World } from './world.js?v=0.1.5';
 import { InputManager } from './input-manager.js';
 import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
 import { AudioManager } from './audio-manager.js?v=0.1.17';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
-import { VehicleManager } from './vehicle-manager.js?v=0.1.17';
-import { NpcManager } from './npc-manager.js?v=0.1.5';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.33';
+import { NpcManager } from './npc-manager.js?v=0.1.33';
 import { loadEngine } from './engine-loader.js';
 import { handleGameOver, wireUi } from './leaderboard.js?v=0.1.31';
 
@@ -597,6 +597,7 @@ export class Game {
     this.player.resetForNewRun(safeSpawn);
 
     this.enemyManager.resetForNewRun();
+    this.npcManager?.resetForNewRun?.();
 
     this.start();
     this.player.lock();
