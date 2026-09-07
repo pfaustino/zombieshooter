@@ -37,7 +37,7 @@ DOWNTOWN_RADIUS = 140.0
 PLAZA_RADIUS = 16.0
 
 # Soft caps — keep draw calls / GLB loads in a sane range.
-MAX_BUILDINGS = 45
+MAX_BUILDINGS = 90
 MAX_DRIVEABLE = 22
 MAX_NPCS = 12
 MAX_STATIC_SCENERY = 8
@@ -227,9 +227,9 @@ def main() -> None:
         if len(buildings) >= MAX_BUILDINGS:
             break
         downtown = dist2_spawn(cx, cz) < DOWNTOWN_RADIUS**2
-        n = rng.randint(2, 3) if downtown else rng.randint(1, 2)
-        sep = 14.0 if downtown else 18.0
-        jitter = 38.0 if downtown else 34.0
+        n = rng.randint(4, 6) if downtown else rng.randint(2, 4)
+        sep = 12.0 if downtown else 15.0
+        jitter = 40.0 if downtown else 36.0
         for _ in range(n * 4):
             if len(buildings) >= MAX_BUILDINGS:
                 break
