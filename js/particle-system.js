@@ -23,6 +23,7 @@ export class ParticleSystem {
 
   /** Blood spray in a cone along `direction` (shot / impact outward). */
   emitBlood(position, direction, count = 18) {
+    count = Math.max(1, Math.floor(count * 3));
     const dir = direction.clone();
     const len = dir.length() || 1;
     dir.x /= len; dir.y /= len; dir.z /= len;
@@ -38,12 +39,12 @@ export class ParticleSystem {
         (outY + Math.random() * 0.7) * speed * 0.85,
         (outZ + (Math.random() - 0.5) * spread) * speed);
       const pos = new Vec3(
-        position.x + (Math.random() - 0.5) * 0.12,
-        position.y + (Math.random() - 0.5) * 0.12,
-        position.z + (Math.random() - 0.5) * 0.12);
+        position.x + (Math.random() - 0.5) * 0.2,
+        position.y + (Math.random() - 0.5) * 0.2,
+        position.z + (Math.random() - 0.5) * 0.2);
       const shade = 0.35 + Math.random() * 0.45;
       const color = [shade, 0.02, 0.02];
-      const size = 0.045 + Math.random() * 0.07;
+      const size = (0.045 + Math.random() * 0.07) * 3;
       const obj = this.game.renderer.addObject(
         'sphere', pos, new Vec3(size, size, size), 0, color, [shade * 0.25, 0, 0], 1);
       this.particles.push({
