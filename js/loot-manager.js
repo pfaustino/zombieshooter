@@ -46,5 +46,17 @@ export class LootManager {
     this.drops.splice(index, 1);
     if (this.game.audioManager) this.game.audioManager.playLootPickup(drop.type);
     this.game.player.collectLoot(drop.type);
+    this._exclaim(drop.type);
+  }
+
+  _exclaim(type) {
+    const lines = {
+      coin: 'COIN! +$10',
+      cowboyhat: 'COWBOY HAT! +25 ARMOR',
+      potion: 'POTION! +30 HP',
+    };
+    const text = lines[type];
+    if (!text) return;
+    this.game.enemyManager?.showNotification?.(text, 1400);
   }
 }

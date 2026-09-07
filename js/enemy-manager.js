@@ -250,7 +250,7 @@ export class EnemyManager {
     this.waveTimerDisplay.className = seconds <= 20 ? 'danger' : seconds <= 45 ? 'warning' : '';
   }
 
-  showNotification(text) {
+  showNotification(text, durationMs = 3000) {
     this._ensureHUDRefs();
     if (!this.notificationDisplay) return;
     this.notificationDisplay.textContent = text;
@@ -258,7 +258,7 @@ export class EnemyManager {
     if (this.notificationTimeout) clearTimeout(this.notificationTimeout);
     this.notificationTimeout = setTimeout(() => {
       this.notificationDisplay.style.opacity = '0';
-    }, 3000);
+    }, durationMs);
   }
 
   setDifficulty(level) {
