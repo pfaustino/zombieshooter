@@ -136,6 +136,7 @@ export class Game {
 
     this._lastRun = { kills: 0, wave: 1 };
     wireUi(() => this._lastRun);
+    document.getElementById('btn-restart')?.addEventListener('click', () => this.restartRun());
 
     document.addEventListener('pointerlockchange', () => {
       if (document.pointerLockElement === this.canvas) {
@@ -572,6 +573,34 @@ export class Game {
     const finalWave = document.getElementById('final-wave');
     if (finalWave) finalWave.textContent = wave;
     handleGameOver(this._lastRun);
+  }
+
+  restartRun() {
+    document.getElementById('game-over')?.classList.add('hidden');
+    const deathOverlay = document.getElementById('death-overlay');
+    if (deathOverlay) {
+      deathOverlay.classList.remove('active', 'banner-on');
+      deathOverlay.style.opacity = '';
+    }
+
+    this.lootManager?.clearAll?.();
+    if (this.particleSystem?.particles) {
+      for (let i = this.particleSystem.particles.length - 1; i >= 0; i--) {
+        const p = this.particleSystem.particles[i];
+        if (p?.obj) this.renderer.removeObject(p.obj);
+      }
+      this.particleSystem.particles = [];
+    }
+
+    const spawn = this.world.cityLayout?.spawn || { x: 40, z: 12.5 };
+    const safeSpawn = this.world.findSafeSpawn(spawn.x, spawn.z, 80);
+    this.player.resetForNewRun(safeSpawn);
+
+    this.enemyManager.resetForNewRun();
+
+    this.start();
+    this.player.lock();
+    this.canvas?.requestPointerLock?.();
   }
 
   animate() {

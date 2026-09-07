@@ -517,6 +517,42 @@ export class Player {
     this.updateHUD();
   }
 
+  resetForNewRun(spawnPos) {
+    if (this.isInVehicle) this.exitVehicle();
+    this.health = 100;
+    this.armor = 0;
+    this.money = 0;
+    this.isDying = false;
+    this.isDead = false;
+    this.isFiring = false;
+    this.isReloading = false;
+    this.reloadTimer = 0;
+    this.shootCooldown = 0;
+    this.weaponRecoil = 0;
+    this.jumpCount = 0;
+    this.velocity.set(0, 0, 0);
+    this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;
+    this.yaw = 0;
+    this.pitch = 0;
+    this.currentWeapon = 0;
+    for (const w of this.weapons) w.ammo = w.maxAmmo;
+    this.ammo = this.weapons[0].ammo;
+    this.maxAmmo = this.weapons[0].maxAmmo;
+    this.shootRate = this.weapons[0].fireRate;
+    if (spawnPos) {
+      this.position.set(spawnPos.x, spawnPos.y, spawnPos.z);
+    } else {
+      this.position.y = this.playerHeight;
+    }
+    if (this.weaponObj) this.weaponObj.visible = true;
+    const overlay = document.getElementById('death-overlay');
+    if (overlay) {
+      overlay.classList.remove('active', 'banner-on');
+      overlay.style.opacity = '';
+    }
+    this.updateHUD();
+  }
+
   updateHUD() {
     if (this.healthDisplay) this.healthDisplay.textContent = `Health: ${Math.max(0, Math.floor(this.health))}`;
     if (this.ammoDisplay) this.ammoDisplay.textContent = `Ammo: ${this.ammo}/${this.maxAmmo}`;

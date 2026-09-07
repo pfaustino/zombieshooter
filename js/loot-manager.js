@@ -49,6 +49,13 @@ export class LootManager {
     this._exclaim(drop.type);
   }
 
+  clearAll() {
+    for (const drop of this.drops) {
+      if (drop?.obj) this.game.renderer.removeObject(drop.obj);
+    }
+    this.drops = [];
+  }
+
   _exclaim(type) {
     const lines = {
       coin: 'COIN! +$10',

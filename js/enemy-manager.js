@@ -28,6 +28,9 @@ export class EnemyManager {
     this.spawnClearance = 1.5;
     this._perfCap = 40;
     this._spawnsPerTick = 8;
+    this._waveCompleteTimer = null;
+    this._lateSurge = false;
+    this._bigArmChance = 0.25;
   }
 
   _ensureHUDRefs() {
@@ -48,9 +51,10 @@ export class EnemyManager {
     this.waveInProgress = true;
     this.waveEnemiesSpawned = 0;
     this.waveKilled = 0;
-    this.waveTimer = this.waveTimeLimit;
     this.pressureMode = false;
     this.reinforceCooldown = 0;
+    this._applyLateWavePressure();
+    this.waveTimer = this.waveTimeLimit;
     const baseEnemies = 5 + (this.currentWave - 1) * 3;
     const multiplier = this.spawnMultiplier || 1.5;
     this.waveTotalEnemies = Math.ceil(baseEnemies * multiplier);
@@ -63,8 +67,34 @@ export class EnemyManager {
     this.updateWaveDisplay();
     this.updateWaveTimerDisplay();
     this.updateKillDisplay();
-    this.showNotification(`Wave ${this.currentWave}`);
+    if (this._lateSurge) {
+      this.showNotification(`Wave ${this.currentWave} — SURGE`);
+    } else {
+      this.showNotification(`Wave ${this.currentWave}`);
+    }
     this._fillSpawns();
+  }
+
+  /** From wave 8+, shrink the clock and speed reinforcements so camping loses. */
+  _applyLateWavePressure() {
+    const w = this.currentWave;
+    this._lateSurge = w >= 8;
+    this._bigArmChance = 0.25;
+    let time = 120;
+    let reinforce = 10;
+    if (w >= 8) {
+      const t = Math.min(1, (w - 7) / 12); // wave 8 → 0, wave 19 → 1
+      time = Math.round(120 - t * 75); // 120s → 45s
+      reinforce = Math.max(3.5, 10 - t * 6.5); // 10s → 3.5s
+      this._bigArmChance = 0.25 + t * 0.25; // up to ~50%
+    }
+    if (w >= 12) {
+      this._spawnsPerTick = 12;
+    } else {
+      this._spawnsPerTick = 8;
+    }
+    this.waveTimeLimit = time;
+    this.reinforceInterval = reinforce;
   }
 
   _activeCount() {
@@ -117,7 +147,7 @@ export class EnemyManager {
     position.y = this.game.world.getGroundHeight(position.x, position.z);
     // Mix in tanky Big Arm brutes (~25% when the asset loaded).
     let type = Enemy.TYPE.ZOMBIE;
-    if (Enemy.bigArmSkinned && Math.random() < 0.25) type = Enemy.TYPE.BIGARM;
+    if (Enemy.bigArmSkinned && Math.random() < (this._bigArmChance ?? 0.25)) type = Enemy.TYPE.BIGARM;
     const enemy = new Enemy(this.game, position, type);
     enemy.init();
     this.enemies.push(enemy);
@@ -218,7 +248,30 @@ export class EnemyManager {
     this.waveInProgress = false;
     this.pressureMode = false;
     this.showNotification('Wave Complete!');
-    setTimeout(() => { this.currentWave++; this.startWave(); }, 5000);
+    if (this._waveCompleteTimer) clearTimeout(this._waveCompleteTimer);
+    this._waveCompleteTimer = setTimeout(() => {
+      this._waveCompleteTimer = null;
+      this.currentWave++;
+      this.startWave();
+    }, 5000);
+  }
+
+  resetForNewRun() {
+    if (this._waveCompleteTimer) {
+      clearTimeout(this._waveCompleteTimer);
+      this._waveCompleteTimer = null;
+    }
+    for (const enemy of this.enemies) {
+      try { enemy.dispose(); } catch (_) {}
+    }
+    this.enemies = [];
+    this.killCount = 0;
+    this.currentWave = 1;
+    this.waveInProgress = false;
+    this.pressureMode = false;
+    this.waveEnemiesSpawned = 0;
+    this.waveKilled = 0;
+    this.startWave();
   }
 
   updateKillDisplay() {
