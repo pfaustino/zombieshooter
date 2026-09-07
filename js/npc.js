@@ -117,14 +117,14 @@ export class Npc {
         x = this.home.x + (hx / hd) * this.patrolRadius;
         z = this.home.z + (hz / hd) * this.patrolRadius;
       }
-      if (!this.game.world.checkCollision(x, z, bodyR)) {
+      if (!this.game.world.checkCollision(x, z, bodyR) && !this.game.world.isOnRoad?.(x, z, 1)) {
         this.targetPosition = new Vec3(x, 0, z);
         return;
       }
     }
     const fx = this.position.x + Math.sin(this.facingYaw) * 2;
     const fz = this.position.z + Math.cos(this.facingYaw) * 2;
-    this.targetPosition = !this.game.world.checkCollision(fx, fz, bodyR)
+    this.targetPosition = (!this.game.world.checkCollision(fx, fz, bodyR) && !this.game.world.isOnRoad?.(fx, fz, 1))
       ? new Vec3(fx, 0, fz)
       : this.position.clone();
   }
@@ -145,20 +145,22 @@ export class Npc {
     const newX = oldX + mx * step;
     const newZ = oldZ + mz * step;
     const r = 0.45;
+    const blocked = (x, z) =>
+      this.game.world.checkCollision(x, z, r) || this.game.world.isOnRoad?.(x, z, 0.5);
 
-    if (!this.game.world.checkCollision(newX, newZ, r)) {
+    if (!blocked(newX, newZ)) {
       this.position.x = newX;
       this.position.z = newZ;
       return;
     }
 
     // Axis slide only if it still roughly matches facing; then face the slide direction.
-    if (!this.game.world.checkCollision(newX, oldZ, r) && Math.abs(mx) >= 0.25) {
+    if (!blocked(newX, oldZ) && Math.abs(mx) >= 0.25) {
       this.position.x = newX;
       this.facingYaw = Math.atan2(Math.sign(mx), 0);
       return;
     }
-    if (!this.game.world.checkCollision(oldX, newZ, r) && Math.abs(mz) >= 0.25) {
+    if (!blocked(oldX, newZ) && Math.abs(mz) >= 0.25) {
       this.position.z = newZ;
       this.facingYaw = Math.atan2(0, Math.sign(mz) || 1);
       return;

@@ -1,7 +1,7 @@
 import { Vec3, AABB } from './math.js';
 import { loadGLBGeometry } from './gltf-loader.js';
-import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.4';
-import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.4p';
+import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.5';
+import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.5';
 
 export class World {
   constructor(game) {
@@ -9,37 +9,54 @@ export class World {
     this.collidables = [];
     this.objects = [];
     this.geometryCache = new Map();
+    this.roads = [];
+    this.cityBounds = null;
+    this.cityLayout = null;
   }
 
-  init() {
+  async init() {
+    await this._loadCityLayout();
     this.createGround();
     this.createRoads();
     this.createCityWalls();
   }
 
+  async _loadCityLayout() {
+    try {
+      const res = await fetch('assets/city-layout.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`city-layout ${res.status}`);
+      this.cityLayout = await res.json();
+      this.roads = this.cityLayout.roads || [];
+      if (this.cityLayout.bounds) this.cityBounds = { ...this.cityLayout.bounds };
+    } catch (err) {
+      console.warn('city-layout.json missing, using built-in fallback:', err);
+      this.cityLayout = null;
+      this.roads = [];
+      this.cityBounds = { minX: -90, maxX: 170, minZ: -130, maxZ: 155 };
+    }
+  }
+
   createGround() {
+    const size = this.cityLayout?.groundSize || 800;
+    const half = size * 0.5;
     const ground = this.game.renderer.addObject('plane',
-      new Vec3(0, 0, 0), new Vec3(800, 1, 800), 0,
+      new Vec3(0, 0, 0), new Vec3(size, 1, size), 0,
       [0.165, 0.165, 0.23], [0, 0, 0], 1);
     ground.visible = true;
-    this.collidables.push({ name: 'ground', aabb: new AABB(new Vec3(-400, -1, -400), new Vec3(400, 0, 400)) });
+    this.collidables.push({
+      name: 'ground',
+      aabb: new AABB(new Vec3(-half, -1, -half), new Vec3(half, 0, half)),
+    });
   }
 
   createRoads() {
-    const roads = [
-      { x: 0, z: 0, w: 8, d: 700 },
-      { x: 0, z: 0, w: 700, d: 8 },
-      { x: -40, z: 0, w: 6, d: 480 },
-      { x: 40, z: 0, w: 6, d: 480 },
-      { x: 120, z: 0, w: 8, d: 640 },
-      { x: -120, z: 0, w: 8, d: 640 },
-      { x: 0, z: -40, w: 480, d: 6 },
-      { x: 0, z: 40, w: 480, d: 6 },
-      { x: 0, z: -160, w: 560, d: 8 },
-      { x: 0, z: 160, w: 560, d: 8 },
-      { x: 100, z: 140, w: 120, d: 8 },
-      { x: -100, z: -140, w: 120, d: 8 },
-    ];
+    const roads = this.roads.length
+      ? this.roads
+      : [
+        { x: 0, z: 0, w: 8, d: 700 },
+        { x: 0, z: 0, w: 700, d: 8 },
+      ];
+    this.roads = roads;
     for (const r of roads) {
       this.game.renderer.addObject('plane',
         new Vec3(r.x, 0.02, r.z), new Vec3(r.w, 1, r.d), 0,
@@ -47,11 +64,22 @@ export class World {
     }
   }
 
+  /** True if (x,z) sits on asphalt (optional margin expands the footprint). */
+  isOnRoad(x, z, margin = 0) {
+    for (const r of this.roads) {
+      const hw = r.w * 0.5 + margin;
+      const hd = r.d * 0.5 + margin;
+      if (Math.abs(x - r.x) <= hw && Math.abs(z - r.z) <= hd) return true;
+    }
+    return false;
+  }
+
   createCityWalls() {
-    const minX = -90;
-    const maxX = 170;
-    const minZ = -130;
-    const maxZ = 155;
+    const b = this.cityBounds || { minX: -90, maxX: 170, minZ: -130, maxZ: 155 };
+    const minX = b.minX;
+    const maxX = b.maxX;
+    const minZ = b.minZ;
+    const maxZ = b.maxZ;
     const height = 14;
     const thickness = 4;
     const wallColor = [0.26, 0.26, 0.3];
@@ -87,7 +115,10 @@ export class World {
       const r = await fetch('assets/world.json', { cache: 'no-store' });
       const data = await r.json();
       const jobs = [];
-      if (data.buildings) jobs.push(...data.buildings.map(b => this.loadModel(b, true)));
+      if (data.buildings) {
+        const offRoad = data.buildings.filter(b => !this.isOnRoad(b.x, b.z, 8));
+        jobs.push(...offRoad.map(b => this.loadModel(b, true)));
+      }
       if (data.vehicles) {
         const staticVehicles = data.vehicles.filter(v => !DRIVABLE_MODELS.includes(v.model));
         jobs.push(...staticVehicles.map(v => this.loadModel(v, true)));
@@ -250,21 +281,23 @@ export class World {
 
   findSafeSpawn(preferredX = 0, preferredZ = 0, radius = 80) {
     const playerRadius = 0.5;
+    const clear = (x, z) =>
+      !this.checkCollision(x, z, playerRadius + 1) && !this.isOnRoad(x, z, 2);
     for (let attempt = 0; attempt < 100; attempt++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.random() * radius;
       const x = preferredX + Math.cos(angle) * dist;
       const z = preferredZ + Math.sin(angle) * dist;
-      if (!this.checkCollision(x, z, playerRadius + 1)) return new Vec3(x, this.playerHeightSafe(), z);
+      if (clear(x, z)) return new Vec3(x, this.playerHeightSafe(), z);
     }
     for (let r = 5; r <= radius; r += 5) {
       for (let a = 0; a < Math.PI * 2; a += 0.3) {
         const x = preferredX + Math.cos(a) * r;
         const z = preferredZ + Math.sin(a) * r;
-        if (!this.checkCollision(x, z, playerRadius + 1)) return new Vec3(x, this.playerHeightSafe(), z);
+        if (clear(x, z)) return new Vec3(x, this.playerHeightSafe(), z);
       }
     }
-    return new Vec3(0, 1.7, 0);
+    return new Vec3(preferredX, 1.7, preferredZ);
   }
 
   playerHeightSafe() { return 1.7; }

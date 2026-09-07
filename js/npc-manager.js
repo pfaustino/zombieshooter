@@ -1,7 +1,7 @@
 import { Vec3 } from './math.js';
 import { loadGLBSkinned } from './gltf-loader.js?v=0.1.4n';
 import { AnimPlayer } from './anim-player.js?v=0.1.4n';
-import { Npc } from './npc.js?v=0.1.4p';
+import { Npc } from './npc.js?v=0.1.5';
 
 /** City people prop models replaced by animated NPCs. */
 export const NPC_PROP_MODELS = new Set([
@@ -78,6 +78,7 @@ export class NpcManager {
     let womanSlot = 0;
     for (const p of props) {
       if (!p?.model || !NPC_PROP_MODELS.has(p.model)) continue;
+      if (this.game.world.isOnRoad?.(p.x, p.z, 1)) continue;
       let key = resolveAssetKey(p.model);
       if (key === 'woman' && this.assets.man) {
         if (womanSlot % 2 === 0) key = 'man';

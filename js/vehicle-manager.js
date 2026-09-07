@@ -17,6 +17,8 @@ export class VehicleManager {
     if (worldData && worldData.vehicles) {
       for (const v of worldData.vehicles) {
         if (!DRIVABLE_MODELS.includes(v.model)) continue;
+        // Driveable cars belong on roads only.
+        if (this.game.world.isOnRoad && !this.game.world.isOnRoad(v.x, v.z, 2)) continue;
         await this._spawnDrivable(v);
       }
     }
@@ -60,6 +62,7 @@ export class VehicleManager {
       const b = world.cityBounds;
       if (x - radius < b.minX || x + radius > b.maxX || z - radius < b.minZ || z + radius > b.maxZ) return false;
     }
+    if (world.isOnRoad && !world.isOnRoad(x, z, 1)) return false;
     return !world.checkCollision(x, z, radius);
   }
 

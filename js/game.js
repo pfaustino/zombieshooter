@@ -1,14 +1,14 @@
 import { Renderer } from './renderer.js?v=0.1.4e';
 import { Camera } from './camera.js';
 import { Player } from './player.js?v=0.1.4s';
-import { World } from './world.js?v=0.1.4g';
+import { World } from './world.js?v=0.1.5';
 import { InputManager } from './input-manager.js';
 import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
 import { AudioManager } from './audio-manager.js?v=0.1.4s';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
-import { VehicleManager } from './vehicle-manager.js?v=0.1.4';
-import { NpcManager } from './npc-manager.js?v=0.1.4p';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.5';
+import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
 
 export class Game {
@@ -60,11 +60,12 @@ export class Game {
     this.npcManager = new NpcManager(this);
 
     this._updateLoading(40, 'Loading world assets...');
-    this.world.init();
+    await this.world.init();
     await this.world.loadCityAssets();
 
     this._updateLoading(65, 'Spawning player...');
-    const safeSpawn = this.world.findSafeSpawn(0, 0, 60);
+    const spawn = this.world.cityLayout?.spawn || { x: 40, z: 12.5 };
+    const safeSpawn = this.world.findSafeSpawn(spawn.x, spawn.z, 80);
     this.player.position.set(safeSpawn.x, safeSpawn.y, safeSpawn.z);
     this.player.yaw = 0;
     this.player.pitch = 0;
