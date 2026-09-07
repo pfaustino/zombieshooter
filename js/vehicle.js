@@ -316,12 +316,21 @@ export class Vehicle {
     return Math.max(w * 0.55, l * 0.3);
   }
 
+  _mass() {
+    return this._stats().mass || 1200;
+  }
+
   _resolveVehicleCollisions(oldX, oldZ) {
     const others = this.game.vehicleManager?.vehicles;
     if (!others || others.length === 0) return;
 
+    const restitution = 0.55;
+    const frictionMix = 0.15;
+
     for (const other of others) {
       if (other === this || other.destroyed || !other.loaded) continue;
+      // Resolve each pair once.
+      if (others.indexOf(other) <= others.indexOf(this)) continue;
 
       let dx = this.position.x - other.position.x;
       let dz = this.position.z - other.position.z;
@@ -330,11 +339,9 @@ export class Vehicle {
       if (distSq >= minDist * minDist) continue;
 
       if (distSq < 1e-6) {
-        this.position.x = oldX;
-        this.position.z = oldZ;
-        this.velocity.x *= 0.2;
-        this.velocity.z *= 0.2;
-        continue;
+        dx = (Math.random() - 0.5) || 0.01;
+        dz = (Math.random() - 0.5) || 0.01;
+        distSq = dx * dx + dz * dz;
       }
 
       const dist = Math.sqrt(distSq);
@@ -342,39 +349,104 @@ export class Vehicle {
       const nz = dz / dist;
       const overlap = minDist - dist;
 
-      // Moving car takes most of the separation; nudge parked cars slightly.
-      const selfPush = other.occupied ? overlap * 0.5 : overlap * 0.9;
-      const otherPush = overlap - selfPush;
-      this.position.x += nx * selfPush;
-      this.position.z += nz * selfPush;
-      if (otherPush > 0) {
-        other.position.x -= nx * otherPush;
-        other.position.z -= nz * otherPush;
+      const m1 = this._mass();
+      const m2 = other._mass();
+      const inv1 = 1 / m1;
+      const inv2 = 1 / m2;
+      const invSum = inv1 + inv2;
+
+      // Positional correction (mass-weighted).
+      const corr = (overlap / invSum) * 0.85;
+      this.position.x += nx * corr * inv1;
+      this.position.z += nz * corr * inv1;
+      other.position.x -= nx * corr * inv2;
+      other.position.z -= nz * corr * inv2;
+
+      // Relative velocity along contact normal.
+      const rvx = this.velocity.x - other.velocity.x;
+      const rvz = this.velocity.z - other.velocity.z;
+      const velAlongNormal = rvx * nx + rvz * nz;
+      if (velAlongNormal > 0) {
         other._syncParts();
+        continue; // already separating
       }
 
-      // Remove velocity into the contact normal.
-      const vn = this.velocity.x * nx + this.velocity.z * nz;
-      if (vn < 0) {
-        this.velocity.x -= vn * nx * 1.05;
-        this.velocity.z -= vn * nz * 1.05;
-      }
-      this.velocity.x *= 0.55;
-      this.velocity.z *= 0.55;
+      // Bounce impulse.
+      const j = -(1 + restitution) * velAlongNormal / invSum;
+      const ix = j * nx;
+      const iz = j * nz;
+      this.velocity.x += ix * inv1;
+      this.velocity.z += iz * inv1;
+      other.velocity.x -= ix * inv2;
+      other.velocity.z -= iz * inv2;
 
-      const impact = Math.abs(vn);
-      if (impact > 6) {
-        this._takeDamage(impact * 0.3);
+      // Light tangential friction so they don't stick sliding forever.
+      const tx = rvx - velAlongNormal * nx;
+      const tz = rvz - velAlongNormal * nz;
+      const tLen = Math.hypot(tx, tz);
+      if (tLen > 1e-4) {
+        const jt = Math.min(j * frictionMix, tLen / invSum);
+        const tnx = tx / tLen;
+        const tnz = tz / tLen;
+        this.velocity.x -= tnx * jt * inv1;
+        this.velocity.z -= tnz * jt * inv1;
+        other.velocity.x += tnx * jt * inv2;
+        other.velocity.z += tnz * jt * inv2;
+      }
+
+      const impact = Math.abs(velAlongNormal);
+      if (impact > 5) {
+        this._takeDamage(impact * 0.25);
         other._takeDamage(impact * 0.25);
       }
+      other._syncParts();
     }
 
-    // If push put us in a building, snap back.
+    this._resolvePlayerCollision();
+
     if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
       this.position.x = oldX;
       this.position.z = oldZ;
-      this.velocity.x *= 0.2;
-      this.velocity.z *= 0.2;
+      this.velocity.x *= 0.35;
+      this.velocity.z *= 0.35;
+    }
+  }
+
+  _resolvePlayerCollision() {
+    const player = this.game.player;
+    if (!player || player.isInVehicle || player.isDead || player.isDying || player.ghostMode) return;
+
+    const dx = player.position.x - this.position.x;
+    const dz = player.position.z - this.position.z;
+    const distSq = dx * dx + dz * dz;
+    const minDist = this._collisionRadius() + (player.playerRadius || 0.4) + 0.15;
+    if (distSq >= minDist * minDist) return;
+
+    if (distSq < 1e-6) {
+      player.position.x += minDist;
+      return;
+    }
+
+    const dist = Math.sqrt(distSq);
+    const nx = dx / dist;
+    const nz = dz / dist;
+    const overlap = minDist - dist;
+
+    player.position.x += nx * overlap;
+    player.position.z += nz * overlap;
+
+    const speed = Math.hypot(this.velocity.x, this.velocity.z);
+    const mCar = this._mass();
+    const mPlayer = 80;
+    const invSum = 1 / mCar + 1 / mPlayer;
+    const rvn = this.velocity.x * nx + this.velocity.z * nz;
+    if (rvn > 0.5) {
+      const j = -1.15 * rvn / invSum;
+      this.velocity.x += (j * nx) / mCar;
+      this.velocity.z += (j * nz) / mCar;
+      player.position.x += nx * Math.min(0.6, speed * 0.04);
+      player.position.z += nz * Math.min(0.6, speed * 0.04);
+      if (speed > 10) player.takeDamage(Math.min(35, speed * 1.2));
     }
   }
 

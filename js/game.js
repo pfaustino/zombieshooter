@@ -1,13 +1,13 @@
 import { Renderer } from './renderer.js?v=0.1.4e';
 import { Camera } from './camera.js';
-import { Player } from './player.js?v=0.1.4s';
+import { Player } from './player.js?v=0.1.16';
 import { World } from './world.js?v=0.1.5';
 import { InputManager } from './input-manager.js';
 import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
 import { AudioManager } from './audio-manager.js?v=0.1.14';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
-import { VehicleManager } from './vehicle-manager.js?v=0.1.15';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.16';
 import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
 
@@ -579,7 +579,7 @@ export class Game {
         this.enemyManager.update(delta);
         this.npcManager?.update(delta);
         this.lootManager.update(delta);
-        if (!this.player.isInVehicle) this.vehicleManager.update(delta);
+        this.vehicleManager.update(delta);
       } else {
         this.enemyManager.update(worldDelta);
         this.npcManager?.update(worldDelta);

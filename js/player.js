@@ -240,8 +240,40 @@ export class Player {
   }
 
   _updateVehicleMode(delta) {
-    if (!this.vehicle) return;
-    this.vehicle.update(delta, this);
+    // Physics/camera run via VehicleManager so bounced cars keep sliding.
+  }
+
+  _resolveVehicleSolidCollision(oldX, oldZ) {
+    const vehicles = this.game.vehicleManager?.vehicles;
+    if (!vehicles) return;
+
+    for (const v of vehicles) {
+      if (!v.loaded || v.destroyed || v.occupied) continue;
+      const dx = this.position.x - v.position.x;
+      const dz = this.position.z - v.position.z;
+      const distSq = dx * dx + dz * dz;
+      const minDist = (v._collisionRadius?.() || 2.2) + this.playerRadius + 0.1;
+      if (distSq >= minDist * minDist) continue;
+
+      if (distSq < 1e-6) {
+        this.position.x = oldX;
+        this.position.z = oldZ;
+        continue;
+      }
+
+      const dist = Math.sqrt(distSq);
+      const nx = dx / dist;
+      const nz = dz / dist;
+      const overlap = minDist - dist;
+      this.position.x += nx * overlap;
+      this.position.z += nz * overlap;
+
+      const feetY = this.position.y - this.playerHeight;
+      if (this.game.world.checkCollision3D(this.position.x, feetY, this.position.z, this.playerRadius, this.playerHeight)) {
+        this.position.x = oldX;
+        this.position.z = oldZ;
+      }
+    }
   }
 
   getAABB() {
@@ -567,6 +599,7 @@ export class Player {
           this.position.z = oldZ;
         }
       }
+      this._resolveVehicleSolidCollision(oldX, oldZ);
     }
 
     this.position.y += this.velocity.y * delta;
