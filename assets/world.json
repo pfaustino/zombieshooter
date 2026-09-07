@@ -5,7 +5,7 @@
       "x": -33.15,
       "y": 0.0,
       "z": 19.63,
-      "scale": 6.328,
+      "scale": 9.492,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -15,7 +15,7 @@
       "x": -27.74,
       "y": 0.0,
       "z": 4.96,
-      "scale": 5.762,
+      "scale": 8.643,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -25,7 +25,7 @@
       "x": -11.87,
       "y": 0.0,
       "z": 30.02,
-      "scale": 5.786,
+      "scale": 8.679,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -35,7 +35,7 @@
       "x": 65.11,
       "y": 0.0,
       "z": -89.38,
-      "scale": 5.352,
+      "scale": 8.028,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -45,7 +45,7 @@
       "x": 74.02,
       "y": 0.0,
       "z": -76.29,
-      "scale": 3.396,
+      "scale": 5.094,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -55,7 +55,7 @@
       "x": 62.02,
       "y": 0.0,
       "z": 93.82,
-      "scale": 5.408,
+      "scale": 8.112,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -65,7 +65,7 @@
       "x": 62.47,
       "y": 0.0,
       "z": 114.21,
-      "scale": 4.87,
+      "scale": 7.305,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -75,7 +75,7 @@
       "x": 72.24,
       "y": 0.0,
       "z": 106.85,
-      "scale": 5.931,
+      "scale": 8.896,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -85,7 +85,7 @@
       "x": 82.64,
       "y": 0.0,
       "z": 100.08,
-      "scale": 5.327,
+      "scale": 7.99,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -95,7 +95,7 @@
       "x": -32.33,
       "y": 0.0,
       "z": -60.88,
-      "scale": 5.491,
+      "scale": 8.236,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -105,7 +105,7 @@
       "x": -40.74,
       "y": 0.0,
       "z": -72.77,
-      "scale": 3.939,
+      "scale": 5.909,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -115,7 +115,7 @@
       "x": -6.49,
       "y": 0.0,
       "z": 121.04,
-      "scale": 4.947,
+      "scale": 7.421,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -125,7 +125,7 @@
       "x": -27.42,
       "y": 0.0,
       "z": 111.18,
-      "scale": 6.352,
+      "scale": 9.528,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -135,7 +135,7 @@
       "x": 182.01,
       "y": 0.0,
       "z": 29.34,
-      "scale": 6.439,
+      "scale": 9.659,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -145,7 +145,7 @@
       "x": 143.44,
       "y": 0.0,
       "z": 7.01,
-      "scale": 5.255,
+      "scale": 7.883,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -155,7 +155,7 @@
       "x": 184.18,
       "y": 0.0,
       "z": 10.69,
-      "scale": 5.906,
+      "scale": 8.859,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -165,7 +165,7 @@
       "x": 147.21,
       "y": 0.0,
       "z": 26.94,
-      "scale": 3.624,
+      "scale": 5.436,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -175,7 +175,7 @@
       "x": 175.02,
       "y": 0.0,
       "z": 0.99,
-      "scale": 5.309,
+      "scale": 7.963,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -185,7 +185,7 @@
       "x": 157.51,
       "y": 0.0,
       "z": -76.43,
-      "scale": 5.929,
+      "scale": 8.893,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -195,7 +195,7 @@
       "x": 155.33,
       "y": 0.0,
       "z": -60.32,
-      "scale": 5.992,
+      "scale": 8.988,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -205,7 +205,7 @@
       "x": 159.54,
       "y": 0.0,
       "z": 100.61,
-      "scale": 5.106,
+      "scale": 7.659,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -215,7 +215,7 @@
       "x": 158.57,
       "y": 0.0,
       "z": 116.01,
-      "scale": 3.363,
+      "scale": 5.045,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -225,7 +225,7 @@
       "x": -97.54,
       "y": 0.0,
       "z": 26.16,
-      "scale": 4.657,
+      "scale": 6.986,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -235,7 +235,7 @@
       "x": -128.12,
       "y": 0.0,
       "z": 15.95,
-      "scale": 4.729,
+      "scale": 7.094,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -245,7 +245,7 @@
       "x": -119.92,
       "y": 0.0,
       "z": -53.7,
-      "scale": 7.103,
+      "scale": 10.654,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -255,7 +255,7 @@
       "x": -111.72,
       "y": 0.0,
       "z": -73.2,
-      "scale": 5.786,
+      "scale": 8.679,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -265,7 +265,7 @@
       "x": 54.74,
       "y": 0.0,
       "z": -164.8,
-      "scale": 5.921,
+      "scale": 8.882,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -275,7 +275,7 @@
       "x": 70.23,
       "y": 0.0,
       "z": -146.9,
-      "scale": 4.127,
+      "scale": 6.191,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -285,7 +285,7 @@
       "x": 50.01,
       "y": 0.0,
       "z": -148.81,
-      "scale": 5.318,
+      "scale": 7.977,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -295,7 +295,7 @@
       "x": 70.17,
       "y": 0.0,
       "z": -168.33,
-      "scale": 5.529,
+      "scale": 8.293,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -305,7 +305,7 @@
       "x": -107.11,
       "y": 0.0,
       "z": 96.58,
-      "scale": 6.125,
+      "scale": 9.188,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -315,7 +315,7 @@
       "x": -118.54,
       "y": 0.0,
       "z": 114.03,
-      "scale": 4.518,
+      "scale": 6.777,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -325,7 +325,7 @@
       "x": -37.29,
       "y": 0.0,
       "z": -180.22,
-      "scale": 5.567,
+      "scale": 8.351,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -335,7 +335,7 @@
       "x": -11.4,
       "y": 0.0,
       "z": -157.16,
-      "scale": 4.234,
+      "scale": 6.351,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -345,7 +345,7 @@
       "x": -27.39,
       "y": 0.0,
       "z": -166.21,
-      "scale": 5.381,
+      "scale": 8.072,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -355,7 +355,7 @@
       "x": 156.95,
       "y": 0.0,
       "z": -145.06,
-      "scale": 5.529,
+      "scale": 8.293,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -365,7 +365,7 @@
       "x": 165.96,
       "y": 0.0,
       "z": -178.89,
-      "scale": 5.472,
+      "scale": 8.208,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -375,7 +375,7 @@
       "x": 177.52,
       "y": 0.0,
       "z": -152.2,
-      "scale": 5.762,
+      "scale": 8.643,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -385,7 +385,7 @@
       "x": -111.02,
       "y": 0.0,
       "z": -170.42,
-      "scale": 5.721,
+      "scale": 8.582,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -395,7 +395,7 @@
       "x": -126.2,
       "y": 0.0,
       "z": -157.74,
-      "scale": 4.24,
+      "scale": 6.36,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -405,7 +405,7 @@
       "x": -14.31,
       "y": 0.0,
       "z": 16.78,
-      "scale": 6.1,
+      "scale": 9.15,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -415,7 +415,7 @@
       "x": -47.4,
       "y": 0.0,
       "z": 6.38,
-      "scale": 5.925,
+      "scale": 8.887,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -425,7 +425,7 @@
       "x": -127.58,
       "y": 0.0,
       "z": -89.63,
-      "scale": 4.606,
+      "scale": 6.909,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -435,7 +435,7 @@
       "x": -3.83,
       "y": 0.0,
       "z": 203.19,
-      "scale": 5.269,
+      "scale": 7.904,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -445,7 +445,7 @@
       "x": 90.5,
       "y": 0.0,
       "z": -57.92,
-      "scale": 3.267,
+      "scale": 4.901,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -455,7 +455,7 @@
       "x": 197.86,
       "y": 0.0,
       "z": -96.34,
-      "scale": 5.576,
+      "scale": 8.364,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -465,7 +465,7 @@
       "x": 42.11,
       "y": 0.0,
       "z": 132.96,
-      "scale": 5.136,
+      "scale": 7.704,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -475,7 +475,7 @@
       "x": 220.14,
       "y": 0.0,
       "z": 129.92,
-      "scale": 6.224,
+      "scale": 9.336,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -485,7 +485,7 @@
       "x": 0.97,
       "y": 0.0,
       "z": -174.11,
-      "scale": 4.064,
+      "scale": 6.096,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -495,7 +495,7 @@
       "x": -100.15,
       "y": 0.0,
       "z": 5.89,
-      "scale": 6.957,
+      "scale": 10.435,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -505,7 +505,7 @@
       "x": -34.75,
       "y": 0.0,
       "z": -47.76,
-      "scale": 3.87,
+      "scale": 5.805,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -515,7 +515,7 @@
       "x": -11.93,
       "y": 0.0,
       "z": 94.75,
-      "scale": 4.777,
+      "scale": 7.165,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -525,7 +525,7 @@
       "x": -9.5,
       "y": 0.0,
       "z": 109.32,
-      "scale": 6.065,
+      "scale": 9.098,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -535,7 +535,7 @@
       "x": 161.36,
       "y": 0.0,
       "z": 30.75,
-      "scale": 5.987,
+      "scale": 8.98,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -545,7 +545,7 @@
       "x": 90.89,
       "y": 0.0,
       "z": 41.48,
-      "scale": 4.907,
+      "scale": 7.361,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -555,7 +555,7 @@
       "x": 182.65,
       "y": 0.0,
       "z": -8.6,
-      "scale": 5.848,
+      "scale": 8.772,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -565,7 +565,7 @@
       "x": 165.47,
       "y": 0.0,
       "z": 43.76,
-      "scale": 3.905,
+      "scale": 5.857,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -575,7 +575,7 @@
       "x": -21.45,
       "y": 0.0,
       "z": 40.05,
-      "scale": 6.425,
+      "scale": 9.637,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -585,7 +585,7 @@
       "x": 137.93,
       "y": 0.0,
       "z": -60.45,
-      "scale": 6.213,
+      "scale": 9.319,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -595,7 +595,7 @@
       "x": 135.39,
       "y": 0.0,
       "z": -78.85,
-      "scale": 5.685,
+      "scale": 8.527,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -605,7 +605,7 @@
       "x": 190.09,
       "y": 0.0,
       "z": 110.3,
-      "scale": 5.034,
+      "scale": 7.551,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -615,7 +615,7 @@
       "x": 131.59,
       "y": 0.0,
       "z": 109.42,
-      "scale": 3.227,
+      "scale": 4.84,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -625,7 +625,7 @@
       "x": -121.43,
       "y": 0.0,
       "z": 196.27,
-      "scale": 5.773,
+      "scale": 8.659,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -635,7 +635,7 @@
       "x": 180.16,
       "y": 0.0,
       "z": -77.72,
-      "scale": 6.807,
+      "scale": 10.21,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -645,7 +645,7 @@
       "x": -101.28,
       "y": 0.0,
       "z": -54.77,
-      "scale": 7.037,
+      "scale": 10.556,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -655,7 +655,7 @@
       "x": -128.67,
       "y": 0.0,
       "z": -73.13,
-      "scale": 6.058,
+      "scale": 9.087,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -665,7 +665,7 @@
       "x": 204.92,
       "y": 0.0,
       "z": 178.3,
-      "scale": 4.596,
+      "scale": 6.894,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -675,7 +675,7 @@
       "x": 156.62,
       "y": 0.0,
       "z": 5.41,
-      "scale": 5.835,
+      "scale": 8.752,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -685,7 +685,7 @@
       "x": 165.94,
       "y": 0.0,
       "z": 195.49,
-      "scale": 4.313,
+      "scale": 6.47,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -695,7 +695,7 @@
       "x": 88.08,
       "y": 0.0,
       "z": -187.0,
-      "scale": 5.678,
+      "scale": 8.517,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -705,7 +705,7 @@
       "x": -43.34,
       "y": 0.0,
       "z": 97.26,
-      "scale": 5.75,
+      "scale": 8.625,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -715,7 +715,7 @@
       "x": -136.97,
       "y": 0.0,
       "z": 95.25,
-      "scale": 4.522,
+      "scale": 6.783,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -725,7 +725,7 @@
       "x": -11.77,
       "y": 0.0,
       "z": -169.93,
-      "scale": 5.339,
+      "scale": 8.009,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -735,7 +735,7 @@
       "x": -39.61,
       "y": 0.0,
       "z": -164.5,
-      "scale": 4.152,
+      "scale": 6.228,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -745,7 +745,7 @@
       "x": -22.22,
       "y": 0.0,
       "z": -136.1,
-      "scale": 5.107,
+      "scale": 7.661,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -755,7 +755,7 @@
       "x": 147.22,
       "y": 0.0,
       "z": -171.27,
-      "scale": 5.388,
+      "scale": 8.082,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -765,7 +765,7 @@
       "x": 186.24,
       "y": 0.0,
       "z": -177.68,
-      "scale": 5.276,
+      "scale": 7.914,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -775,7 +775,7 @@
       "x": -89.11,
       "y": 0.0,
       "z": -162.5,
-      "scale": 5.049,
+      "scale": 7.574,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -785,7 +785,7 @@
       "x": -109.59,
       "y": 0.0,
       "z": -153.76,
-      "scale": 5.803,
+      "scale": 8.704,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -795,7 +795,7 @@
       "x": -124.64,
       "y": 0.0,
       "z": -175.16,
-      "scale": 4.566,
+      "scale": 6.849,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -805,7 +805,7 @@
       "x": -13.15,
       "y": 0.0,
       "z": 0.41,
-      "scale": 6.187,
+      "scale": 9.28,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -815,7 +815,7 @@
       "x": -46.93,
       "y": 0.0,
       "z": 24.21,
-      "scale": 5.418,
+      "scale": 8.127,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -825,7 +825,7 @@
       "x": 211.57,
       "y": 0.0,
       "z": -80.72,
-      "scale": 5.538,
+      "scale": 8.307,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -835,7 +835,7 @@
       "x": 91.36,
       "y": 0.0,
       "z": -83.11,
-      "scale": 5.489,
+      "scale": 8.233,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -845,7 +845,7 @@
       "x": 43.96,
       "y": 0.0,
       "z": -86.25,
-      "scale": 3.165,
+      "scale": 4.748,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -855,7 +855,7 @@
       "x": 71.14,
       "y": 0.0,
       "z": 124.36,
-      "scale": 5.657,
+      "scale": 8.486,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -865,7 +865,7 @@
       "x": 51.9,
       "y": 0.0,
       "z": 84.21,
-      "scale": 4.72,
+      "scale": 7.08,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -875,7 +875,7 @@
       "x": -0.25,
       "y": 0.0,
       "z": 19.21,
-      "scale": 6.218,
+      "scale": 9.327,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -885,7 +885,7 @@
       "x": 130.97,
       "y": 0.0,
       "z": 16.58,
-      "scale": 5.664,
+      "scale": 8.496,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -895,7 +895,7 @@
       "x": -90.77,
       "y": 0.0,
       "z": 103.35,
-      "scale": 5.18,
+      "scale": 7.77,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -905,7 +905,7 @@
       "x": -39.09,
       "y": 0.0,
       "z": -93.51,
-      "scale": 4.093,
+      "scale": 6.139,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -915,7 +915,7 @@
       "x": 187.74,
       "y": 0.0,
       "z": 174.58,
-      "scale": 5.87,
+      "scale": 8.805,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -925,7 +925,7 @@
       "x": -94.38,
       "y": 0.0,
       "z": -136.97,
-      "scale": 4.342,
+      "scale": 6.513,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -935,7 +935,7 @@
       "x": 38.63,
       "y": 0.0,
       "z": 198.41,
-      "scale": 6.056,
+      "scale": 9.084,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -945,7 +945,7 @@
       "x": 167.93,
       "y": 0.0,
       "z": -49.24,
-      "scale": 5.513,
+      "scale": 8.27,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -955,7 +955,7 @@
       "x": 209.92,
       "y": 0.0,
       "z": 17.9,
-      "scale": 6.141,
+      "scale": 9.212,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -965,7 +965,7 @@
       "x": 135.17,
       "y": 0.0,
       "z": 189.79,
-      "scale": 4.983,
+      "scale": 7.474,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -975,7 +975,7 @@
       "x": 80.31,
       "y": 0.0,
       "z": -89.95,
-      "scale": 5.535,
+      "scale": 8.303,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -985,7 +985,7 @@
       "x": -34.71,
       "y": 0.0,
       "z": -149.27,
-      "scale": 5.459,
+      "scale": 8.188,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -995,7 +995,7 @@
       "x": 175.6,
       "y": 0.0,
       "z": -60.01,
-      "scale": 6.342,
+      "scale": 9.513,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1005,7 +1005,7 @@
       "x": 140.42,
       "y": 0.0,
       "z": 99.49,
-      "scale": 4.906,
+      "scale": 7.359,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1015,7 +1015,7 @@
       "x": 158.42,
       "y": 0.0,
       "z": 131.56,
-      "scale": 3.14,
+      "scale": 4.71,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1025,7 +1025,7 @@
       "x": 85.78,
       "y": 0.0,
       "z": 85.1,
-      "scale": 4.97,
+      "scale": 7.455,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1035,7 +1035,7 @@
       "x": -108.9,
       "y": 0.0,
       "z": 32.8,
-      "scale": 4.608,
+      "scale": 6.912,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1045,7 +1045,7 @@
       "x": 143.75,
       "y": 0.0,
       "z": -136.68,
-      "scale": 7.103,
+      "scale": 10.654,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1055,7 +1055,7 @@
       "x": -132.29,
       "y": 0.0,
       "z": -53.03,
-      "scale": 5.362,
+      "scale": 8.043,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1065,7 +1065,7 @@
       "x": 38.91,
       "y": 0.0,
       "z": -182.35,
-      "scale": 5.991,
+      "scale": 8.986,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1075,7 +1075,7 @@
       "x": 83.01,
       "y": 0.0,
       "z": 132.2,
-      "scale": 3.703,
+      "scale": 5.554,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1085,7 +1085,7 @@
       "x": 84.1,
       "y": 0.0,
       "z": 13.13,
-      "scale": 4.928,
+      "scale": 7.392,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1095,7 +1095,7 @@
       "x": 79.11,
       "y": 0.0,
       "z": -137.89,
-      "scale": 5.859,
+      "scale": 8.788,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1105,7 +1105,7 @@
       "x": -137.59,
       "y": 0.0,
       "z": 170.94,
-      "scale": 5.028,
+      "scale": 7.542,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1115,7 +1115,7 @@
       "x": -98.28,
       "y": 0.0,
       "z": 114.74,
-      "scale": 4.588,
+      "scale": 6.882,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1125,7 +1125,7 @@
       "x": 83.96,
       "y": 0.0,
       "z": 184.08,
-      "scale": 5.752,
+      "scale": 8.628,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1135,7 +1135,7 @@
       "x": -11.07,
       "y": 0.0,
       "z": -141.54,
-      "scale": 4.468,
+      "scale": 6.702,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1145,7 +1145,7 @@
       "x": -25.28,
       "y": 0.0,
       "z": -185.5,
-      "scale": 5.608,
+      "scale": 8.412,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1155,7 +1155,7 @@
       "x": 163.44,
       "y": 0.0,
       "z": -7.23,
-      "scale": 6.046,
+      "scale": 9.069,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1165,7 +1165,7 @@
       "x": 193.64,
       "y": 0.0,
       "z": -64.81,
-      "scale": 5.856,
+      "scale": 8.784,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1175,7 +1175,7 @@
       "x": 186.44,
       "y": 0.0,
       "z": 94.42,
-      "scale": 4.92,
+      "scale": 7.38,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1185,7 +1185,7 @@
       "x": -130.6,
       "y": 0.0,
       "z": -187.55,
-      "scale": 5.595,
+      "scale": 8.393,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1195,7 +1195,7 @@
       "x": -96.98,
       "y": 0.0,
       "z": -151.45,
-      "scale": 4.316,
+      "scale": 6.474,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1205,7 +1205,7 @@
       "x": -35.07,
       "y": 0.0,
       "z": 35.51,
-      "scale": 6.387,
+      "scale": 9.58,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1215,7 +1215,7 @@
       "x": -120.49,
       "y": 0.0,
       "z": 215.2,
-      "scale": 6.229,
+      "scale": 9.344,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1225,7 +1225,7 @@
       "x": 1.94,
       "y": 0.0,
       "z": 29.93,
-      "scale": 6.027,
+      "scale": 9.04,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1235,7 +1235,7 @@
       "x": 48.56,
       "y": 0.0,
       "z": -73.5,
-      "scale": 5.681,
+      "scale": 8.521,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1245,7 +1245,7 @@
       "x": 91.38,
       "y": 0.0,
       "z": -94.36,
-      "scale": 3.214,
+      "scale": 4.821,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1255,7 +1255,7 @@
       "x": 75.65,
       "y": 0.0,
       "z": 80.11,
-      "scale": 5.177,
+      "scale": 7.765,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1265,7 +1265,7 @@
       "x": 48.88,
       "y": 0.0,
       "z": 97.27,
-      "scale": 4.949,
+      "scale": 7.423,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1275,7 +1275,7 @@
       "x": 48.45,
       "y": 0.0,
       "z": 110.8,
-      "scale": 6.29,
+      "scale": 9.435,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1285,7 +1285,7 @@
       "x": 84.99,
       "y": 0.0,
       "z": 117.35,
-      "scale": 5.753,
+      "scale": 8.63,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1295,7 +1295,7 @@
       "x": -8.49,
       "y": 0.0,
       "z": -67.49,
-      "scale": 5.708,
+      "scale": 8.562,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1305,7 +1305,7 @@
       "x": -51.69,
       "y": 0.0,
       "z": -98.88,
-      "scale": 4.049,
+      "scale": 6.074,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1315,7 +1315,7 @@
       "x": -26.43,
       "y": 0.0,
       "z": 127.48,
-      "scale": 4.995,
+      "scale": 7.492,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1325,7 +1325,7 @@
       "x": -51.81,
       "y": 0.0,
       "z": 118.28,
-      "scale": 6.44,
+      "scale": 9.66,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1335,7 +1335,7 @@
       "x": 198.09,
       "y": 0.0,
       "z": 29.96,
-      "scale": 6.908,
+      "scale": 10.362,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1345,7 +1345,7 @@
       "x": 135.33,
       "y": 0.0,
       "z": 28.78,
-      "scale": 5.356,
+      "scale": 8.034,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1355,7 +1355,7 @@
       "x": 201.42,
       "y": 0.0,
       "z": 8.93,
-      "scale": 5.816,
+      "scale": 8.724,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1365,7 +1365,7 @@
       "x": 144.87,
       "y": 0.0,
       "z": 44.34,
-      "scale": 3.356,
+      "scale": 5.034,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1375,7 +1375,7 @@
       "x": 176.61,
       "y": 0.0,
       "z": 19.17,
-      "scale": 5.422,
+      "scale": 8.133,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1385,7 +1385,7 @@
       "x": 158.35,
       "y": 0.0,
       "z": -94.58,
-      "scale": 5.977,
+      "scale": 8.966,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1395,7 +1395,7 @@
       "x": 140.68,
       "y": 0.0,
       "z": -45.21,
-      "scale": 5.962,
+      "scale": 8.943,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1405,7 +1405,7 @@
       "x": 173.99,
       "y": 0.0,
       "z": 117.0,
-      "scale": 5.465,
+      "scale": 8.197,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1415,7 +1415,7 @@
       "x": 174.0,
       "y": 0.0,
       "z": 100.81,
-      "scale": 3.394,
+      "scale": 5.091,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1425,7 +1425,7 @@
       "x": -115.06,
       "y": 0.0,
       "z": 43.14,
-      "scale": 4.442,
+      "scale": 6.663,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1435,7 +1435,7 @@
       "x": -136.7,
       "y": 0.0,
       "z": -9.48,
-      "scale": 4.619,
+      "scale": 6.928,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1445,7 +1445,7 @@
       "x": -139.57,
       "y": 0.0,
       "z": -66.1,
-      "scale": 6.346,
+      "scale": 9.519,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1455,7 +1455,7 @@
       "x": -119.68,
       "y": 0.0,
       "z": -98.87,
-      "scale": 5.779,
+      "scale": 8.668,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1465,7 +1465,7 @@
       "x": 58.36,
       "y": 0.0,
       "z": -186.36,
-      "scale": 5.93,
+      "scale": 8.895,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1475,7 +1475,7 @@
       "x": 92.92,
       "y": 0.0,
       "z": -155.22,
-      "scale": 4.413,
+      "scale": 6.62,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1485,7 +1485,7 @@
       "x": 1.98,
       "y": 0.0,
       "z": -5.07,
-      "scale": 5.754,
+      "scale": 8.631,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1495,7 +1495,7 @@
       "x": 86.05,
       "y": 0.0,
       "z": -167.13,
-      "scale": 5.289,
+      "scale": 7.933,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1505,7 +1505,7 @@
       "x": -121.36,
       "y": 0.0,
       "z": 96.2,
-      "scale": 5.724,
+      "scale": 8.586,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1515,7 +1515,7 @@
       "x": -134.61,
       "y": 0.0,
       "z": 115.43,
-      "scale": 4.377,
+      "scale": 6.566,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1525,7 +1525,7 @@
       "x": 219.51,
       "y": 0.0,
       "z": -166.3,
-      "scale": 6.188,
+      "scale": 9.282,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1535,7 +1535,7 @@
       "x": 2.97,
       "y": 0.0,
       "z": -143.63,
-      "scale": 4.341,
+      "scale": 6.511,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1545,7 +1545,7 @@
       "x": -13.74,
       "y": 0.0,
       "z": -181.19,
-      "scale": 5.326,
+      "scale": 7.989,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1555,7 +1555,7 @@
       "x": 156.38,
       "y": 0.0,
       "z": -159.55,
-      "scale": 5.201,
+      "scale": 7.801,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1565,7 +1565,7 @@
       "x": 184.06,
       "y": 0.0,
       "z": -161.33,
-      "scale": 5.765,
+      "scale": 8.647,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1575,7 +1575,7 @@
       "x": 195.62,
       "y": 0.0,
       "z": -169.61,
-      "scale": 5.848,
+      "scale": 8.772,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1585,7 +1585,7 @@
       "x": -88.11,
       "y": 0.0,
       "z": -176.28,
-      "scale": 5.972,
+      "scale": 8.958,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1595,7 +1595,7 @@
       "x": -140.65,
       "y": 0.0,
       "z": -174.69,
-      "scale": 4.31,
+      "scale": 6.465,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1605,7 +1605,7 @@
       "x": -4.82,
       "y": 0.0,
       "z": 38.4,
-      "scale": 5.816,
+      "scale": 8.724,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1615,7 +1615,7 @@
       "x": -29.4,
       "y": 0.0,
       "z": -8.0,
-      "scale": 5.839,
+      "scale": 8.759,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1625,7 +1625,7 @@
       "x": -104.69,
       "y": 0.0,
       "z": -93.16,
-      "scale": 4.326,
+      "scale": 6.489,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1635,7 +1635,7 @@
       "x": -14.79,
       "y": 0.0,
       "z": 179.33,
-      "scale": 5.514,
+      "scale": 8.271,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1645,7 +1645,7 @@
       "x": 66.47,
       "y": 0.0,
       "z": -50.61,
-      "scale": 3.119,
+      "scale": 4.679,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1655,7 +1655,7 @@
       "x": 175.52,
       "y": 0.0,
       "z": -92.47,
-      "scale": 5.154,
+      "scale": 7.731,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1665,7 +1665,7 @@
       "x": 59.06,
       "y": 0.0,
       "z": 131.86,
-      "scale": 4.795,
+      "scale": 7.192,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1675,7 +1675,7 @@
       "x": 204.02,
       "y": 0.0,
       "z": 130.87,
-      "scale": 6.068,
+      "scale": 9.102,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1685,7 +1685,7 @@
       "x": 1.32,
       "y": 0.0,
       "z": -156.48,
-      "scale": 4.282,
+      "scale": 6.423,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1695,7 +1695,7 @@
       "x": -117.47,
       "y": 0.0,
       "z": 6.59,
-      "scale": 7.019,
+      "scale": 10.529,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1705,7 +1705,7 @@
       "x": -12.68,
       "y": 0.0,
       "z": -51.4,
-      "scale": 3.809,
+      "scale": 5.713,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1715,7 +1715,7 @@
       "x": 1.68,
       "y": 0.0,
       "z": 112.85,
-      "scale": 4.92,
+      "scale": 7.38,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1725,7 +1725,7 @@
       "x": -24.12,
       "y": 0.0,
       "z": 90.29,
-      "scale": 5.908,
+      "scale": 8.862,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1735,7 +1735,7 @@
       "x": 184.63,
       "y": 0.0,
       "z": 42.72,
-      "scale": 5.568,
+      "scale": 8.352,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1745,7 +1745,7 @@
       "x": 76.44,
       "y": 0.0,
       "z": 21.92,
-      "scale": 5.135,
+      "scale": 7.702,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1755,7 +1755,7 @@
       "x": 199.36,
       "y": 0.0,
       "z": -6.44,
-      "scale": 5.995,
+      "scale": 8.992,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1765,7 +1765,7 @@
       "x": 60.08,
       "y": 0.0,
       "z": -139.87,
-      "scale": 5.338,
+      "scale": 8.007,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1775,7 +1775,7 @@
       "x": -44.03,
       "y": 0.0,
       "z": 45.39,
-      "scale": 6.094,
+      "scale": 9.141,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1785,7 +1785,7 @@
       "x": 152.24,
       "y": 0.0,
       "z": -45.04,
-      "scale": 6.013,
+      "scale": 9.02,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1795,7 +1795,7 @@
       "x": 141.28,
       "y": 0.0,
       "z": -100.1,
-      "scale": 5.964,
+      "scale": 8.946,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1805,7 +1805,7 @@
       "x": 212.98,
       "y": 0.0,
       "z": 106.05,
-      "scale": 4.938,
+      "scale": 7.407,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1815,7 +1815,7 @@
       "x": 136.12,
       "y": 0.0,
       "z": 85.23,
-      "scale": 3.41,
+      "scale": 5.115,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1825,7 +1825,7 @@
       "x": -117.06,
       "y": 0.0,
       "z": 174.13,
-      "scale": 5.616,
+      "scale": 8.424,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1835,7 +1835,7 @@
       "x": 195.85,
       "y": 0.0,
       "z": -77.75,
-      "scale": 6.838,
+      "scale": 10.257,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1845,7 +1845,7 @@
       "x": -97.68,
       "y": 0.0,
       "z": -75.21,
-      "scale": 6.85,
+      "scale": 10.275,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1855,7 +1855,7 @@
       "x": -138.62,
       "y": 0.0,
       "z": -98.46,
-      "scale": 6.191,
+      "scale": 9.287,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1865,7 +1865,7 @@
       "x": 206.59,
       "y": 0.0,
       "z": 192.08,
-      "scale": 4.821,
+      "scale": 7.231,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1875,7 +1875,7 @@
       "x": 130.17,
       "y": 0.0,
       "z": -3.73,
-      "scale": 6.247,
+      "scale": 9.37,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1885,7 +1885,7 @@
       "x": 183.05,
       "y": 0.0,
       "z": 209.6,
-      "scale": 4.632,
+      "scale": 6.948,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1895,7 +1895,7 @@
       "x": 68.44,
       "y": 0.0,
       "z": -182.09,
-      "scale": 5.679,
+      "scale": 8.518,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1905,7 +1905,7 @@
       "x": -42.03,
       "y": 0.0,
       "z": 112.74,
-      "scale": 5.913,
+      "scale": 8.87,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1915,7 +1915,7 @@
       "x": -119.11,
       "y": 0.0,
       "z": 79.95,
-      "scale": 4.863,
+      "scale": 7.295,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1925,7 +1925,7 @@
       "x": 144.0,
       "y": 0.0,
       "z": 181.16,
-      "scale": 5.152,
+      "scale": 7.728,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1935,7 +1935,7 @@
       "x": -51.32,
       "y": 0.0,
       "z": -189.96,
-      "scale": 3.84,
+      "scale": 5.76,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1945,7 +1945,7 @@
       "x": -37.75,
       "y": 0.0,
       "z": -135.1,
-      "scale": 4.77,
+      "scale": 7.155,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1955,7 +1955,7 @@
       "x": 142.76,
       "y": 0.0,
       "z": -148.6,
-      "scale": 5.041,
+      "scale": 7.562,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1965,7 +1965,7 @@
       "x": 210.27,
       "y": 0.0,
       "z": -185.77,
-      "scale": 4.91,
+      "scale": 7.365,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1975,7 +1975,7 @@
       "x": -102.79,
       "y": 0.0,
       "z": -181.14,
-      "scale": 5.394,
+      "scale": 8.091,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1985,7 +1985,7 @@
       "x": -109.86,
       "y": 0.0,
       "z": -137.18,
-      "scale": 5.683,
+      "scale": 8.524,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -1995,7 +1995,7 @@
       "x": -142.27,
       "y": 0.0,
       "z": -161.65,
-      "scale": 4.597,
+      "scale": 6.896,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2005,7 +2005,7 @@
       "x": 140.01,
       "y": 0.0,
       "z": 126.01,
-      "scale": 5.068,
+      "scale": 7.602,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2015,7 +2015,7 @@
       "x": -122.49,
       "y": 0.0,
       "z": -141.15,
-      "scale": 5.713,
+      "scale": 8.569,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2025,7 +2025,7 @@
       "x": 210.74,
       "y": 0.0,
       "z": -63.2,
-      "scale": 5.758,
+      "scale": 8.637,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2035,7 +2035,7 @@
       "x": 75.17,
       "y": 0.0,
       "z": -65.08,
-      "scale": 5.648,
+      "scale": 8.472,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2045,7 +2045,7 @@
       "x": 60.96,
       "y": 0.0,
       "z": -71.43,
-      "scale": 3.001,
+      "scale": 4.502,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2055,7 +2055,7 @@
       "x": 210.87,
       "y": 0.0,
       "z": -5.22,
-      "scale": 7.446,
+      "scale": 11.169,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2065,7 +2065,7 @@
       "x": 38.17,
       "y": 0.0,
       "z": 82.19,
-      "scale": 4.588,
+      "scale": 6.882,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2075,7 +2075,7 @@
       "x": 53.8,
       "y": 0.0,
       "z": -47.3,
-      "scale": 5.129,
+      "scale": 7.693,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2085,7 +2085,7 @@
       "x": 217.0,
       "y": 0.0,
       "z": 90.85,
-      "scale": 4.879,
+      "scale": 7.318,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2095,7 +2095,7 @@
       "x": -92.1,
       "y": 0.0,
       "z": 85.86,
-      "scale": 5.369,
+      "scale": 8.053,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2105,7 +2105,7 @@
       "x": -16.19,
       "y": 0.0,
       "z": -98.28,
-      "scale": 3.873,
+      "scale": 5.809,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2115,7 +2115,7 @@
       "x": 164.54,
       "y": 0.0,
       "z": 178.3,
-      "scale": 5.475,
+      "scale": 8.212,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2125,7 +2125,7 @@
       "x": 46.05,
       "y": 0.0,
       "z": 176.69,
-      "scale": 5.772,
+      "scale": 8.658,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2135,7 +2135,7 @@
       "x": 184.52,
       "y": 0.0,
       "z": -48.28,
-      "scale": 5.262,
+      "scale": 7.893,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2145,7 +2145,7 @@
       "x": 204.62,
       "y": 0.0,
       "z": 38.83,
-      "scale": 6.434,
+      "scale": 9.651,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2155,7 +2155,7 @@
       "x": 135.51,
       "y": 0.0,
       "z": 203.98,
-      "scale": 4.948,
+      "scale": 7.422,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2165,7 +2165,7 @@
       "x": 58.44,
       "y": 0.0,
       "z": -98.89,
-      "scale": 5.453,
+      "scale": 8.18,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2175,7 +2175,7 @@
       "x": -51.81,
       "y": 0.0,
       "z": -166.93,
-      "scale": 5.737,
+      "scale": 8.605,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2185,7 +2185,7 @@
       "x": 199.0,
       "y": 0.0,
       "z": -48.35,
-      "scale": 5.979,
+      "scale": 8.969,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2195,7 +2195,7 @@
       "x": 158.13,
       "y": 0.0,
       "z": 82.88,
-      "scale": 4.97,
+      "scale": 7.455,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2205,7 +2205,7 @@
       "x": 141.96,
       "y": 0.0,
       "z": 112.47,
-      "scale": 3.126,
+      "scale": 4.689,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2215,7 +2215,7 @@
       "x": 216.53,
       "y": 0.0,
       "z": 197.63,
-      "scale": 5.29,
+      "scale": 7.935,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2225,7 +2225,7 @@
       "x": -135.34,
       "y": 0.0,
       "z": 24.17,
-      "scale": 4.796,
+      "scale": 7.194,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2235,7 +2235,7 @@
       "x": 131.51,
       "y": 0.0,
       "z": -161.57,
-      "scale": 7.395,
+      "scale": 11.092,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2245,7 +2245,7 @@
       "x": 47.46,
       "y": 0.0,
       "z": 16.74,
-      "scale": 4.955,
+      "scale": 7.433,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2255,7 +2255,7 @@
       "x": 208.58,
       "y": 0.0,
       "z": -139.39,
-      "scale": 5.069,
+      "scale": 7.604,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2265,7 +2265,7 @@
       "x": -133.8,
       "y": 0.0,
       "z": 40.17,
-      "scale": 3.883,
+      "scale": 5.825,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2275,7 +2275,7 @@
       "x": 63.99,
       "y": 0.0,
       "z": 19.63,
-      "scale": 5.067,
+      "scale": 7.601,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2285,7 +2285,7 @@
       "x": -90.66,
       "y": 0.0,
       "z": 213.08,
-      "scale": 3.946,
+      "scale": 5.919,
       "rotY": 0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2295,7 +2295,7 @@
       "x": -136.92,
       "y": 0.0,
       "z": 188.91,
-      "scale": 5.166,
+      "scale": 7.749,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2305,7 +2305,7 @@
       "x": -103.88,
       "y": 0.0,
       "z": 134.96,
-      "scale": 4.35,
+      "scale": 6.525,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2315,7 +2315,7 @@
       "x": 70.19,
       "y": 0.0,
       "z": 182.26,
-      "scale": 5.992,
+      "scale": 8.988,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2325,7 +2325,7 @@
       "x": -98.61,
       "y": 0.0,
       "z": 44.63,
-      "scale": 3.996,
+      "scale": 5.994,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2335,7 +2335,7 @@
       "x": 192.07,
       "y": 0.0,
       "z": 198.03,
-      "scale": 4.517,
+      "scale": 6.776,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2345,7 +2345,7 @@
       "x": 149.42,
       "y": 0.0,
       "z": -6.46,
-      "scale": 5.681,
+      "scale": 8.521,
       "rotY": 4.7124,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2355,7 +2355,7 @@
       "x": 219.85,
       "y": 0.0,
       "z": -54.89,
-      "scale": 5.857,
+      "scale": 8.786,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2365,7 +2365,7 @@
       "x": 201.0,
       "y": 0.0,
       "z": 93.25,
-      "scale": 4.731,
+      "scale": 7.096,
       "rotY": 0.0,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2375,7 +2375,7 @@
       "x": -115.52,
       "y": 0.0,
       "z": -188.55,
-      "scale": 5.797,
+      "scale": 8.695,
       "rotY": 1.5708,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2385,7 +2385,7 @@
       "x": -9.08,
       "y": 0.0,
       "z": -82.78,
-      "scale": 5.019,
+      "scale": 7.529,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
@@ -2395,7 +2395,7 @@
       "x": -46.69,
       "y": 0.0,
       "z": 35.08,
-      "scale": 5.953,
+      "scale": 8.93,
       "rotY": 3.1416,
       "collidable": true,
       "path": "assets/KayKit"
