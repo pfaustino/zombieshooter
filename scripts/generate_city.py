@@ -40,16 +40,17 @@ BUILDING_MODELS = [
     ("Pizza Corner.glb", 4.5, 6.0),
 ]
 
+# CityPack models use very different native units — match pre-city-redo world.json.
 DRIVABLE = [
     ("Car.glb", 1.8, 2.2),
     ("Car-unqqkULtRU.glb", 1.8, 2.2),
-    ("SUV.glb", 1.6, 2.0),
-    ("Sports Car.glb", 1.5, 1.9),
-    ("Sports Car-Gzj704DXdr.glb", 1.5, 1.9),
+    ("SUV.glb", 1.5, 1.7),
+    ("Sports Car.glb", 1.5, 1.8),
+    ("Sports Car-Gzj704DXdr.glb", 0.85, 1.0),
     ("Police Car.glb", 1.8, 2.2),
-    ("Pickup Truck.glb", 1.7, 2.1),
-    ("Bus.glb", 1.4, 1.8),
-    ("Motorcycle.glb", 1.2, 1.6),
+    ("Pickup Truck.glb", 1.0, 1.2),
+    ("Bus.glb", 0.08, 0.12),
+    ("Motorcycle.glb", 0.018, 0.025),
 ]
 
 NPC_MODELS = [
@@ -61,8 +62,8 @@ NPC_MODELS = [
 ]
 
 STATIC_VEHICLE_SCENERY = [
-    ("Van.glb", 1.5, 2.0),
-    ("Bus Stop.glb", 1.0, 1.3),
+    ("Van.glb", 0.07, 0.1),
+    ("Bus Stop.glb", 0.18, 0.25),
 ]
 
 PROP_SCENERY = [
