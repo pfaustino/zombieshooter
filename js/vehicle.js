@@ -303,7 +303,6 @@ export class Vehicle {
   }
 
   _getChaseForward() {
-    // True chase cam locks to the car body, not velocity (velocity swings the camera wide on turns).
     return this._getForward();
   }
 
@@ -311,7 +310,6 @@ export class Vehicle {
     const cam = this.game.camera;
     const len = this.length || 4.2;
     const h = this.height || 1.2;
-    // Body-locked forward — same yaw the mesh uses. No world-space lag (that drifts to the side on turns).
     const forward = this._getForward();
     const followDist = Math.max(len * 1.45, 8);
     const followHeight = Math.max(h * 1.35, 3.2) + 1.2;
@@ -337,6 +335,8 @@ export class Vehicle {
   }
 
   _getForward() {
+    // Matches player/camera yaw: +Z at yaw 0, +X at yaw π/2.
+    // Mesh render uses rotationY(-yaw) so the body faces this same vector.
     return new Vec3(Math.sin(this.yaw), 0, Math.cos(this.yaw));
   }
 
@@ -364,16 +364,18 @@ export class Vehicle {
   }
 
   _syncParts() {
-    const totalYaw = this.yaw + (this.modelYawOffset || 0);
+    // Mat4.rotationY(θ) maps local +Z → (-sin θ, 0, cos θ).
+    // Drive/camera forward is (sin yaw, 0, cos yaw), so the mesh must use θ = -yaw.
+    const renderYaw = -(this.yaw + (this.modelYawOffset || 0));
     const steerVis = this.steerAngle;
 
     for (const p of this.parts) {
       p.obj.position.set(this.position.x, this.position.y, this.position.z);
-      p.obj.rotationY = totalYaw;
+      p.obj.rotationY = renderYaw;
       this.game.renderer.updateObjectTransform(p.obj);
     }
 
-    const cosT = Math.cos(totalYaw), sinT = Math.sin(totalYaw);
+    const cosT = Math.cos(renderYaw), sinT = Math.sin(renderYaw);
     for (const w of this.wheelNodes) {
       const rx = w.offsetX * cosT - w.offsetZ * sinT;
       const rz = w.offsetX * sinT + w.offsetZ * cosT;
@@ -381,7 +383,7 @@ export class Vehicle {
         this.position.x + rx,
         this.position.y + w.offsetY,
         this.position.z + rz);
-      w.obj.rotationY = totalYaw + (w.isFront ? steerVis : 0);
+      w.obj.rotationY = renderYaw + (w.isFront ? steerVis : 0);
       w.obj.rotationX = this.wheelSpin;
       this.game.renderer.updateObjectTransform(w.obj);
     }
