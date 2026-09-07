@@ -4,6 +4,7 @@ Rules:
 - Meaningful road grid + perimeter ring
 - Buildings and NPCs never on roads
 - Only driveable cars placed on roads
+- Dense downtown core around spawn; still filled suburbs
 """
 from __future__ import annotations
 
@@ -30,6 +31,8 @@ ROAD_WIDTH = 16.0
 RING_INSET = 70.0
 BLOCK = 120.0  # centerline spacing
 SIDEWALK = 10.0  # keep buildings this far off road edge
+DOWNTOWN_RADIUS = 420.0  # dense core around spawn
+PLAZA_RADIUS = 22.0
 
 BUILDING_MODELS = [
     ("Big Building.glb", 2.0, 2.8),
@@ -83,7 +86,6 @@ def road_rect(x: float, z: float, w: float, d: float) -> dict:
 def build_roads() -> list[dict]:
     b = BOUNDS
     roads: list[dict] = []
-    # Usable inner area for road centerlines
     x0 = b["minX"] + RING_INSET
     x1 = b["maxX"] - RING_INSET
     z0 = b["minZ"] + RING_INSET
@@ -91,19 +93,16 @@ def build_roads() -> list[dict]:
     span_x = x1 - x0
     span_z = z1 - z0
 
-    # Perimeter ring (four long segments)
-    roads.append(road_rect((x0 + x1) * 0.5, z1, span_x + ROAD_WIDTH, ROAD_WIDTH))  # north
-    roads.append(road_rect((x0 + x1) * 0.5, z0, span_x + ROAD_WIDTH, ROAD_WIDTH))  # south
-    roads.append(road_rect(x1, (z0 + z1) * 0.5, ROAD_WIDTH, span_z + ROAD_WIDTH))  # east
-    roads.append(road_rect(x0, (z0 + z1) * 0.5, ROAD_WIDTH, span_z + ROAD_WIDTH))  # west
+    roads.append(road_rect((x0 + x1) * 0.5, z1, span_x + ROAD_WIDTH, ROAD_WIDTH))
+    roads.append(road_rect((x0 + x1) * 0.5, z0, span_x + ROAD_WIDTH, ROAD_WIDTH))
+    roads.append(road_rect(x1, (z0 + z1) * 0.5, ROAD_WIDTH, span_z + ROAD_WIDTH))
+    roads.append(road_rect(x0, (z0 + z1) * 0.5, ROAD_WIDTH, span_z + ROAD_WIDTH))
 
-    # North–south arterials
     x = x0 + BLOCK
     while x < x1 - BLOCK * 0.5:
         roads.append(road_rect(x, (z0 + z1) * 0.5, ROAD_WIDTH, span_z))
         x += BLOCK
 
-    # East–west arterials
     z = z0 + BLOCK
     while z < z1 - BLOCK * 0.5:
         roads.append(road_rect((x0 + x1) * 0.5, z, span_x, ROAD_WIDTH))
@@ -121,45 +120,55 @@ def on_road(x: float, z: float, roads: list[dict], margin: float = 0.0) -> bool:
     return False
 
 
-def sample_road_points(roads: list[dict], rng: random.Random, count: int) -> list[tuple[float, float, float]]:
+def dist2_spawn(x: float, z: float) -> float:
+    return (x - CENTER_X) ** 2 + (z - CENTER_Z) ** 2
+
+
+def sample_road_points(
+    roads: list[dict],
+    rng: random.Random,
+    count: int,
+    *,
+    prefer_downtown: bool = True,
+    min_sep: float = 14.0,
+    max_spawn_dist: float | None = None,
+) -> list[tuple[float, float, float]]:
     """Return (x, z, rotY) along road centerlines. rotY aligns car with long axis."""
     points: list[tuple[float, float, float]] = []
-    # Weight by length
-    weighted = []
-    for r in roads:
-        length = max(r["w"], r["d"])
-        weighted.append((r, length))
-    total = sum(w for _, w in weighted)
-    for _ in range(count * 3):
-        if len(points) >= count:
-            break
-        pick = rng.uniform(0, total)
-        acc = 0.0
-        road = weighted[0][0]
-        for r, w in weighted:
-            acc += w
-            if pick <= acc:
-                road = r
-                break
+
+    def try_sample(road: dict) -> tuple[float, float, float] | None:
         if road["w"] >= road["d"]:
-            # east-west road
             half = road["w"] * 0.5 - 8
             if half < 4:
-                continue
+                return None
             x = road["x"] + rng.uniform(-half, half)
-            z = road["z"] + rng.uniform(-1.5, 1.5)
+            z = road["z"] + rng.uniform(-2.0, 2.0)
             rot = 0.0 if rng.random() < 0.5 else math.pi
         else:
             half = road["d"] * 0.5 - 8
             if half < 4:
-                continue
-            x = road["x"] + rng.uniform(-1.5, 1.5)
+                return None
+            x = road["x"] + rng.uniform(-2.0, 2.0)
             z = road["z"] + rng.uniform(-half, half)
             rot = math.pi / 2 if rng.random() < 0.5 else -math.pi / 2
-        # Avoid packing too tight
-        if any((x - px) ** 2 + (z - pz) ** 2 < 22**2 for px, pz, _ in points):
-            continue
-        points.append((x, z, rot))
+        if max_spawn_dist is not None and dist2_spawn(x, z) > max_spawn_dist**2:
+            return None
+        if any((x - px) ** 2 + (z - pz) ** 2 < min_sep**2 for px, pz, _ in points):
+            return None
+        return (x, z, rot)
+
+    # Prefer shorter downtown segments by sampling roads near spawn first.
+    ordered = sorted(roads, key=lambda r: dist2_spawn(r["x"], r["z"]))
+    attempts = 0
+    while len(points) < count and attempts < count * 20:
+        attempts += 1
+        if prefer_downtown and len(points) < count * 0.55:
+            road = ordered[rng.randrange(min(12, len(ordered)))]
+        else:
+            road = roads[rng.randrange(len(roads))]
+        pt = try_sample(road)
+        if pt:
+            points.append(pt)
     return points
 
 
@@ -184,6 +193,7 @@ def block_centers(roads: list[dict]) -> list[tuple[float, float]]:
 def main() -> None:
     rng = random.Random(20260906)
     roads = build_roads()
+    centers = block_centers(roads)
 
     layout = {
         "bounds": BOUNDS,
@@ -201,23 +211,26 @@ def main() -> None:
     def blocked(x: float, z: float, sep: float) -> bool:
         if on_road(x, z, roads, margin=margin):
             return True
-        # Keep plaza clear at spawn
-        if (x - CENTER_X) ** 2 + (z - CENTER_Z) ** 2 < 40**2:
+        if dist2_spawn(x, z) < PLAZA_RADIUS**2:
             return True
         for ox, oz in occupied:
             if (x - ox) ** 2 + (z - oz) ** 2 < sep**2:
                 return True
         return False
 
-    # Fill each city block with a few buildings
     mi = 0
-    for cx, cz in block_centers(roads):
-        # 2–4 buildings per block with jitter
-        n = rng.randint(1, 2)
-        for _ in range(n):
-            x = cx + rng.uniform(-38, 38)
-            z = cz + rng.uniform(-38, 38)
-            if blocked(x, z, sep=18.0):
+    for cx, cz in centers:
+        downtown = dist2_spawn(cx, cz) < DOWNTOWN_RADIUS**2
+        # Dense downtown lots; still fill the suburbs.
+        n = rng.randint(5, 8) if downtown else rng.randint(3, 5)
+        sep = 11.0 if downtown else 14.0
+        jitter = 46.0 if downtown else 40.0
+        for _ in range(n * 3):
+            if sum(1 for bx, bz in occupied if (bx - cx) ** 2 + (bz - cz) ** 2 < 55**2) >= n:
+                break
+            x = cx + rng.uniform(-jitter, jitter)
+            z = cz + rng.uniform(-jitter, jitter)
+            if blocked(x, z, sep=sep):
                 continue
             model, smin, smax = BUILDING_MODELS[mi % len(BUILDING_MODELS)]
             mi += 1
@@ -234,9 +247,45 @@ def main() -> None:
             )
             occupied.append((x, z))
 
-    # Driveable cars only on roads
+    # Extra downtown fill so spawn feels like a packed city core.
+    for _ in range(400):
+        ang = rng.uniform(0, math.pi * 2)
+        rad = rng.uniform(PLAZA_RADIUS + 8, DOWNTOWN_RADIUS * 0.85)
+        x = CENTER_X + math.cos(ang) * rad
+        z = CENTER_Z + math.sin(ang) * rad
+        if blocked(x, z, sep=10.0):
+            continue
+        model, smin, smax = BUILDING_MODELS[mi % len(BUILDING_MODELS)]
+        mi += 1
+        buildings.append(
+            {
+                "model": model,
+                "x": round(x, 2),
+                "y": 0.0,
+                "z": round(z, 2),
+                "scale": round(rng.uniform(smin, smax), 2),
+                "rotY": round(ROTS[mi % 4], 4),
+                "collidable": True,
+            }
+        )
+        occupied.append((x, z))
+        if sum(1 for bx, bz in occupied if dist2_spawn(bx, bz) < 200**2) >= 160:
+            break
+
+    # Driveable cars only on roads — pack downtown streets first, then citywide.
     vehicles: list[dict] = []
-    car_points = sample_road_points(roads, rng, count=80)
+    downtown_cars = sample_road_points(
+        roads, rng, count=120, prefer_downtown=True, min_sep=9.0, max_spawn_dist=280.0
+    )
+    city_cars = sample_road_points(roads, rng, count=280, prefer_downtown=False, min_sep=14.0)
+    # Dedupe city cars that landed on downtown spots
+    car_points = list(downtown_cars)
+    for x, z, rot in city_cars:
+        if any((x - px) ** 2 + (z - pz) ** 2 < 12**2 for px, pz, _ in car_points):
+            continue
+        car_points.append((x, z, rot))
+        if len(car_points) >= 400:
+            break
     for i, (x, z, rot) in enumerate(car_points):
         model, smin, smax = DRIVABLE[i % len(DRIVABLE)]
         vehicles.append(
@@ -251,12 +300,12 @@ def main() -> None:
             }
         )
 
-    # A few static scenery vehicles off-road (bus stops / vans near sidewalks)
-    for i in range(25):
-        cx, cz = rng.choice(block_centers(roads))
+    # Static scenery vehicles off-road (bus stops / vans near sidewalks)
+    for i in range(60):
+        cx, cz = rng.choice(centers)
         x = cx + rng.uniform(-45, 45)
         z = cz + rng.uniform(-45, 45)
-        if on_road(x, z, roads, margin=margin) or blocked(x, z, 14):
+        if on_road(x, z, roads, margin=margin) or blocked(x, z, 12):
             continue
         model, smin, smax = STATIC_VEHICLE_SCENERY[i % len(STATIC_VEHICLE_SCENERY)]
         vehicles.append(
@@ -272,15 +321,17 @@ def main() -> None:
         )
         occupied.append((x, z))
 
-    # NPCs on sidewalks / plazas (off road)
+    # NPCs on sidewalks / plazas (off road), denser downtown
     props: list[dict] = []
     npc_i = 0
-    sidewalk = BLOCK * 0.5 - ROAD_WIDTH * 0.5 - 6.0  # inside the block, clear of asphalt
+    sidewalk = BLOCK * 0.5 - ROAD_WIDTH * 0.5 - 6.0
     npc_sep: list[tuple[float, float]] = []
-    for cx, cz in block_centers(roads):
-        if rng.random() > 0.5:
+    for cx, cz in centers:
+        downtown = dist2_spawn(cx, cz) < DOWNTOWN_RADIUS**2
+        if not downtown and rng.random() > 0.35:
             continue
-        for _ in range(rng.randint(1, 3)):
+        rolls = rng.randint(2, 4) if downtown else rng.randint(1, 2)
+        for _ in range(rolls):
             edge = rng.choice(["n", "s", "e", "w"])
             if edge == "n":
                 x, z = cx + rng.uniform(-25, 25), cz + sidewalk
@@ -292,9 +343,9 @@ def main() -> None:
                 x, z = cx - sidewalk, cz + rng.uniform(-25, 25)
             if on_road(x, z, roads, margin=1.0):
                 continue
-            if any((x - ox) ** 2 + (z - oz) ** 2 < 10**2 for ox, oz in npc_sep):
+            if any((x - ox) ** 2 + (z - oz) ** 2 < 8**2 for ox, oz in npc_sep):
                 continue
-            if any((x - ox) ** 2 + (z - oz) ** 2 < 12**2 for ox, oz in occupied):
+            if any((x - ox) ** 2 + (z - oz) ** 2 < 10**2 for ox, oz in occupied):
                 continue
             props.append(
                 {
@@ -310,20 +361,19 @@ def main() -> None:
             npc_sep.append((x, z))
             occupied.append((x, z))
             npc_i += 1
-            if npc_i >= 60:
+            if npc_i >= 100:
                 break
-        if npc_i >= 60:
+        if npc_i >= 100:
             break
 
     # Decorative props off-road
-    for i in range(120):
-        cx, cz = rng.choice(block_centers(roads))
+    for i in range(200):
+        cx, cz = rng.choice(centers)
         x = cx + rng.uniform(-40, 40)
         z = cz + rng.uniform(-40, 40)
-        if on_road(x, z, roads, margin=margin) or blocked(x, z, 10):
+        if on_road(x, z, roads, margin=margin) or blocked(x, z, 8):
             continue
         model, smin, smax = PROP_SCENERY[i % len(PROP_SCENERY)]
-        # Skip missing models gracefully — verify against disk
         if not (ROOT / "assets" / "CityPack" / model).exists():
             continue
         props.append(
@@ -342,6 +392,8 @@ def main() -> None:
     world = {"buildings": buildings, "vehicles": vehicles, "props": props}
     WORLD_OUT.write_text(json.dumps(world, indent=4) + "\n", encoding="utf-8")
 
+    near_b = sum(1 for b in buildings if dist2_spawn(b["x"], b["z"]) < 200**2)
+    near_c = sum(1 for x, z, _ in car_points if dist2_spawn(x, z) < 200**2)
     print(f"Wrote {LAYOUT_OUT.relative_to(ROOT)}")
     print(f"  bounds {BOUNDS}  roads={len(roads)}")
     print(f"Wrote {WORLD_OUT.relative_to(ROOT)}")
@@ -349,6 +401,7 @@ def main() -> None:
         f"  buildings={len(buildings)} vehicles={len(vehicles)} "
         f"(driveable~{len(car_points)}) props={len(props)} npcs~{npc_i}"
     )
+    print(f"  within 200 of spawn: buildings={near_b} cars={near_c}")
 
 
 if __name__ == "__main__":

@@ -24,14 +24,33 @@ export class VehicleManager {
     }
 
     if (this.vehicles.length === 0) {
-      const fallbackSpawns = [
-        { model: 'Car.glb', x: 5, z: 10, scale: 2, rotY: 0 },
-        { model: 'SUV.glb', x: -15, z: -5, scale: 1.5, rotY: Math.PI / 2 },
-        { model: 'Sports Car.glb', x: 30, z: 20, scale: 1.7, rotY: -Math.PI / 4 },
-        { model: 'Police Car.glb', x: -30, z: 25, scale: 2, rotY: Math.PI },
-      ];
-      for (const s of fallbackSpawns) await this._spawnDrivable(s);
+      for (const s of this._fallbackRoadSpawns()) await this._spawnDrivable(s);
     }
+  }
+
+  _fallbackRoadSpawns() {
+    const spawn = this.game.world.cityLayout?.spawn || { x: 40, z: 12.5 };
+    const roads = this.game.world.roads || [];
+    const picks = [];
+    for (const r of roads) {
+      const d = Math.hypot(r.x - spawn.x, r.z - spawn.z);
+      if (d > 180) continue;
+      picks.push(r);
+      if (picks.length >= 8) break;
+    }
+    const models = ['Car.glb', 'SUV.glb', 'Sports Car.glb', 'Police Car.glb'];
+    if (picks.length === 0) {
+      return models.map((model, i) => ({
+        model, x: spawn.x + 8 + i * 6, z: spawn.z, scale: 1.8, rotY: 0,
+      }));
+    }
+    return picks.slice(0, 4).map((r, i) => ({
+      model: models[i % models.length],
+      x: r.x,
+      z: r.z,
+      scale: 1.8,
+      rotY: r.w >= r.d ? 0 : Math.PI / 2,
+    }));
   }
 
   async _spawnDrivable(config) {
@@ -45,14 +64,18 @@ export class VehicleManager {
   }
 
   _findSafeSpawn(x, z, scale) {
-    const r = (scale || 1) * 2.5 + 1;
+    // Keep clearance modest so cars fit on 16-wide roads; tiny GLB scales still need ~2m footprint.
+    const r = Math.min(Math.max((scale || 1) * 1.2, 1.6), 3.5);
     for (let attempt = 0; attempt < 40; attempt++) {
       const angle = attempt === 0 ? 0 : Math.random() * Math.PI * 2;
-      const dist = attempt === 0 ? 0 : 3 + attempt * 2;
+      // Stay close to the authored road point — wandering off asphalt fails isOnRoad.
+      const dist = attempt === 0 ? 0 : 1 + attempt * 0.75;
       const tx = x + Math.cos(angle) * dist;
       const tz = z + Math.sin(angle) * dist;
       if (this._isValidSpawnAt(tx, tz, r)) return { x: tx, z: tz };
     }
+    // Last resort: trust the road point if it's on asphalt (buildings may over-clear).
+    if (this.game.world.isOnRoad?.(x, z, 0)) return { x, z };
     return null;
   }
 
@@ -62,7 +85,7 @@ export class VehicleManager {
       const b = world.cityBounds;
       if (x - radius < b.minX || x + radius > b.maxX || z - radius < b.minZ || z + radius > b.maxZ) return false;
     }
-    if (world.isOnRoad && !world.isOnRoad(x, z, 1)) return false;
+    if (world.isOnRoad && !world.isOnRoad(x, z, 0.5)) return false;
     return !world.checkCollision(x, z, radius);
   }
 
