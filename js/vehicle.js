@@ -318,12 +318,7 @@ export class Vehicle {
     this.position.z += this.velocity.z * delta;
 
     if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
-      this.position.x = oldX;
-      this.position.z = oldZ;
-      const preImpact = Math.hypot(this.velocity.x, this.velocity.z);
-      this.velocity.x *= 0.25;
-      this.velocity.z *= 0.25;
-      if (preImpact > 8) this._takeDamage(preImpact * 0.55);
+      this._bounceOffBuilding(oldX, oldZ);
     }
 
     this._resolveVehicleCollisions(oldX, oldZ);
@@ -441,11 +436,48 @@ export class Vehicle {
     this._resolvePlayerCollision();
 
     if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
+      this._bounceOffBuilding(oldX, oldZ);
+    }
+  }
+
+  /** Reflect velocity off world colliders (buildings) with a thud. */
+  _bounceOffBuilding(oldX, oldZ) {
+    const r = this.width * 0.5;
+    const newX = this.position.x;
+    const newZ = this.position.z;
+    const preVx = this.velocity.x;
+    const preVz = this.velocity.z;
+    const preImpact = Math.hypot(preVx, preVz);
+    const restitution = 0.52;
+
+    const blockedX = this.game.world.checkCollision(newX, oldZ, r);
+    const blockedZ = this.game.world.checkCollision(oldX, newZ, r);
+
+    if (blockedX && !blockedZ) {
+      this.position.x = oldX;
+      this.velocity.x = -preVx * restitution;
+      this.velocity.z = preVz * 0.88;
+    } else if (blockedZ && !blockedX) {
+      this.position.z = oldZ;
+      this.velocity.z = -preVz * restitution;
+      this.velocity.x = preVx * 0.88;
+    } else {
       this.position.x = oldX;
       this.position.z = oldZ;
-      this.velocity.x *= 0.35;
-      this.velocity.z *= 0.35;
+      this.velocity.x = -preVx * restitution;
+      this.velocity.z = -preVz * restitution;
     }
+
+    // Still overlapping after axis bounce (thick walls / corners) — hard reset.
+    if (this.game.world.checkCollision(this.position.x, this.position.z, r)) {
+      this.position.x = oldX;
+      this.position.z = oldZ;
+    }
+
+    if (preImpact > 3.5) {
+      this.game.audioManager?.playCarThud?.(preImpact / 12);
+    }
+    if (preImpact > 8) this._takeDamage(preImpact * 0.55);
   }
 
   _resolvePlayerCollision() {
@@ -527,17 +559,20 @@ export class Vehicle {
   _checkRunover() {
     const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.z ** 2);
     if (speed < 5) return;
-    const enemies = this.game.enemyManager.enemies;
     const fwd = this._getForward();
+    const hitR = this.length * 0.7;
+    const sideR = this.width * 0.6;
+
+    const enemies = this.game.enemyManager.enemies;
     for (const enemy of enemies) {
       if (enemy.state === 'dead' || enemy.state === 'ragdoll') continue;
       const dist = enemy.position.distanceTo(this.position);
-      if (dist < this.length * 0.7) {
+      if (dist < hitR) {
         const toEnemy = Vec3.sub(enemy.position, this.position);
         toEnemy.y = 0;
         toEnemy.normalize();
         const dot = fwd.dot(toEnemy);
-        if (dot > 0.3 || dist < this.width * 0.6) {
+        if (dot > 0.3 || dist < sideR) {
           const impactVel = new Vec3(this.velocity.x * 0.8, 8 + speed * 0.3, this.velocity.z * 0.8);
           enemy.ragdoll(impactVel);
           this.velocity.x *= 0.92;
@@ -546,8 +581,8 @@ export class Vehicle {
 
           const bloodPos = enemy.position.clone();
           bloodPos.y = Math.max(0.4, bloodPos.y);
-          this.game.particleSystem?.emitBlood?.(bloodPos, fwd, 14 + Math.floor(speed * 0.4));
-          this.game.particleSystem?.emit?.(bloodPos, 6, [0.45, 0.02, 0.02]);
+          this.game.particleSystem?.emitBlood?.(bloodPos, fwd, 42 + Math.floor(speed * 1.2));
+          this.game.particleSystem?.emit?.(bloodPos, 18, [0.45, 0.02, 0.02]);
 
           this.roadkillStreak++;
           this.roadkillTimer = this.ROADKILL_WINDOW;
@@ -561,6 +596,27 @@ export class Vehicle {
             this.game.lootManager?.spawnLoot?.(enemy.position.clone(), 'potion');
           }
         }
+      }
+    }
+
+    const npcs = this.game.npcManager?.npcs;
+    if (!npcs) return;
+    for (let i = npcs.length - 1; i >= 0; i--) {
+      const npc = npcs[i];
+      if (!npc || npc.dead) continue;
+      const dist = npc.position.distanceTo(this.position);
+      if (dist >= hitR) continue;
+      const toNpc = Vec3.sub(npc.position, this.position);
+      toNpc.y = 0;
+      toNpc.normalize();
+      const dot = fwd.dot(toNpc);
+      if (dot > 0.3 || dist < sideR) {
+        npc.hitByVehicle?.(fwd, speed);
+        this.velocity.x *= 0.94;
+        this.velocity.z *= 0.94;
+        this.game.audioManager?.playCarThud?.(speed / 16);
+        this.game.audioManager?.playZombieThud?.(speed / 14);
+        this._takeDamage(0.8 + speed * 0.04);
       }
     }
   }

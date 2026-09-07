@@ -22,6 +22,7 @@ export class Npc {
     this.home = position.clone();
     this.idleClip = null;
     this.walkClip = null;
+    this.dead = false;
   }
 
   init() {
@@ -54,7 +55,7 @@ export class Npc {
   }
 
   update(delta) {
-    if (!this.anim || this.parts.length === 0) return;
+    if (this.dead || !this.anim || this.parts.length === 0) return;
 
     if (this.state === Npc.STATE.IDLE) {
       this.stateTimer -= delta;
@@ -169,6 +170,17 @@ export class Npc {
     this.state = Npc.STATE.IDLE;
     this.stateTimer = 1 + Math.random() * 2;
     this._pickPatrolTarget();
+  }
+
+  hitByVehicle(impactDir, speed = 10) {
+    if (this.dead) return;
+    this.dead = true;
+    const bloodPos = this.position.clone();
+    bloodPos.y = 0.5;
+    const dir = impactDir?.clone?.() || new Vec3(0, 0, 1);
+    this.game.particleSystem?.emitBlood?.(bloodPos, dir, 42 + Math.floor(speed * 1.2));
+    this.game.particleSystem?.emit?.(bloodPos, 18, [0.45, 0.02, 0.02]);
+    this.dispose();
   }
 
   dispose() {

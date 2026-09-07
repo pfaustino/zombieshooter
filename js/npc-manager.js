@@ -129,6 +129,13 @@ export class NpcManager {
   }
 
   update(delta) {
-    for (const npc of this.npcs) npc.update(delta);
+    for (let i = this.npcs.length - 1; i >= 0; i--) {
+      const npc = this.npcs[i];
+      if (npc.dead) {
+        this.npcs.splice(i, 1);
+        continue;
+      }
+      npc.update(delta);
+    }
   }
 }

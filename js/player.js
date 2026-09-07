@@ -403,7 +403,7 @@ export class Player {
       if (this.game.audioManager) this.game.audioManager.playEnemyHit();
       if (this.game.particleSystem) {
         const hitPos = origin.add(dir.mul(enemyHit.distance));
-        this.game.particleSystem.emitBlood(hitPos, dir, 20);
+        this.game.particleSystem.emitBlood(hitPos, dir, 60);
       }
     } else if (worldHit) {
       if (this.game.audioManager) this.game.audioManager.playHit();
@@ -467,11 +467,11 @@ export class Player {
       this.game.particleSystem.emitBlood(
         new Vec3(this.position.x, this.position.y - 0.2, this.position.z),
         new Vec3(-fwd.x, 0.4, -fwd.z),
-        28
+        84
       );
       this.game.particleSystem.emit(
         new Vec3(this.position.x, this.position.y - 0.1, this.position.z),
-        18,
+        54,
         [0.35, 0.02, 0.02]
       );
     }
