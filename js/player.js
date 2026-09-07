@@ -387,6 +387,8 @@ export class Player {
     if (this.game.audioManager) this.game.audioManager.playWeaponAction(weapon.name, 'shot');
     this.weaponRecoil = weapon.recoil || 0.15;
     this.pitch = clamp(this.pitch + (weapon.cameraRecoil || 0), -1.45, 1.45);
+    // Muzzle noise draws nearby undead whether the shot hits or not.
+    this.game.enemyManager?.alertNearby?.(this.position, 42);
 
     const cam = this.game.camera;
     const origin = cam.position.clone();

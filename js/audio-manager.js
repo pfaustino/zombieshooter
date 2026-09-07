@@ -71,7 +71,7 @@ export class AudioManager {
     }
   }
 
-  _playBuffer(buffer, { volume = 1, loop = false, rate = 1, destination = null } = {}) {
+  _playBuffer(buffer, { volume = 1, loop = false, rate = 1, destination = null, offset = 0, duration = null } = {}) {
     if (!this.initialized || !buffer) return null;
     if (this.context.state === 'suspended') this.context.resume();
     const source = this.context.createBufferSource();
@@ -82,7 +82,20 @@ export class AudioManager {
     gain.gain.value = volume;
     source.connect(gain);
     gain.connect(destination || this.masterGain);
-    source.start(0);
+    const startAt = this.context.currentTime;
+    const off = Math.max(0, offset || 0);
+    if (duration != null && Number.isFinite(duration) && duration > 0) {
+      const dur = Math.min(duration, Math.max(0.01, buffer.duration - off));
+      const fade = Math.min(0.08, dur * 0.25);
+      try {
+        gain.gain.setValueAtTime(volume, startAt);
+        gain.gain.setValueAtTime(volume, startAt + Math.max(0, dur - fade));
+        gain.gain.linearRampToValueAtTime(0.001, startAt + dur);
+      } catch (_) {}
+      source.start(0, off, dur);
+    } else {
+      source.start(0, off);
+    }
     return { source, gain };
   }
 
@@ -160,7 +173,7 @@ export class AudioManager {
     }
   }
 
-  _playZombieVoice({ volume = 0.55, minGap = 0.35 } = {}) {
+  _playZombieVoice({ volume = 0.55, minGap = 0.35, maxDuration = null } = {}) {
     if (!this.initialized) return false;
     const nowMs = performance.now();
     if (nowMs - this._lastZombieVoice < minGap * 1000) return false;
@@ -172,6 +185,7 @@ export class AudioManager {
     this._playBuffer(buffer, {
       volume: volume * this.sfxVolume * this.voiceVolume,
       rate,
+      duration: maxDuration,
     });
     return true;
   }
@@ -268,7 +282,8 @@ export class AudioManager {
 
   playEnemyDeath() {
     if (!this.initialized) return;
-    if (this._playZombieVoice({ volume: 0.7, minGap: 0.05 })) return;
+    // Clip files are long; only use the first 2s so death snarls don't linger.
+    if (this._playZombieVoice({ volume: 0.7, minGap: 0.05, maxDuration: 2 })) return;
     const now = this.context.currentTime;
     const osc = this.context.createOscillator();
     osc.type = 'sawtooth';

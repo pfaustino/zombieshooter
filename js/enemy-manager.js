@@ -292,6 +292,22 @@ export class EnemyManager {
     return closest;
   }
 
+  /** Gunshot / noise pulls idle zombies toward the player within radius. */
+  alertNearby(origin, radius = 42) {
+    if (!origin) return;
+    const r2 = radius * radius;
+    let voiced = 0;
+    for (const enemy of this.enemies) {
+      const dx = enemy.position.x - origin.x;
+      const dz = enemy.position.z - origin.z;
+      if (dx * dx + dz * dz > r2) continue;
+      const playVoice = voiced < 2;
+      if (enemy.alertToNoise({ playVoice })) {
+        if (playVoice) voiced++;
+      }
+    }
+  }
+
   _rayAABB(origin, dir, aabb) {
     let tmin = 0, tmax = 1000;
     for (const axis of ['x', 'y', 'z']) {

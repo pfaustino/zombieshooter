@@ -500,6 +500,20 @@ export class Enemy {
     if (wasPassive && this.game.audioManager) this.game.audioManager.playEnemyAttack(this.type);
   }
 
+  /** Attracted by gunfire / noise — no LOS required. */
+  alertToNoise({ playVoice = false } = {}) {
+    if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return false;
+    if (this.state === Enemy.STATE.CHASE || this.state === Enemy.STATE.ATTACK) return false;
+    const wasPassive = this.state === Enemy.STATE.IDLE || this.state === Enemy.STATE.PATROL;
+    this.forcedAggro = true;
+    const player = this.getPlayerPosition();
+    this._faceToward(player.x, player.z);
+    if (this.distanceToPlayer() <= this.attackRange) this.state = Enemy.STATE.ATTACK;
+    else this.state = Enemy.STATE.CHASE;
+    if (playVoice && wasPassive && this.game.audioManager) this.game.audioManager.playEnemyAttack(this.type);
+    return true;
+  }
+
   ragdoll(impactVel) {
     if (this.state === Enemy.STATE.DEAD || this.state === Enemy.STATE.RAGDOLL || this.state === Enemy.STATE.DYING) return;
     this.state = Enemy.STATE.RAGDOLL;
