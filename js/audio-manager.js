@@ -1,6 +1,7 @@
 const AUDIO_ASSETS = {
   music: 'assets/melodyayresgriffiths-what-we-lost-tv-movie-game-theme-zombie-virus-apocalypse-143267.mp3',
   reload: 'assets/dragon-studio-gun-reload-2-511308.mp3',
+  engine: 'assets/spinopel-car-engine-noise-321224.mp3',
   zombieGrowl: [
     'assets/dragon-studio-zombie-sound-357975.mp3',
     'assets/dragon-studio-zombie-sound-2-357976.mp3',
@@ -20,6 +21,8 @@ export class AudioManager {
     this.buffers = {};
     this._musicSource = null;
     this._musicGain = null;
+    this._engineSource = null;
+    this._engineGain = null;
     this._lastZombieVoice = 0;
   }
 
@@ -56,6 +59,7 @@ export class AudioManager {
     };
     await loadOne('music', AUDIO_ASSETS.music);
     await loadOne('reload', AUDIO_ASSETS.reload);
+    await loadOne('engine', AUDIO_ASSETS.engine);
     for (let i = 0; i < AUDIO_ASSETS.zombieGrowl.length; i++) {
       await loadOne(`zombie${i}`, AUDIO_ASSETS.zombieGrowl[i]);
     }
@@ -101,6 +105,52 @@ export class AudioManager {
       const src = this._musicSource;
       setTimeout(() => { try { src.stop(); } catch (_) {} }, 1600);
       this._musicSource = null;
+    }
+  }
+
+  startEngine() {
+    if (!this.initialized || !this.buffers.engine || this._engineSource) return;
+    if (this.context.state === 'suspended') this.context.resume();
+    this._engineGain = this.context.createGain();
+    this._engineGain.gain.value = 0;
+    this._engineGain.connect(this.masterGain);
+    const played = this._playBuffer(this.buffers.engine, {
+      volume: 1,
+      loop: true,
+      rate: 0.85,
+      destination: this._engineGain,
+    });
+    if (!played) return;
+    this._engineSource = played.source;
+    this._engineRateNode = played.source;
+    const now = this.context.currentTime;
+    this._engineGain.gain.linearRampToValueAtTime(0.22 * this.sfxVolume, now + 0.2);
+  }
+
+  updateEngine(speedMs = 0, maxSpeed = 30) {
+    if (!this._engineSource || !this._engineGain || !this.context) return;
+    const t = Math.max(0, Math.min(1, Math.abs(speedMs) / Math.max(maxSpeed, 1)));
+    const rate = 0.85 + t * 0.55;
+    const vol = (0.18 + t * 0.28) * this.sfxVolume;
+    const now = this.context.currentTime;
+    try {
+      this._engineSource.playbackRate.setTargetAtTime(rate, now, 0.08);
+      this._engineGain.gain.setTargetAtTime(vol, now, 0.08);
+    } catch (_) {}
+  }
+
+  stopEngine() {
+    if (this._engineGain && this.context) {
+      const now = this.context.currentTime;
+      try { this._engineGain.gain.cancelScheduledValues(now); } catch (_) {}
+      this._engineGain.gain.linearRampToValueAtTime(0, now + 0.25);
+    }
+    if (this._engineSource) {
+      const src = this._engineSource;
+      setTimeout(() => { try { src.stop(); } catch (_) {} }, 300);
+      this._engineSource = null;
+      this._engineRateNode = null;
+      this._engineGain = null;
     }
   }
 

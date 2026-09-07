@@ -298,7 +298,14 @@ export class Vehicle {
     this._checkRunover();
     this._syncParts();
 
-    if (this.occupied) this._updateVehicleCamera(delta);
+    if (this.occupied) {
+      this._updateVehicleCamera(delta);
+      const am = this.game.audioManager;
+      if (am?.updateEngine) {
+        const speed = Math.hypot(this.velocity.x, this.velocity.z);
+        am.updateEngine(speed, this._stats().maxSpeed);
+      }
+    }
   }
 
   _getChaseForward() {
@@ -407,6 +414,7 @@ export class Vehicle {
       this.game.renderer.updateObjectTransform(w.obj);
     }
     if (this.occupied) this.game.player.exitVehicle();
+    this.game.audioManager?.stopEngine?.();
   }
 
   getAABB() {
@@ -430,6 +438,7 @@ export class Vehicle {
     if (player.weaponObj) player.weaponObj.visible = false;
     this._chaseEye = null;
     this._updateVehicleCamera(0);
+    this.game.audioManager?.startEngine?.();
   }
 
   exit(player) {
@@ -437,6 +446,7 @@ export class Vehicle {
     this._chaseEye = null;
     player.isInVehicle = false;
     player.vehicle = null;
+    this.game.audioManager?.stopEngine?.();
     const fwd = this._getForward();
     const right = new Vec3(fwd.z, 0, -fwd.x);
     player.position.set(

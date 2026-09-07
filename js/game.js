@@ -4,10 +4,10 @@ import { Player } from './player.js?v=0.1.4s';
 import { World } from './world.js?v=0.1.5';
 import { InputManager } from './input-manager.js';
 import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
-import { AudioManager } from './audio-manager.js?v=0.1.4s';
+import { AudioManager } from './audio-manager.js?v=0.1.14';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
-import { VehicleManager } from './vehicle-manager.js?v=0.1.13';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.14';
 import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
 
