@@ -1,9 +1,13 @@
-/** Shared leaderboards API (https://github.com/pfaustino/leaderboards). */
+/** Shared leaderboards API (https://github.com/pfaustino/leaderboards).
+ *  Rank = wave-first composite: value = wave * 10000 + kills (kills tiebreak).
+ */
 
 const GAME_ID = 'zombieshooter';
 const NAME_KEY = 'zombieshooterLeaderboardName';
 const LOCAL_BEST_KEY = 'zombieshooterLocalBest';
 const NAME_RE = /^[\w\s\-.'!?]+$/;
+/** Kills packed below this; wave is the high digits. */
+export const WAVE_BASE = 10000;
 
 function env() {
   const e = (typeof window !== 'undefined' && window.__LEADERBOARD_ENV__) || {};
@@ -34,6 +38,39 @@ export function setSavedName(name) {
   try { localStorage.setItem(NAME_KEY, name); } catch { /* ignore */ }
 }
 
+export function computeScore(wave, kills) {
+  const w = Math.max(0, Math.floor(Number(wave) || 0));
+  const k = Math.max(0, Math.min(WAVE_BASE - 1, Math.floor(Number(kills) || 0)));
+  return w * WAVE_BASE + k;
+}
+
+export function decodeScore(value, meta) {
+  if (meta && meta.wave != null) {
+    return {
+      wave: Math.max(0, Math.floor(Number(meta.wave) || 0)),
+      kills: Math.max(0, Math.floor(Number(meta.kills ?? 0) || 0)),
+    };
+  }
+  const v = Math.max(0, Math.floor(Number(value) || 0));
+  // Legacy kill-only posts (pre wave-first) sit below WAVE_BASE with no meta.wave.
+  if (v > 0 && v < WAVE_BASE) return { wave: 0, kills: v };
+  return { wave: Math.floor(v / WAVE_BASE), kills: v % WAVE_BASE };
+}
+
+export function formatRun(wave, kills) {
+  return `Wave ${Math.floor(wave)} · ${Math.floor(kills)} kills`;
+}
+
+/** True if run A beats run B (wave first, then kills). */
+export function isBetterRun(a, b) {
+  if (!a) return false;
+  if (!b) return true;
+  const aw = Math.floor(a.wave || 0);
+  const bw = Math.floor(b.wave || 0);
+  if (aw !== bw) return aw > bw;
+  return Math.floor(a.kills || 0) > Math.floor(b.kills || 0);
+}
+
 export function getLocalBest() {
   try {
     const raw = localStorage.getItem(LOCAL_BEST_KEY);
@@ -46,13 +83,13 @@ export function getLocalBest() {
 
 export function saveLocalBest(run) {
   const prev = getLocalBest();
-  if (prev && Number(prev.kills) >= Number(run.kills)) return prev;
   const next = {
     name: run.name || getSavedName() || 'YOU',
-    kills: Math.floor(run.kills),
+    kills: Math.floor(run.kills || 0),
     wave: Math.floor(run.wave || 1),
     at: Date.now(),
   };
+  if (!isBetterRun(next, prev)) return prev;
   try { localStorage.setItem(LOCAL_BEST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
   return next;
 }
@@ -72,12 +109,14 @@ export async function fetchLeaderboard(limit = 50) {
   }
 }
 
-export async function submitScore(player, kills, meta = {}) {
+export async function submitScore(player, wave, kills) {
   const { apiBase, writeKey } = env();
   if (!writeKey) return { ok: false, error: 'not configured' };
   const name = validateName(player);
   if (!name) return { ok: false, error: 'invalid name' };
-  const value = Math.floor(Number(kills));
+  const w = Math.floor(Number(wave) || 0);
+  const k = Math.floor(Number(kills) || 0);
+  const value = computeScore(w, k);
   if (!Number.isFinite(value) || value < 1) return { ok: false, error: 'score too low' };
 
   try {
@@ -91,7 +130,7 @@ export async function submitScore(player, kills, meta = {}) {
         game: GAME_ID,
         player: name,
         value,
-        meta,
+        meta: { wave: w, kills: k },
       }),
     });
     const body = await res.json().catch(() => ({}));
@@ -111,6 +150,29 @@ function setStatus(text, kind = '') {
   }
 }
 
+function updatePersonalBestLine(run, prev, isPb) {
+  const el = document.getElementById('go-pb-line');
+  if (!el) return;
+  el.classList.remove('pb-new');
+  if (isPb && prev) {
+    el.textContent = `NEW PERSONAL BEST — ${formatRun(run.wave, run.kills)} (was ${formatRun(prev.wave, prev.kills)})`;
+    el.classList.add('pb-new');
+  } else if (isPb) {
+    el.textContent = `PERSONAL BEST — ${formatRun(run.wave, run.kills)}`;
+    el.classList.add('pb-new');
+  } else if (prev) {
+    const waveGap = Math.floor(prev.wave) - Math.floor(run.wave);
+    if (waveGap > 0) {
+      el.textContent = `Best: ${formatRun(prev.wave, prev.kills)} — ${waveGap} wave${waveGap === 1 ? '' : 's'} short`;
+    } else {
+      const killGap = Math.floor(prev.kills) - Math.floor(run.kills);
+      el.textContent = `Best: ${formatRun(prev.wave, prev.kills)} — ${killGap} kill${killGap === 1 ? '' : 's'} short`;
+    }
+  } else {
+    el.textContent = '';
+  }
+}
+
 function renderRows(listEl, rows) {
   if (!listEl) return;
   if (!rows.length) {
@@ -118,8 +180,11 @@ function renderRows(listEl, rows) {
     return;
   }
   listEl.innerHTML = rows.map((r, i) => {
-    const wave = r.meta?.wave != null ? ` · wave ${r.meta.wave}` : '';
-    return `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${escapeHtml(r.player)}</span><span class="lb-score">${Math.floor(r.value)}${wave}</span></div>`;
+    const decoded = decodeScore(r.value, r.meta);
+    const label = decoded.wave > 0
+      ? formatRun(decoded.wave, decoded.kills)
+      : `${decoded.kills} kills`;
+    return `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${escapeHtml(r.player)}</span><span class="lb-score">${escapeHtml(label)}</span></div>`;
   }).join('');
 }
 
@@ -160,7 +225,11 @@ export function closeModal() {
 export async function handleGameOver(run) {
   const kills = Math.floor(run.kills || 0);
   const wave = Math.floor(run.wave || 1);
-  saveLocalBest({ kills, wave, name: getSavedName() });
+  const runNorm = { kills, wave, name: getSavedName() };
+  const prev = getLocalBest();
+  const isPb = isBetterRun(runNorm, prev);
+  saveLocalBest(runNorm);
+  updatePersonalBestLine(runNorm, prev, isPb);
 
   const nameInput = document.getElementById('go-lb-name');
   if (nameInput && !nameInput.value) nameInput.value = getSavedName();
@@ -168,12 +237,13 @@ export async function handleGameOver(run) {
   const listEl = document.getElementById('go-lb-list');
   setStatus('');
 
-  if (kills >= 1 && isConfigured()) {
+  const score = computeScore(wave, kills);
+  if (score >= 1 && isConfigured()) {
     const name = validateName(nameInput?.value || getSavedName());
     if (name) {
       setSavedName(name);
       setStatus('Submitting…');
-      const result = await submitScore(name, kills, { wave });
+      const result = await submitScore(name, wave, kills);
       if (result.ok) {
         setStatus(result.updated ? 'Score submitted!' : 'Best score unchanged.', 'ok');
       } else {
@@ -182,8 +252,8 @@ export async function handleGameOver(run) {
     } else {
       setStatus('Enter a name to submit your score.');
     }
-  } else if (kills < 1) {
-    setStatus('Need at least 1 kill to submit.');
+  } else if (score < 1) {
+    setStatus('Reach wave 1 to submit.');
   } else if (!isConfigured()) {
     setStatus('Global board is read-only on this build.');
   }
@@ -201,9 +271,14 @@ export async function submitFromGameOver(run) {
   setSavedName(name);
   const kills = Math.floor(run.kills || 0);
   const wave = Math.floor(run.wave || 1);
-  saveLocalBest({ kills, wave, name });
-  if (kills < 1) {
-    setStatus('Need at least 1 kill to submit.', 'error');
+  const prev = getLocalBest();
+  const runNorm = { kills, wave, name };
+  const isPb = isBetterRun(runNorm, prev);
+  saveLocalBest(runNorm);
+  updatePersonalBestLine(runNorm, prev, isPb);
+
+  if (computeScore(wave, kills) < 1) {
+    setStatus('Reach wave 1 to submit.', 'error');
     return;
   }
   if (!isConfigured()) {
@@ -211,7 +286,7 @@ export async function submitFromGameOver(run) {
     return;
   }
   setStatus('Submitting…');
-  const result = await submitScore(name, kills, { wave });
+  const result = await submitScore(name, wave, kills);
   if (result.ok) {
     setStatus(result.updated ? 'Score submitted!' : 'Best score unchanged.', 'ok');
   } else {

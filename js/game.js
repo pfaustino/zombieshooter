@@ -10,7 +10,7 @@ import { ParticleSystem } from './particle-system.js?v=0.1.4c';
 import { VehicleManager } from './vehicle-manager.js?v=0.1.17';
 import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
-import { handleGameOver, wireUi } from './leaderboard.js?v=0.1.28';
+import { handleGameOver, wireUi } from './leaderboard.js?v=0.1.31';
 
 export class Game {
   constructor() {
