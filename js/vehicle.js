@@ -152,7 +152,7 @@ export class Vehicle {
         if (isWheel) {
           const wheelOffsetX = (partCenterX - modelCenterX) * this.modelScale;
           const wheelOffsetZ = (partCenterZ - modelCenterZ) * this.modelScale;
-          const isFront = wheelOffsetZ > 0 || wheelOffsetX > 0 && this.forwardAxis === 0;
+          const isFront = this._isFrontWheel(node.name, wheelOffsetX, wheelOffsetZ);
           const wheel = {
             obj,
             offsetX: wheelOffsetX,
@@ -170,8 +170,21 @@ export class Vehicle {
     }
 
     this._resolveModelYawOffset();
+    // Bake offset into yaw so physics, mesh, and camera all share one facing.
+    if (this.modelYawOffset) {
+      this.yaw += this.modelYawOffset;
+      this.modelYawOffset = 0;
+    }
     this.wheelBase = Math.max(this.length * 0.62, 2.4);
     this._syncParts();
+  }
+
+  _isFrontWheel(name, offsetX, offsetZ) {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('front')) return true;
+    if (lower.includes('back') || lower.includes('rear')) return false;
+    if (this.forwardAxis === 0) return offsetX > 0;
+    return offsetZ > 0;
   }
 
   _resolveModelYawOffset() {
@@ -290,10 +303,7 @@ export class Vehicle {
   }
 
   _getChaseForward() {
-    const speed = Math.hypot(this.velocity.x, this.velocity.z);
-    if (speed > 1.0) {
-      return new Vec3(this.velocity.x / speed, 0, this.velocity.z / speed);
-    }
+    // True chase cam locks to the car body, not velocity (velocity swings the camera wide on turns).
     return this._getForward();
   }
 
@@ -301,32 +311,32 @@ export class Vehicle {
     const cam = this.game.camera;
     const len = this.length || 4.2;
     const h = this.height || 1.2;
-    const forward = this._getChaseForward();
-    const followDist = Math.max(len * 1.6, 9);
-    const followHeight = Math.max(h * 2.8, 4.5);
-    const lookAhead = Math.max(len * 0.55, 3);
+    const forward = this._getForward();
+    const followDist = Math.max(len * 1.45, 8);
+    const followHeight = Math.max(h * 1.35, 3.2) + 1.2;
+    const lookAhead = Math.max(len * 0.85, 4);
 
-    const focus = new Vec3(
-      this.position.x + forward.x * lookAhead * 0.35,
-      this.position.y + h * 0.5,
-      this.position.z + forward.z * lookAhead * 0.35
-    );
+    // Sit behind the rear bumper, look past the hood down the road.
     const desiredEye = new Vec3(
       this.position.x - forward.x * followDist,
       this.position.y + followHeight,
       this.position.z - forward.z * followDist
     );
     const lookTarget = new Vec3(
-      focus.x + forward.x * lookAhead,
-      focus.y + h * 0.15,
-      focus.z + forward.z * lookAhead
+      this.position.x + forward.x * lookAhead,
+      this.position.y + Math.max(h * 0.55, 1.0),
+      this.position.z + forward.z * lookAhead
     );
 
-    if (!this._chaseEye) this._chaseEye = desiredEye.clone();
-    const blend = 1 - Math.exp(-10 * delta);
-    this._chaseEye.x += (desiredEye.x - this._chaseEye.x) * blend;
-    this._chaseEye.y += (desiredEye.y - this._chaseEye.y) * blend;
-    this._chaseEye.z += (desiredEye.z - this._chaseEye.z) * blend;
+    if (!this._chaseEye || !(delta > 0)) {
+      this._chaseEye = desiredEye.clone();
+    } else {
+      // Follow the car tightly; lag only enough to hide hitching.
+      const blend = 1 - Math.exp(-14 * delta);
+      this._chaseEye.x += (desiredEye.x - this._chaseEye.x) * blend;
+      this._chaseEye.y += (desiredEye.y - this._chaseEye.y) * blend;
+      this._chaseEye.z += (desiredEye.z - this._chaseEye.z) * blend;
+    }
 
     cam.setLookAt(this._chaseEye, lookTarget);
 

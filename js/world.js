@@ -1,6 +1,6 @@
 import { Vec3, AABB } from './math.js';
 import { loadGLBGeometry } from './gltf-loader.js';
-import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.8';
+import { DRIVABLE_MODELS } from './vehicle-manager.js?v=0.1.9';
 import { NPC_PROP_MODELS } from './npc-manager.js?v=0.1.5';
 
 export class World {
