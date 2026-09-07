@@ -34,15 +34,15 @@ export class Vehicle {
   }
 
   static STATS = {
-    'Car.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
-    'Car-unqqkULtRU.glb': { maxSpeed: 30, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
-    'SUV.glb': { maxSpeed: 25, acceleration: 12, brakeForce: 22, steerSpeed: 3.0, maxSteer: 0.38, friction: 2.8, lateralGrip: 13, mass: 1800 },
-    'Sports Car.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
-    'Sports Car-Gzj704DXdr.glb': { maxSpeed: 42, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
-    'Police Car.glb': { maxSpeed: 35, acceleration: 18, brakeForce: 27, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1100 },
-    'Pickup Truck.glb': { maxSpeed: 22, acceleration: 10, brakeForce: 18, steerSpeed: 2.5, maxSteer: 0.35, friction: 2.5, lateralGrip: 12, mass: 2500 },
-    'Bus.glb': { maxSpeed: 18, acceleration: 8, brakeForce: 15, steerSpeed: 2.0, maxSteer: 0.3, friction: 2.2, lateralGrip: 11, mass: 4000 },
-    'Motorcycle.glb': { maxSpeed: 35, acceleration: 20, brakeForce: 28, steerSpeed: 4.5, maxSteer: 0.55, friction: 3, lateralGrip: 10, mass: 200 },
+    'Car.glb': { maxSpeed: 60, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
+    'Car-unqqkULtRU.glb': { maxSpeed: 60, acceleration: 15, brakeForce: 25, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1200 },
+    'SUV.glb': { maxSpeed: 50, acceleration: 12, brakeForce: 22, steerSpeed: 3.0, maxSteer: 0.38, friction: 2.8, lateralGrip: 13, mass: 1800 },
+    'Sports Car.glb': { maxSpeed: 84, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
+    'Sports Car-Gzj704DXdr.glb': { maxSpeed: 84, acceleration: 22, brakeForce: 30, steerSpeed: 4.0, maxSteer: 0.48, friction: 3.5, lateralGrip: 16, mass: 900 },
+    'Police Car.glb': { maxSpeed: 70, acceleration: 18, brakeForce: 27, steerSpeed: 3.5, maxSteer: 0.42, friction: 3, lateralGrip: 14, mass: 1100 },
+    'Pickup Truck.glb': { maxSpeed: 44, acceleration: 10, brakeForce: 18, steerSpeed: 2.5, maxSteer: 0.35, friction: 2.5, lateralGrip: 12, mass: 2500 },
+    'Bus.glb': { maxSpeed: 36, acceleration: 8, brakeForce: 15, steerSpeed: 2.0, maxSteer: 0.3, friction: 2.2, lateralGrip: 11, mass: 4000 },
+    'Motorcycle.glb': { maxSpeed: 70, acceleration: 20, brakeForce: 28, steerSpeed: 4.5, maxSteer: 0.55, friction: 3, lateralGrip: 10, mass: 200 },
   };
 
   _stats() {
