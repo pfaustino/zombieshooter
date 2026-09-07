@@ -268,10 +268,11 @@ export class Vehicle {
     if (speedAbs > 0.35) {
       const speedSteerScale = 1 / (1 + speedAbs * 0.045);
       const steer = this.steerAngle * speedSteerScale;
-      const yawRate = (Math.sign(vForward) * speedAbs * Math.tan(steer)) / wheelBase;
+      // Render uses rotationY(-yaw), so a positive physics yaw turns the car the other way on screen.
+      const yawRate = -(Math.sign(vForward) * speedAbs * Math.tan(steer)) / wheelBase;
       this.yaw += yawRate * delta;
     } else if (this.throttleInput !== 0 && Math.abs(this.steerAngle) > 0.05) {
-      this.yaw += this.steerAngle * 1.4 * this.throttleInput * delta;
+      this.yaw -= this.steerAngle * 1.4 * this.throttleInput * delta;
     }
 
     const newFwd = this._getForward();
@@ -381,7 +382,8 @@ export class Vehicle {
         this.position.x + rx,
         this.position.y + w.offsetY,
         this.position.z + rz);
-      w.obj.rotationY = renderYaw + (w.isFront ? steerVis : 0);
+      // Front wheels steer opposite the body yaw because of the render X-flip.
+      w.obj.rotationY = renderYaw - (w.isFront ? steerVis : 0);
       w.obj.rotationX = this.wheelSpin;
       this.game.renderer.updateObjectTransform(w.obj);
     }
