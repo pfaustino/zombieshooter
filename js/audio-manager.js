@@ -2,6 +2,8 @@ const AUDIO_ASSETS = {
   music: 'assets/melodyayresgriffiths-what-we-lost-tv-movie-game-theme-zombie-virus-apocalypse-143267.mp3',
   reload: 'assets/dragon-studio-gun-reload-2-511308.mp3',
   engine: 'assets/spinopel-car-engine-noise-321224.mp3',
+  carThud: 'assets/virtual_vibes-thud-impact-sound-sfx-379990.mp3',
+  zombieThud: 'assets/virtual_vibes-cinematic-thud-fx-379991.mp3',
   zombieGrowl: [
     'assets/dragon-studio-zombie-sound-357975.mp3',
     'assets/dragon-studio-zombie-sound-2-357976.mp3',
@@ -24,6 +26,8 @@ export class AudioManager {
     this._engineSource = null;
     this._engineGain = null;
     this._lastZombieVoice = 0;
+    this._lastCarThud = 0;
+    this._lastZombieThud = 0;
   }
 
   init() {
@@ -60,6 +64,8 @@ export class AudioManager {
     await loadOne('music', AUDIO_ASSETS.music);
     await loadOne('reload', AUDIO_ASSETS.reload);
     await loadOne('engine', AUDIO_ASSETS.engine);
+    await loadOne('carThud', AUDIO_ASSETS.carThud);
+    await loadOne('zombieThud', AUDIO_ASSETS.zombieThud);
     for (let i = 0; i < AUDIO_ASSETS.zombieGrowl.length; i++) {
       await loadOne(`zombie${i}`, AUDIO_ASSETS.zombieGrowl[i]);
     }
@@ -210,8 +216,41 @@ export class AudioManager {
     osc.start(now); osc.stop(now + 0.1);
   }
 
+  playCarThud(intensity = 1) {
+    if (!this.initialized) return;
+    const nowMs = performance.now();
+    if (nowMs - this._lastCarThud < 80) return;
+    this._lastCarThud = nowMs;
+    const t = Math.max(0.35, Math.min(1.4, intensity));
+    if (this.buffers.carThud) {
+      this._playBuffer(this.buffers.carThud, {
+        volume: (0.45 + t * 0.35) * this.sfxVolume,
+        rate: 0.92 + Math.random() * 0.16,
+      });
+      return;
+    }
+    this.playHit();
+  }
+
+  playZombieThud(intensity = 1) {
+    if (!this.initialized) return;
+    const nowMs = performance.now();
+    if (nowMs - this._lastZombieThud < 60) return;
+    this._lastZombieThud = nowMs;
+    const t = Math.max(0.35, Math.min(1.4, intensity));
+    if (this.buffers.zombieThud) {
+      this._playBuffer(this.buffers.zombieThud, {
+        volume: (0.4 + t * 0.4) * this.sfxVolume,
+        rate: 0.9 + Math.random() * 0.2,
+      });
+      return;
+    }
+    this.playHit();
+  }
+
   playEnemyHit() {
     if (!this.initialized) return;
+    this.playZombieThud(0.7);
     if (this._playZombieVoice({ volume: 0.28, minGap: 0.12 })) return;
     const now = this.context.currentTime;
     const osc = this.context.createOscillator();

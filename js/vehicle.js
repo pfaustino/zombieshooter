@@ -398,6 +398,7 @@ export class Vehicle {
       if (impact > 5) {
         this._takeDamage(impact * 0.25);
         other._takeDamage(impact * 0.25);
+        this.game.audioManager?.playCarThud?.(impact / 12);
       }
       other._syncParts();
     }
@@ -506,6 +507,7 @@ export class Vehicle {
           enemy.ragdoll(impactVel);
           this.velocity.x *= 0.92;
           this.velocity.z *= 0.92;
+          this.game.audioManager?.playZombieThud?.(speed / 14);
         }
       }
     }
