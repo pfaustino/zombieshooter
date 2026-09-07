@@ -756,7 +756,12 @@ export class Vehicle {
 
   canEnter(playerPos) {
     if (this.destroyed || this.occupied || !this.loaded) return false;
-    return this.position.distanceTo(playerPos) < 3.5;
+    // Horizontal distance only — player Y is eye height (~1.7), so 3D distance
+    // falsely rejects larger cars (e.g. blue Car.glb) that solid-collision holds you outside of.
+    const dx = playerPos.x - this.position.x;
+    const dz = playerPos.z - this.position.z;
+    const reach = Math.max(3.5, (this._collisionRadius?.() || 2.2) + 1.2);
+    return dx * dx + dz * dz < reach * reach;
   }
 
   enter(player) {
