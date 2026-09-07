@@ -170,11 +170,6 @@ export class Vehicle {
     }
 
     this._resolveModelYawOffset();
-    // Bake offset into yaw so physics, mesh, and camera all share one facing.
-    if (this.modelYawOffset) {
-      this.yaw += this.modelYawOffset;
-      this.modelYawOffset = 0;
-    }
     this.wheelBase = Math.max(this.length * 0.62, 2.4);
     this._syncParts();
   }
@@ -198,7 +193,10 @@ export class Vehicle {
     for (const w of this.rearWheels) rearSum += this.forwardAxis === 0 ? w.offsetX : w.offsetZ;
     const frontAvg = frontSum / this.frontWheels.length;
     const rearAvg = this.rearWheels.length ? rearSum / this.rearWheels.length : 0;
-    this.modelYawOffset = frontAvg >= rearAvg ? 0 : Math.PI;
+    // Mesh render uses rotationY(-yaw), which flips the X axis of the model.
+    // So the model's nose in world space is the negative of the raw front-wheel offset.
+    const noseAlongForward = this.forwardAxis === 0 ? -frontAvg : frontAvg;
+    this.modelYawOffset = noseAlongForward >= 0 ? 0 : Math.PI;
   }
 
   _isWheelNode(name) {
