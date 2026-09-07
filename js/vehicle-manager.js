@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Vehicle } from './vehicle.js?v=0.1.14';
+import { Vehicle } from './vehicle.js?v=0.1.15';
 
 export const DRIVABLE_MODELS = [
   'Car.glb', 'Car-unqqkULtRU.glb', 'SUV.glb', 'Sports Car.glb', 'Police Car.glb',
@@ -85,7 +85,13 @@ export class VehicleManager {
       if (x - radius < b.minX || x + radius > b.maxX || z - radius < b.minZ || z + radius > b.maxZ) return false;
     }
     if (world.isOnRoad && !world.isOnRoad(x, z, 0.5)) return false;
-    return !world.checkCollision(x, z, radius);
+    if (world.checkCollision(x, z, radius)) return false;
+    for (const v of this.vehicles) {
+      if (!v.loaded || v.destroyed) continue;
+      const d = Math.hypot(x - v.position.x, z - v.position.z);
+      if (d < radius + (v._collisionRadius?.() || 2.2)) return false;
+    }
+    return true;
   }
 
   update(delta) {

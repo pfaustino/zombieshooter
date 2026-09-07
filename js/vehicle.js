@@ -293,6 +293,8 @@ export class Vehicle {
       if (impactSpeed > 15) this._takeDamage(impactSpeed * 0.5);
     }
 
+    this._resolveVehicleCollisions(oldX, oldZ);
+
     this.wheelSpin += vForward * delta * 2.5;
 
     this._checkRunover();
@@ -305,6 +307,74 @@ export class Vehicle {
         const speed = Math.hypot(this.velocity.x, this.velocity.z);
         am.updateEngine(speed, this._stats().maxSpeed);
       }
+    }
+  }
+
+  _collisionRadius() {
+    const w = this.width || 1.8;
+    const l = this.length || 4.2;
+    return Math.max(w * 0.55, l * 0.3);
+  }
+
+  _resolveVehicleCollisions(oldX, oldZ) {
+    const others = this.game.vehicleManager?.vehicles;
+    if (!others || others.length === 0) return;
+
+    for (const other of others) {
+      if (other === this || other.destroyed || !other.loaded) continue;
+
+      let dx = this.position.x - other.position.x;
+      let dz = this.position.z - other.position.z;
+      let distSq = dx * dx + dz * dz;
+      const minDist = this._collisionRadius() + other._collisionRadius();
+      if (distSq >= minDist * minDist) continue;
+
+      if (distSq < 1e-6) {
+        this.position.x = oldX;
+        this.position.z = oldZ;
+        this.velocity.x *= 0.2;
+        this.velocity.z *= 0.2;
+        continue;
+      }
+
+      const dist = Math.sqrt(distSq);
+      const nx = dx / dist;
+      const nz = dz / dist;
+      const overlap = minDist - dist;
+
+      // Moving car takes most of the separation; nudge parked cars slightly.
+      const selfPush = other.occupied ? overlap * 0.5 : overlap * 0.9;
+      const otherPush = overlap - selfPush;
+      this.position.x += nx * selfPush;
+      this.position.z += nz * selfPush;
+      if (otherPush > 0) {
+        other.position.x -= nx * otherPush;
+        other.position.z -= nz * otherPush;
+        other._syncParts();
+      }
+
+      // Remove velocity into the contact normal.
+      const vn = this.velocity.x * nx + this.velocity.z * nz;
+      if (vn < 0) {
+        this.velocity.x -= vn * nx * 1.05;
+        this.velocity.z -= vn * nz * 1.05;
+      }
+      this.velocity.x *= 0.55;
+      this.velocity.z *= 0.55;
+
+      const impact = Math.abs(vn);
+      if (impact > 6) {
+        this._takeDamage(impact * 0.3);
+        other._takeDamage(impact * 0.25);
+      }
+    }
+
+    // If push put us in a building, snap back.
+    if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
+      this.position.x = oldX;
+      this.position.z = oldZ;
+      this.velocity.x *= 0.2;
+      this.velocity.z *= 0.2;
     }
   }
 
