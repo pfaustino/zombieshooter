@@ -26,6 +26,11 @@ export class Vehicle {
     this.loaded = false;
     this.forwardAxis = 2;
     this.bounds = null;
+    this.roadkillStreak = 0;
+    this.roadkillTimer = 0;
+    this.ROADKILL_WINDOW = 2.8;
+    this._smokeTimer = 0;
+    this._roadkillBannerTimer = 0;
   }
 
   static STATS = {
@@ -221,11 +226,38 @@ export class Vehicle {
     this._syncParts();
   }
 
+  _healthFrac() {
+    return Math.max(0, this.health / this.maxHealth);
+  }
+
+  /** Handling falls off as the car takes damage. */
+  _conditionMults() {
+    const h = this._healthFrac();
+    return {
+      speed: 0.45 + h * 0.55,
+      accel: 0.4 + h * 0.6,
+      steer: 0.55 + h * 0.45,
+      grip: 0.5 + h * 0.5,
+    };
+  }
+
   update(delta, input) {
     if (this.destroyed || !this.loaded) return;
 
     const stats = this._stats();
+    const cond = this._conditionMults();
     const wheelBase = this.wheelBase || Math.max((this.length || 4.2) * 0.62, 2.4);
+
+    if (this.roadkillTimer > 0) {
+      this.roadkillTimer -= delta;
+      if (this.roadkillTimer <= 0) this.roadkillStreak = 0;
+    }
+    if (this._roadkillBannerTimer > 0) {
+      this._roadkillBannerTimer -= delta;
+      if (this._roadkillBannerTimer <= 0) {
+        document.getElementById('roadkill-banner')?.classList.remove('show');
+      }
+    }
 
     if (this.occupied && input) {
       this.throttleInput = 0;
@@ -240,8 +272,8 @@ export class Vehicle {
       this.steerInput = 0;
     }
 
-    const steerTarget = this.steerInput * stats.maxSteer;
-    const steerLerp = 1 - Math.exp(-stats.steerSpeed * delta);
+    const steerTarget = this.steerInput * stats.maxSteer * cond.steer;
+    const steerLerp = 1 - Math.exp(-(stats.steerSpeed * cond.steer) * delta);
     this.steerAngle += (steerTarget - this.steerAngle) * steerLerp;
 
     const fwd = this._getForward();
@@ -249,19 +281,20 @@ export class Vehicle {
     let vForward = this.velocity.x * fwd.x + this.velocity.z * fwd.z;
     let vLateral = this.velocity.x * right.x + this.velocity.z * right.z;
 
+    const maxSpeed = stats.maxSpeed * cond.speed;
     let accel = 0;
     if (this.throttleInput > 0) {
-      accel = this.throttleInput * stats.acceleration;
+      accel = this.throttleInput * stats.acceleration * cond.accel;
     } else if (this.throttleInput < 0) {
-      if (vForward > 0.5) accel = this.throttleInput * stats.brakeForce;
-      else accel = this.throttleInput * stats.acceleration * 0.55;
+      if (vForward > 0.5) accel = this.throttleInput * stats.brakeForce * (0.7 + cond.accel * 0.3);
+      else accel = this.throttleInput * stats.acceleration * cond.accel * 0.55;
     }
     accel -= vForward * stats.friction * 0.35;
     vForward += accel * delta;
-    vForward = Math.max(-stats.maxSpeed * 0.35, Math.min(stats.maxSpeed, vForward));
+    vForward = Math.max(-maxSpeed * 0.35, Math.min(maxSpeed, vForward));
     this.speed = vForward;
 
-    const grip = 1 - Math.exp(-(stats.lateralGrip || 14) * delta);
+    const grip = 1 - Math.exp(-((stats.lateralGrip || 14) * cond.grip) * delta);
     vLateral *= 1 - grip;
 
     const speedAbs = Math.abs(vForward);
@@ -287,10 +320,10 @@ export class Vehicle {
     if (this.game.world.checkCollision(this.position.x, this.position.z, this.width * 0.5)) {
       this.position.x = oldX;
       this.position.z = oldZ;
+      const preImpact = Math.hypot(this.velocity.x, this.velocity.z);
       this.velocity.x *= 0.25;
       this.velocity.z *= 0.25;
-      const impactSpeed = Math.sqrt(this.velocity.x ** 2 + this.velocity.z ** 2);
-      if (impactSpeed > 15) this._takeDamage(impactSpeed * 0.5);
+      if (preImpact > 8) this._takeDamage(preImpact * 0.55);
     }
 
     this._resolveVehicleCollisions(oldX, oldZ);
@@ -298,14 +331,16 @@ export class Vehicle {
     this.wheelSpin += vForward * delta * 2.5;
 
     this._checkRunover();
+    this._updateDamageFx(delta);
     this._syncParts();
 
     if (this.occupied) {
       this._updateVehicleCamera(delta);
+      this._updateVehicleHud();
       const am = this.game.audioManager;
       if (am?.updateEngine) {
         const speed = Math.hypot(this.velocity.x, this.velocity.z);
-        am.updateEngine(speed, this._stats().maxSpeed);
+        am.updateEngine(speed, maxSpeed);
       }
     }
   }
@@ -508,8 +543,89 @@ export class Vehicle {
           this.velocity.x *= 0.92;
           this.velocity.z *= 0.92;
           this.game.audioManager?.playZombieThud?.(speed / 14);
+
+          const bloodPos = enemy.position.clone();
+          bloodPos.y = Math.max(0.4, bloodPos.y);
+          this.game.particleSystem?.emitBlood?.(bloodPos, fwd, 14 + Math.floor(speed * 0.4));
+          this.game.particleSystem?.emit?.(bloodPos, 6, [0.45, 0.02, 0.02]);
+
+          this.roadkillStreak++;
+          this.roadkillTimer = this.ROADKILL_WINDOW;
+          this._showRoadkill(this.roadkillStreak);
+          this._takeDamage(1.2 + speed * 0.06);
+
+          if (this.roadkillStreak >= 3 && Math.random() < 0.4) {
+            this.game.lootManager?.spawnLoot?.(enemy.position.clone(), 'coin');
+          }
+          if (this.roadkillStreak >= 5 && Math.random() < 0.28) {
+            this.game.lootManager?.spawnLoot?.(enemy.position.clone(), 'potion');
+          }
         }
       }
+    }
+  }
+
+  _showRoadkill(n) {
+    const banner = document.getElementById('roadkill-banner');
+    const textEl = document.getElementById('roadkill-text');
+    const multEl = document.getElementById('roadkill-mult');
+    if (!banner || !textEl) return;
+
+    let label = 'ROADKILL';
+    if (n === 2) label = 'DOUBLE ROADKILL';
+    else if (n === 3) label = 'TRIPLE ROADKILL';
+    else if (n === 4) label = 'QUAD ROADKILL';
+    else if (n >= 5) label = 'ROADKILL RAMPAGE';
+
+    textEl.textContent = label;
+    if (multEl) multEl.textContent = n >= 2 ? `x${n} STREAK` : '';
+    banner.classList.remove('show');
+    void banner.offsetWidth;
+    banner.classList.add('show');
+    this._roadkillBannerTimer = 1.35;
+  }
+
+  _updateDamageFx(delta) {
+    const h = this._healthFrac();
+    if (h >= 0.55) return;
+
+    this._smokeTimer -= delta;
+    if (this._smokeTimer > 0) return;
+    this._smokeTimer = h < 0.3 ? 0.12 : 0.22;
+
+    const hood = this.position.clone();
+    hood.y += (this.height || 1.4) * 0.55;
+    const fwd = this._getForward();
+    hood.x += fwd.x * (this.length || 4) * 0.15;
+    hood.z += fwd.z * (this.length || 4) * 0.15;
+
+    if (h < 0.3) {
+      this.game.particleSystem?.emit?.(hood, 4, [0.55, 0.22, 0.05]);
+      this.game.particleSystem?.emit?.(hood, 3, [0.25, 0.25, 0.25]);
+    } else {
+      this.game.particleSystem?.emit?.(hood, 3, [0.35, 0.35, 0.38]);
+    }
+  }
+
+  _updateVehicleHud() {
+    const fill = document.getElementById('vehicle-health-fill');
+    const integrity = document.getElementById('vehicle-integrity');
+    const hud = document.getElementById('vehicle-hud');
+    const frac = this._healthFrac();
+    const pct = Math.round(frac * 100);
+    if (fill) {
+      fill.style.transform = `scaleX(${frac})`;
+      if (frac < 0.3) fill.style.background = 'linear-gradient(90deg, #f30, #f80)';
+      else if (frac < 0.55) fill.style.background = 'linear-gradient(90deg, #fa0, #fc4)';
+      else fill.style.background = 'linear-gradient(90deg, #0f8, #0cf)';
+    }
+    if (integrity) {
+      integrity.textContent = frac < 0.3 ? `CRITICAL ${pct}%` : `Integrity ${pct}%`;
+      integrity.style.color = frac < 0.3 ? '#f66' : frac < 0.55 ? '#fc4' : '#8cf';
+    }
+    if (hud) {
+      hud.classList.toggle('critical', frac < 0.3);
+      hud.classList.toggle('damaged', frac >= 0.3 && frac < 0.55);
     }
   }
 
@@ -541,13 +657,26 @@ export class Vehicle {
   }
 
   _takeDamage(amount) {
-    this.health -= amount;
+    if (this.destroyed || amount <= 0) return;
+    this.health = Math.max(0, this.health - amount);
+    if (this.occupied) this._updateVehicleHud();
     if (this.health <= 0 && !this.destroyed) this._destroy();
   }
 
   _destroy() {
     this.destroyed = true;
     this.speed = 0;
+    this.velocity.set(0, 0, 0);
+    this.roadkillStreak = 0;
+
+    const blast = this.position.clone();
+    blast.y += (this.height || 1.4) * 0.4;
+    this.game.particleSystem?.emit?.(blast, 28, [1.0, 0.35, 0.05]);
+    this.game.particleSystem?.emit?.(blast, 18, [0.25, 0.25, 0.28]);
+    this.game.particleSystem?.emit?.(blast, 12, [0.9, 0.15, 0.02]);
+    this.game.audioManager?.playCarThud?.(1.4);
+    this.game.audioManager?.playZombieThud?.(1.2);
+
     for (const p of this.parts) {
       p.obj.color = [0.1, 0.05, 0.03];
       p.obj.emissive = [0.3, 0.1, 0.02];
@@ -559,6 +688,7 @@ export class Vehicle {
     }
     if (this.occupied) this.game.player.exitVehicle();
     this.game.audioManager?.stopEngine?.();
+    document.getElementById('roadkill-banner')?.classList.remove('show');
   }
 
   getAABB() {

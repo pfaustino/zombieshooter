@@ -486,6 +486,31 @@
     #vehicle-hud .vh-title { font-size: 1.1em; letter-spacing: 2px; margin-bottom: 6px; }
     #vehicle-hud .vh-speed { font-size: 1.8em; font-family: 'Orbitron', sans-serif; font-weight: 700; }
     #vehicle-hud .vh-hint { font-size: 0.8em; color: #445; margin-top: 8px; letter-spacing: 1px; }
+    #vehicle-hud .vh-integrity {
+      margin-top: 8px; font-size: 0.85em; letter-spacing: 1px; color: #8cf;
+    }
+    #vehicle-hud .vh-health {
+      margin-top: 6px; height: 6px; background: rgba(255,255,255,0.12); border-radius: 3px; overflow: hidden;
+    }
+    #vehicle-hud .vh-health-fill {
+      height: 100%; width: 100%; background: linear-gradient(90deg, #0f8, #0cf);
+      transform-origin: left center; transition: transform 0.15s linear, background 0.2s;
+    }
+    #vehicle-hud.damaged { border-left-color: #fc4; }
+    #vehicle-hud.critical { border-left-color: #f44; color: #f88; }
+
+    #roadkill-banner {
+      position: fixed; top: 22%; left: 50%; transform: translateX(-50%) scale(0.85);
+      font-family: 'Orbitron', sans-serif; font-weight: 900;
+      font-size: clamp(1.4em, 3.5vw, 2.6em); letter-spacing: 0.12em;
+      color: #ff3355; text-shadow: 0 0 24px rgba(255, 40, 60, 0.75), 0 2px 0 #400;
+      z-index: 55; opacity: 0; pointer-events: none;
+      transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+    }
+    #roadkill-banner.show {
+      opacity: 1; transform: translateX(-50%) scale(1);
+    }
+    #roadkill-banner .rk-mult { color: #fff; font-size: 0.55em; display: block; letter-spacing: 0.2em; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -518,8 +543,12 @@
   <div id="vehicle-hud">
     <div class="vh-title">VEHICLE</div>
     <div class="vh-speed" id="vehicle-speed">0</div>
+    <div class="vh-integrity" id="vehicle-integrity">Integrity 100%</div>
+    <div class="vh-health"><div class="vh-health-fill" id="vehicle-health-fill"></div></div>
     <div class="vh-hint">F: Exit | WASD: Drive</div>
   </div>
+
+  <div id="roadkill-banner"><span id="roadkill-text">ROADKILL</span><span class="rk-mult" id="roadkill-mult"></span></div>
 
   <div id="hud-top">
     <div id="fps-counter" style="display:none;color:#00ff88;font-family:'Orbitron',sans-serif;"></div>
@@ -840,7 +869,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/crikket-capture.js?v=0.1.17"></script>
-  <script type="module" src="js/main.js?v=0.1.17"></script>
+  <script type="module" src="js/crikket-capture.js?v=0.1.18"></script>
+  <script type="module" src="js/main.js?v=0.1.18"></script>
 </body>
 </html>
