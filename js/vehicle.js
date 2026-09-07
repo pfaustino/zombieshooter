@@ -113,9 +113,12 @@ export class Vehicle {
     for (const node of nodes) {
       if (!node.meshes) continue;
       const isWheel = this._isWheelNode(node.name);
-      const geoName = `vehicle:${this.modelFile}:${nodes.indexOf(node)}`;
+      const nodeIndex = nodes.indexOf(node);
 
-      for (const sub of node.meshes) {
+      for (let subIndex = 0; subIndex < node.meshes.length; subIndex++) {
+        const sub = node.meshes[subIndex];
+        // Unique name per primitive — shared names made rim overwrite tire (or vice versa).
+        const geoName = `vehicle:${this.modelFile}:${nodeIndex}:${subIndex}`;
         let recenteredPos;
         let partCenterX, partCenterY, partCenterZ;
 

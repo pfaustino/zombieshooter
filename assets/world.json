@@ -2,694 +2,190 @@
     "buildings": [
         {
             "model": "Big Building.glb",
-            "x": 25.27,
+            "x": -29.78,
             "y": 0.0,
-            "z": -21.06,
-            "scale": 2.03,
+            "z": 5.82,
+            "scale": 2.61,
             "rotY": 1.5708,
             "collidable": true
         },
         {
             "model": "Building Red.glb",
-            "x": 40.16,
+            "x": -19.97,
             "y": 0.0,
-            "z": -19.81,
-            "scale": 4.52,
+            "z": 35.59,
+            "scale": 5.47,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Building Green.glb",
-            "x": 39.35,
+            "x": 78.88,
             "y": 0.0,
-            "z": -51.29,
-            "scale": 3.86,
+            "z": -57.51,
+            "scale": 4.18,
             "rotY": 4.7124,
             "collidable": true
         },
         {
             "model": "Brown Building.glb",
-            "x": 33.0,
+            "x": 74.38,
             "y": 0.0,
-            "z": 57.94,
-            "scale": 3.23,
+            "z": 104.9,
+            "scale": 3.41,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Building Red Corner.glb",
-            "x": 18.6,
+            "x": -28.19,
             "y": 0.0,
-            "z": 87.49,
-            "scale": 6.53,
+            "z": -91.15,
+            "scale": 6.57,
             "rotY": 1.5708,
             "collidable": true
         },
         {
             "model": "Pizza Corner.glb",
-            "x": -41.91,
+            "x": -6.81,
             "y": 0.0,
-            "z": -16.36,
-            "scale": 4.7,
+            "z": -61.72,
+            "scale": 5.15,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Big Building.glb",
-            "x": -59.61,
+            "x": -43.33,
             "y": 0.0,
-            "z": -45.67,
-            "scale": 2.15,
+            "z": 110.56,
+            "scale": 2.67,
             "rotY": 4.7124,
             "collidable": true
         },
         {
             "model": "Building Red.glb",
-            "x": -50.62,
+            "x": -24.9,
             "y": 0.0,
-            "z": -30.1,
-            "scale": 5.01,
+            "z": 91.46,
+            "scale": 5.11,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Building Green.glb",
-            "x": 149.66,
+            "x": 187.91,
             "y": 0.0,
-            "z": -27.72,
-            "scale": 3.72,
+            "z": 4.76,
+            "scale": 3.58,
             "rotY": 1.5708,
             "collidable": true
         },
         {
             "model": "Brown Building.glb",
-            "x": 119.31,
+            "x": 177.4,
             "y": 0.0,
-            "z": -17.69,
-            "scale": 4.14,
+            "z": 23.85,
+            "scale": 3.58,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Building Red Corner.glb",
-            "x": -55.21,
+            "x": 151.64,
             "y": 0.0,
-            "z": 72.29,
-            "scale": 5.01,
+            "z": 13.34,
+            "scale": 5.25,
             "rotY": 4.7124,
             "collidable": true
         },
         {
             "model": "Pizza Corner.glb",
-            "x": -67.49,
+            "x": 160.27,
             "y": 0.0,
-            "z": 54.17,
-            "scale": 5.31,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 140.1,
-            "y": 0.0,
-            "z": 56.46,
-            "scale": 2.32,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 162.44,
-            "y": 0.0,
-            "z": 83.68,
-            "scale": 5.42,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": 144.58,
-            "y": 0.0,
-            "z": 92.77,
-            "scale": 3.97,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 30.94,
-            "y": 0.0,
-            "z": -147.12,
-            "scale": 4.02,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 45.61,
-            "y": 0.0,
-            "z": -131.69,
-            "scale": 6.67,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": 36.64,
-            "y": 0.0,
-            "z": 168.34,
-            "scale": 4.71,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 59.56,
-            "y": 0.0,
-            "z": 194.06,
-            "scale": 2.37,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 22.56,
-            "y": 0.0,
-            "z": 188.43,
-            "scale": 4.76,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": -49.88,
-            "y": 0.0,
-            "z": -145.76,
-            "scale": 4.41,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 131.52,
-            "y": 0.0,
-            "z": -134.46,
-            "scale": 3.77,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 142.71,
-            "y": 0.0,
-            "z": -113.86,
-            "scale": 6.33,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": 147.0,
-            "y": 0.0,
-            "z": -149.16,
-            "scale": 5.92,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": -69.06,
-            "y": 0.0,
-            "z": 195.1,
-            "scale": 2.23,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": -39.13,
-            "y": 0.0,
-            "z": 160.45,
-            "scale": 5.73,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": 138.19,
-            "y": 0.0,
-            "z": 185.33,
-            "scale": 4.69,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 150.19,
-            "y": 0.0,
-            "z": 152.43,
-            "scale": 3.4,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": -177.94,
-            "y": 0.0,
-            "z": -26.59,
-            "scale": 5.97,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": -147.85,
-            "y": 0.0,
-            "z": -25.04,
+            "z": -89.44,
             "scale": 5.91,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 237.95,
-            "y": 0.0,
-            "z": -24.37,
-            "scale": 2.7,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 239.35,
-            "y": 0.0,
-            "z": -48.6,
-            "scale": 5.45,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": -182.37,
-            "y": 0.0,
-            "z": 56.49,
-            "scale": 4.12,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 238.79,
-            "y": 0.0,
-            "z": 73.69,
-            "scale": 3.15,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 30.17,
-            "y": 0.0,
-            "z": -236.42,
-            "scale": 6.02,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": -165.67,
-            "y": 0.0,
-            "z": -139.56,
-            "scale": 4.75,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Big Building.glb",
-            "x": -166.79,
+            "x": 138.66,
             "y": 0.0,
-            "z": -120.36,
-            "scale": 2.54,
+            "z": -65.27,
+            "scale": 2.61,
             "rotY": 1.5708,
             "collidable": true
         },
         {
             "model": "Building Red.glb",
-            "x": 261.28,
+            "x": 151.32,
             "y": 0.0,
-            "z": -110.02,
-            "scale": 4.99,
+            "z": 120.43,
+            "scale": 5.85,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Building Green.glb",
-            "x": 216.86,
+            "x": -107.77,
             "y": 0.0,
-            "z": -125.14,
-            "scale": 4.07,
+            "z": 20.43,
+            "scale": 3.53,
             "rotY": 4.7124,
             "collidable": true
         },
         {
             "model": "Brown Building.glb",
-            "x": -159.21,
+            "x": -132.49,
             "y": 0.0,
-            "z": 184.22,
-            "scale": 3.55,
+            "z": -73.63,
+            "scale": 3.1,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Building Red Corner.glb",
-            "x": -143.35,
+            "x": -113.33,
             "y": 0.0,
-            "z": 150.22,
-            "scale": 5.26,
+            "z": -71.77,
+            "scale": 6.49,
             "rotY": 1.5708,
             "collidable": true
         },
         {
             "model": "Pizza Corner.glb",
-            "x": 241.63,
+            "x": -110.06,
             "y": 0.0,
-            "z": 196.41,
-            "scale": 5.23,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 240.59,
-            "y": 0.0,
-            "z": 175.7,
-            "scale": 2.41,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": -78.84,
-            "y": 0.0,
-            "z": -211.67,
-            "scale": 4.76,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": 44.29,
-            "y": 0.0,
-            "z": 265.99,
-            "scale": 3.9,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 116.28,
-            "y": 0.0,
-            "z": -211.01,
-            "scale": 3.74,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": -74.42,
-            "y": 0.0,
-            "z": 272.9,
-            "scale": 6.45,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": 120.63,
-            "y": 0.0,
-            "z": 284.1,
-            "scale": 5.01,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 335.36,
-            "y": 0.0,
-            "z": -9.74,
-            "scale": 2.74,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 316.69,
-            "y": 0.0,
-            "z": -32.32,
-            "scale": 4.98,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": -261.62,
-            "y": 0.0,
-            "z": 82.22,
-            "scale": 4.9,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 348.03,
-            "y": 0.0,
-            "z": 75.6,
-            "scale": 3.59,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": -182.38,
-            "y": 0.0,
-            "z": -237.19,
-            "scale": 5.84,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": -145.27,
-            "y": 0.0,
-            "z": -217.71,
-            "scale": 4.94,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 234.49,
-            "y": 0.0,
-            "z": -231.99,
-            "scale": 2.03,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 243.04,
-            "y": 0.0,
-            "z": -250.9,
-            "scale": 4.71,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": -168.06,
-            "y": 0.0,
-            "z": 263.88,
-            "scale": 3.63,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": -183.79,
-            "y": 0.0,
-            "z": 281.3,
-            "scale": 3.07,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 217.51,
-            "y": 0.0,
-            "z": 259.15,
-            "scale": 6.6,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": -252.7,
-            "y": 0.0,
-            "z": -105.52,
+            "z": 105.69,
             "scale": 5.53,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": 355.77,
-            "y": 0.0,
-            "z": -129.76,
-            "scale": 2.36,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": -261.18,
-            "y": 0.0,
-            "z": 184.57,
-            "scale": 5.86,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": -245.69,
-            "y": 0.0,
-            "z": 159.05,
-            "scale": 4.93,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 19.04,
-            "y": 0.0,
-            "z": -349.15,
-            "scale": 3.94,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 50.35,
-            "y": 0.0,
-            "z": -342.98,
-            "scale": 5.04,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": 331.43,
-            "y": 0.0,
-            "z": 148.92,
-            "scale": 5.93,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Big Building.glb",
-            "x": -237.81,
+            "x": -9.27,
             "y": 0.0,
-            "z": -222.13,
-            "scale": 2.23,
+            "z": -150.99,
+            "scale": 2.52,
             "rotY": 4.7124,
             "collidable": true
         },
         {
             "model": "Building Red.glb",
-            "x": 328.15,
+            "x": 155.91,
             "y": 0.0,
-            "z": -214.95,
-            "scale": 4.57,
+            "z": -159.7,
+            "scale": 5.18,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Building Green.glb",
-            "x": -153.42,
+            "x": -117.05,
             "y": 0.0,
-            "z": -329.67,
-            "scale": 4.2,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": 244.7,
-            "y": 0.0,
-            "z": -318.31,
-            "scale": 4.14,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 222.63,
-            "y": 0.0,
-            "z": -311.48,
-            "scale": 5.56,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Pizza Corner.glb",
-            "x": -244.1,
-            "y": 0.0,
-            "z": 250.28,
-            "scale": 5.06,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Big Building.glb",
-            "x": -274.12,
-            "y": 0.0,
-            "z": 250.0,
-            "scale": 2.25,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Building Red.glb",
-            "x": 345.52,
-            "y": 0.0,
-            "z": 287.96,
-            "scale": 5.54,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Building Green.glb",
-            "x": 350.91,
-            "y": 0.0,
-            "z": 264.21,
-            "scale": 3.63,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Brown Building.glb",
-            "x": -242.16,
-            "y": 0.0,
-            "z": -331.27,
-            "scale": 3.94,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Building Red Corner.glb",
-            "x": 336.65,
-            "y": 0.0,
-            "z": -327.07,
-            "scale": 5.92,
+            "z": -159.37,
+            "scale": 4.81,
             "rotY": 1.5708,
             "collidable": true
         }
@@ -697,541 +193,226 @@
     "vehicles": [
         {
             "model": "Car.glb",
-            "x": 89.38,
+            "x": 28.71,
             "y": 0.0,
-            "z": 206.06,
+            "z": 151.56,
+            "scale": 2.07,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": -127.79,
+            "y": 0.0,
+            "z": 64.2,
+            "scale": 1.93,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "SUV.glb",
+            "x": 111.0,
+            "y": 0.0,
+            "z": 221.9,
+            "scale": 1.6,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Sports Car.glb",
+            "x": -79.13,
+            "y": 0.0,
+            "z": 63.04,
+            "scale": 1.51,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Police Car.glb",
+            "x": -70.51,
+            "y": 0.0,
+            "z": -94.02,
+            "scale": 1.83,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Car.glb",
+            "x": 239.06,
+            "y": 0.0,
+            "z": -25.14,
+            "scale": 2.0,
+            "rotY": 1.5708,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": 19.89,
+            "y": 0.0,
+            "z": 4.97,
             "scale": 1.81,
             "rotY": -1.5708,
             "collidable": true
         },
         {
-            "model": "Car-unqqkULtRU.glb",
-            "x": 75.92,
+            "model": "SUV.glb",
+            "x": 60.26,
             "y": 0.0,
-            "z": -178.11,
-            "scale": 1.89,
+            "z": 61.92,
+            "scale": 1.57,
+            "rotY": 0.0,
+            "collidable": true
+        },
+        {
+            "model": "Sports Car.glb",
+            "x": -104.39,
+            "y": 0.0,
+            "z": 232.17,
+            "scale": 1.64,
+            "rotY": 0.0,
+            "collidable": true
+        },
+        {
+            "model": "Police Car.glb",
+            "x": 7.32,
+            "y": 0.0,
+            "z": 63.31,
+            "scale": 2.11,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Car.glb",
+            "x": 205.16,
+            "y": 0.0,
+            "z": 153.78,
+            "scale": 1.81,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": 160.17,
+            "y": 0.0,
+            "z": 153.53,
+            "scale": 2.06,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "SUV.glb",
-            "x": -10.48,
+            "x": 132.09,
             "y": 0.0,
-            "z": 243.37,
-            "scale": 1.53,
-            "rotY": -1.5708,
+            "z": -27.45,
+            "scale": 1.57,
+            "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Sports Car.glb",
-            "x": -209.17,
+            "x": -100.13,
             "y": 0.0,
-            "z": 88.17,
+            "z": 61.12,
+            "scale": 1.7,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Police Car.glb",
+            "x": -122.46,
+            "y": 0.0,
+            "z": -119.42,
+            "scale": 2.15,
+            "rotY": 3.1416,
+            "collidable": true
+        },
+        {
+            "model": "Car.glb",
+            "x": 5.32,
+            "y": 0.0,
+            "z": -209.06,
+            "scale": 2.13,
+            "rotY": 0.0,
+            "collidable": true
+        },
+        {
+            "model": "Car-unqqkULtRU.glb",
+            "x": 240.26,
+            "y": 0.0,
+            "z": 21.98,
+            "scale": 1.89,
+            "rotY": -1.5708,
+            "collidable": true
+        },
+        {
+            "model": "SUV.glb",
+            "x": 108.89,
+            "y": 0.0,
+            "z": 111.19,
             "scale": 1.63,
             "rotY": 1.5708,
             "collidable": true
         },
         {
-            "model": "Sports Car-Gzj704DXdr.glb",
-            "x": -128.92,
+            "model": "Sports Car.glb",
+            "x": 59.52,
             "y": 0.0,
-            "z": 120.86,
-            "scale": 0.97,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Police Car.glb",
-            "x": 190.34,
-            "y": 0.0,
-            "z": -281.64,
-            "scale": 2.19,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pickup Truck.glb",
-            "x": -108.7,
-            "y": 0.0,
-            "z": 289.71,
-            "scale": 1.17,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Bus.glb",
-            "x": -111.42,
-            "y": 0.0,
-            "z": -83.99,
-            "scale": 0.11,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Motorcycle.glb",
-            "x": 356.6,
-            "y": 0.0,
-            "z": -177.36,
-            "scale": 0.02,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Car.glb",
-            "x": 190.19,
-            "y": 0.0,
-            "z": 3.42,
-            "scale": 2.07,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car-unqqkULtRU.glb",
-            "x": -148.76,
-            "y": 0.0,
-            "z": -175.61,
-            "scale": 1.86,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "SUV.glb",
-            "x": 88.23,
-            "y": 0.0,
-            "z": -90.3,
+            "z": -116.54,
             "scale": 1.6,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car.glb",
-            "x": -27.36,
-            "y": 0.0,
-            "z": 21.63,
-            "scale": 1.76,
             "rotY": 3.1416,
             "collidable": true
         },
         {
-            "model": "Sports Car-Gzj704DXdr.glb",
-            "x": -72.87,
-            "y": 0.0,
-            "z": -179.05,
-            "scale": 0.98,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
             "model": "Police Car.glb",
-            "x": 140.89,
+            "x": 98.23,
             "y": 0.0,
-            "z": 124.22,
-            "scale": 1.85,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Pickup Truck.glb",
-            "x": 169.43,
-            "y": 0.0,
-            "z": 22.64,
-            "scale": 1.16,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Bus.glb",
-            "x": -109.02,
-            "y": 0.0,
-            "z": 159.08,
-            "scale": 0.11,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Motorcycle.glb",
-            "x": 90.64,
-            "y": 0.0,
-            "z": 361.28,
-            "scale": 0.02,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car.glb",
-            "x": 282.06,
-            "y": 0.0,
-            "z": -77.12,
-            "scale": 2.15,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Car-unqqkULtRU.glb",
-            "x": 121.0,
-            "y": 0.0,
-            "z": -76.07,
-            "scale": 2.15,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "SUV.glb",
-            "x": 41.47,
-            "y": 0.0,
-            "z": 124.05,
-            "scale": 1.62,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car.glb",
-            "x": 145.42,
-            "y": 0.0,
-            "z": -76.06,
-            "scale": 1.68,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car-Gzj704DXdr.glb",
-            "x": 89.31,
-            "y": 0.0,
-            "z": 53.74,
-            "scale": 0.86,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Police Car.glb",
-            "x": -230.99,
-            "y": 0.0,
-            "z": 24.19,
-            "scale": 2.15,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Pickup Truck.glb",
-            "x": -9.89,
-            "y": 0.0,
-            "z": 178.33,
-            "scale": 1.04,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Bus.glb",
-            "x": 191.81,
-            "y": 0.0,
-            "z": 176.53,
-            "scale": 0.09,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Motorcycle.glb",
-            "x": -11.08,
-            "y": 0.0,
-            "z": 153.98,
-            "scale": 0.02,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car.glb",
-            "x": 90.37,
-            "y": 0.0,
-            "z": 381.66,
-            "scale": 2.08,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car-unqqkULtRU.glb",
-            "x": -209.58,
-            "y": 0.0,
-            "z": -19.5,
-            "scale": 1.95,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "SUV.glb",
-            "x": 35.25,
-            "y": 0.0,
-            "z": 403.75,
-            "scale": 1.54,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car.glb",
-            "x": -61.14,
-            "y": 0.0,
-            "z": -376.42,
-            "scale": 1.51,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car-Gzj704DXdr.glb",
-            "x": -208.31,
-            "y": 0.0,
-            "z": -281.47,
-            "scale": 0.9,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Police Car.glb",
-            "x": 83.62,
-            "y": 0.0,
-            "z": 122.73,
-            "scale": 2.02,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Pickup Truck.glb",
-            "x": -9.55,
-            "y": 0.0,
-            "z": -140.09,
-            "scale": 1.08,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Bus.glb",
-            "x": 282.82,
-            "y": 0.0,
-            "z": 400.95,
-            "scale": 0.11,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Motorcycle.glb",
-            "x": -111.66,
-            "y": 0.0,
-            "z": 207.46,
-            "scale": 0.02,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car.glb",
-            "x": 189.2,
-            "y": 0.0,
-            "z": 90.05,
-            "scale": 1.88,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car-unqqkULtRU.glb",
-            "x": -165.71,
-            "y": 0.0,
-            "z": 404.05,
-            "scale": 1.86,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "SUV.glb",
-            "x": -309.65,
-            "y": 0.0,
-            "z": 302.04,
-            "scale": 1.6,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car.glb",
-            "x": 290.03,
-            "y": 0.0,
-            "z": 63.95,
-            "scale": 1.77,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Sports Car-Gzj704DXdr.glb",
-            "x": 288.2,
-            "y": 0.0,
-            "z": 359.09,
-            "scale": 0.94,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Police Car.glb",
-            "x": 390.28,
-            "y": 0.0,
-            "z": -23.07,
-            "scale": 1.9,
-            "rotY": -1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Pickup Truck.glb",
-            "x": 336.32,
-            "y": 0.0,
-            "z": 323.89,
-            "scale": 1.06,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Bus.glb",
-            "x": 390.15,
-            "y": 0.0,
-            "z": -316.19,
-            "scale": 0.11,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Motorcycle.glb",
-            "x": 25.28,
-            "y": 0.0,
-            "z": -277.37,
-            "scale": 0.02,
+            "z": -25.82,
+            "scale": 1.89,
             "rotY": 0.0,
             "collidable": true
         },
         {
             "model": "Car.glb",
-            "x": 390.54,
+            "x": 239.68,
             "y": 0.0,
-            "z": 133.17,
-            "scale": 1.98,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Car-unqqkULtRU.glb",
-            "x": -308.34,
-            "y": 0.0,
-            "z": 85.83,
-            "scale": 1.91,
+            "z": -127.96,
+            "scale": 1.83,
             "rotY": -1.5708,
             "collidable": true
         },
         {
-            "model": "SUV.glb",
-            "x": -110.75,
+            "model": "Car-unqqkULtRU.glb",
+            "x": -68.29,
             "y": 0.0,
-            "z": -146.38,
-            "scale": 1.58,
-            "rotY": 1.5708,
+            "z": -11.16,
+            "scale": 1.99,
+            "rotY": -1.5708,
             "collidable": true
         },
         {
             "model": "Van.glb",
-            "x": -82.15,
+            "x": 148.52,
             "y": 0.0,
-            "z": -345.34,
-            "scale": 0.1,
-            "rotY": 3.1416,
-            "collidable": true
-        },
-        {
-            "model": "Van.glb",
-            "x": -246.13,
-            "y": 0.0,
-            "z": 88.17,
-            "scale": 0.09,
+            "z": -77.79,
+            "scale": 0.07,
             "rotY": 0.0,
             "collidable": true
         },
         {
-            "model": "Bus Stop.glb",
-            "x": -151.42,
-            "y": 0.0,
-            "z": -44.66,
-            "scale": 0.24,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Bus Stop.glb",
-            "x": -252.35,
-            "y": 0.0,
-            "z": 263.72,
-            "scale": 0.2,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
             "model": "Van.glb",
-            "x": -136.56,
+            "x": -16.24,
             "y": 0.0,
-            "z": 269.67,
-            "scale": 0.09,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Bus Stop.glb",
-            "x": 338.79,
-            "y": 0.0,
-            "z": -46.98,
-            "scale": 0.23,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Van.glb",
-            "x": -145.62,
-            "y": 0.0,
-            "z": 54.27,
-            "scale": 0.08,
-            "rotY": 0.0,
-            "collidable": true
-        },
-        {
-            "model": "Bus Stop.glb",
-            "x": -38.66,
-            "y": 0.0,
-            "z": 66.35,
-            "scale": 0.23,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Van.glb",
-            "x": -44.4,
-            "y": 0.0,
-            "z": -306.46,
+            "z": -174.63,
             "scale": 0.08,
             "rotY": 3.1416,
             "collidable": true
         },
         {
             "model": "Bus Stop.glb",
-            "x": 229.63,
+            "x": -6.44,
             "y": 0.0,
-            "z": 275.13,
-            "scale": 0.2,
-            "rotY": 4.7124,
-            "collidable": true
-        },
-        {
-            "model": "Bus Stop.glb",
-            "x": 258.91,
-            "y": 0.0,
-            "z": 154.47,
-            "scale": 0.2,
-            "rotY": 1.5708,
-            "collidable": true
-        },
-        {
-            "model": "Bus Stop.glb",
-            "x": -153.04,
-            "y": 0.0,
-            "z": -343.81,
-            "scale": 0.24,
+            "z": -165.16,
+            "scale": 0.21,
             "rotY": 4.7124,
             "collidable": true
         }
@@ -1239,587 +420,272 @@
     "props": [
         {
             "model": "Man.glb",
-            "x": 36.51,
+            "x": 34.0,
             "y": 0.0,
-            "z": 8.5,
+            "z": 15.09,
             "scale": 1.0,
             "rotY": 0.0,
             "collidable": false
         },
         {
             "model": "Animated Woman.glb",
-            "x": 4.0,
+            "x": 81.21,
             "y": 0.0,
-            "z": 82.22,
+            "z": 48.5,
             "scale": 1.0,
             "rotY": 1.5708,
             "collidable": false
         },
         {
             "model": "Animated Woman-nIItLV9nxS.glb",
-            "x": -54.94,
+            "x": 6.0,
             "y": 0.0,
-            "z": -63.5,
+            "z": 3.36,
             "scale": 1.0,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Animated Woman-qJ2gsTUBHL.glb",
-            "x": -73.08,
+            "x": -33.02,
             "y": 0.0,
-            "z": 8.5,
+            "z": 48.5,
             "scale": 1.0,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Adventurer.glb",
-            "x": 159.9,
+            "x": 64.68,
             "y": 0.0,
-            "z": 8.5,
+            "z": -103.5,
             "scale": 1.0,
             "rotY": 0.0,
             "collidable": false
         },
         {
             "model": "Man.glb",
-            "x": -57.57,
+            "x": 48.03,
             "y": 0.0,
-            "z": 108.5,
+            "z": 138.5,
             "scale": 1.0,
             "rotY": 1.5708,
             "collidable": false
         },
         {
             "model": "Animated Woman.glb",
-            "x": 104.0,
+            "x": 96.0,
             "y": 0.0,
-            "z": 63.98,
+            "z": 122.9,
             "scale": 1.0,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Animated Woman-nIItLV9nxS.glb",
-            "x": 76.0,
+            "x": -39.29,
             "y": 0.0,
-            "z": -144.55,
+            "z": -103.5,
             "scale": 1.0,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Animated Woman-qJ2gsTUBHL.glb",
-            "x": 4.0,
+            "x": -36.61,
             "y": 0.0,
-            "z": -144.93,
+            "z": -41.5,
             "scale": 1.0,
             "rotY": 0.0,
             "collidable": false
         },
         {
             "model": "Adventurer.glb",
-            "x": 76.0,
+            "x": -41.34,
             "y": 0.0,
-            "z": 182.13,
+            "z": 138.5,
             "scale": 1.0,
             "rotY": 1.5708,
             "collidable": false
         },
         {
             "model": "Man.glb",
-            "x": -68.99,
+            "x": 167.15,
             "y": 0.0,
-            "z": -91.5,
+            "z": 48.5,
             "scale": 1.0,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Animated Woman.glb",
-            "x": -96.0,
+            "x": -95.69,
             "y": 0.0,
-            "z": -139.77,
+            "z": -13.5,
             "scale": 1.0,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-nIItLV9nxS.glb",
-            "x": 104.0,
-            "y": 0.0,
-            "z": -118.23,
-            "scale": 1.0,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-qJ2gsTUBHL.glb",
-            "x": 143.42,
-            "y": 0.0,
-            "z": -91.5,
-            "scale": 1.0,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Adventurer.glb",
-            "x": -196.0,
-            "y": 0.0,
-            "z": -26.54,
-            "scale": 1.0,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Man.glb",
-            "x": 251.38,
-            "y": 0.0,
-            "z": -63.5,
-            "scale": 1.0,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman.glb",
-            "x": 337.05,
-            "y": 0.0,
-            "z": 36.5,
-            "scale": 1.0,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-nIItLV9nxS.glb",
-            "x": -196.0,
-            "y": 0.0,
-            "z": -207.95,
-            "scale": 1.0,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-qJ2gsTUBHL.glb",
-            "x": -196.0,
-            "y": 0.0,
-            "z": 264.82,
-            "scale": 1.0,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Adventurer.glb",
-            "x": 276.0,
-            "y": 0.0,
-            "z": 259.36,
-            "scale": 1.0,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Man.glb",
-            "x": -296.0,
-            "y": 0.0,
-            "z": -124.21,
-            "scale": 1.0,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman.glb",
-            "x": 158.99,
-            "y": 0.0,
-            "z": -291.5,
-            "scale": 1.0,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-nIItLV9nxS.glb",
-            "x": -147.2,
-            "y": 0.0,
-            "z": -291.5,
-            "scale": 1.0,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Animated Woman-qJ2gsTUBHL.glb",
-            "x": 226.25,
-            "y": 0.0,
-            "z": -291.5,
-            "scale": 1.0,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Adventurer.glb",
-            "x": 304.0,
-            "y": 0.0,
-            "z": -315.48,
-            "scale": 1.0,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": -281.97,
-            "y": 0.0,
-            "z": -307.31,
-            "scale": 1.72,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Fence.glb",
-            "x": 347.51,
-            "y": 0.0,
-            "z": -8.0,
-            "scale": 1.12,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Bench.glb",
-            "x": 125.14,
+            "x": -40.61,
             "y": 0.0,
-            "z": -234.41,
-            "scale": 1.1,
+            "z": 17.74,
+            "scale": 1.0,
+            "rotY": 3.1416,
+            "collidable": false
+        },
+        {
+            "model": "Tree.glb",
+            "x": -122.92,
+            "y": 0.0,
+            "z": -65.53,
+            "scale": 1.37,
+            "rotY": 0.0,
+            "collidable": false
+        },
+        {
+            "model": "Bench.glb",
+            "x": 60.63,
+            "y": 0.0,
+            "z": 9.4,
+            "scale": 1.17,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Fence.glb",
-            "x": 122.87,
+            "x": -101.55,
             "y": 0.0,
-            "z": -41.53,
-            "scale": 1.3,
+            "z": 34.33,
+            "scale": 1.07,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Traffic Light.glb",
-            "x": 24.53,
+            "x": 51.88,
             "y": 0.0,
-            "z": -337.66,
+            "z": -67.91,
+            "scale": 1.15,
+            "rotY": 1.5708,
+            "collidable": false
+        },
+        {
+            "model": "Traffic Light.glb",
+            "x": -28.55,
+            "y": 0.0,
+            "z": -162.04,
             "scale": 1.1,
             "rotY": 1.5708,
             "collidable": false
         },
         {
-            "model": "Fence.glb",
-            "x": 317.7,
+            "model": "Bench.glb",
+            "x": -36.23,
             "y": 0.0,
-            "z": 275.27,
-            "scale": 1.1,
-            "rotY": 4.7124,
+            "z": -144.26,
+            "scale": 1.18,
+            "rotY": 3.1416,
             "collidable": false
         },
         {
-            "model": "Tree.glb",
-            "x": -43.93,
+            "model": "Traffic Light.glb",
+            "x": 83.08,
             "y": 0.0,
-            "z": 266.73,
-            "scale": 1.1,
-            "rotY": 0.0,
+            "z": -156.83,
+            "scale": 1.19,
+            "rotY": 1.5708,
             "collidable": false
         },
         {
             "model": "Bench.glb",
-            "x": 159.79,
+            "x": 62.5,
             "y": 0.0,
-            "z": -318.11,
+            "z": -87.7,
             "scale": 1.11,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Fence.glb",
-            "x": 50.56,
+            "x": -96.7,
             "y": 0.0,
-            "z": 250.2,
+            "z": -151.88,
             "scale": 1.37,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Tree.glb",
-            "x": 257.85,
+            "x": 168.95,
             "y": 0.0,
-            "z": -144.88,
-            "scale": 1.13,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Traffic Light.glb",
-            "x": 156.33,
-            "y": 0.0,
-            "z": -229.73,
-            "scale": 1.18,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Traffic Light.glb",
-            "x": 21.09,
-            "y": 0.0,
-            "z": -322.48,
-            "scale": 1.09,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Bench.glb",
-            "x": -257.23,
-            "y": 0.0,
-            "z": -207.81,
-            "scale": 1.07,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Fence.glb",
-            "x": -140.72,
-            "y": 0.0,
-            "z": -329.67,
-            "scale": 1.22,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Bench.glb",
-            "x": 331.8,
-            "y": 0.0,
-            "z": 76.79,
-            "scale": 1.16,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": 218.66,
-            "y": 0.0,
-            "z": -248.73,
-            "scale": 1.35,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": -71.5,
-            "y": 0.0,
-            "z": 173.0,
-            "scale": 1.1,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Traffic Light.glb",
-            "x": -164.11,
-            "y": 0.0,
-            "z": 158.7,
-            "scale": 1.13,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Bench.glb",
-            "x": 36.54,
-            "y": 0.0,
-            "z": 48.53,
+            "z": -54.61,
             "scale": 1.04,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Fence.glb",
-            "x": 241.38,
-            "y": 0.0,
-            "z": -339.84,
-            "scale": 1.31,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": -173.79,
-            "y": 0.0,
-            "z": -347.4,
-            "scale": 1.75,
             "rotY": 0.0,
             "collidable": false
         },
         {
             "model": "Fence.glb",
-            "x": -182.82,
+            "x": 180.91,
             "y": 0.0,
-            "z": -44.1,
-            "scale": 1.25,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": 246.4,
-            "y": 0.0,
-            "z": 94.45,
-            "scale": 1.26,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Traffic Light.glb",
-            "x": 358.66,
-            "y": 0.0,
-            "z": 50.83,
-            "scale": 1.14,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Bench.glb",
-            "x": -282.2,
-            "y": 0.0,
-            "z": 289.58,
-            "scale": 1.01,
-            "rotY": 3.1416,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": -250.18,
-            "y": 0.0,
-            "z": -318.71,
-            "scale": 1.72,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Traffic Light.glb",
-            "x": 145.17,
-            "y": 0.0,
-            "z": -238.67,
-            "scale": 1.06,
-            "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Fence.glb",
-            "x": 142.83,
-            "y": 0.0,
-            "z": -8.81,
+            "z": 35.03,
             "scale": 1.11,
             "rotY": 4.7124,
             "collidable": false
         },
         {
-            "model": "Tree.glb",
-            "x": 139.42,
-            "y": 0.0,
-            "z": 261.2,
-            "scale": 1.31,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
             "model": "Traffic Light.glb",
-            "x": 263.19,
+            "x": -113.09,
             "y": 0.0,
-            "z": -212.83,
-            "scale": 1.16,
+            "z": 33.13,
+            "scale": 1.15,
             "rotY": 1.5708,
             "collidable": false
         },
         {
             "model": "Bench.glb",
-            "x": 53.87,
+            "x": 187.67,
             "y": 0.0,
-            "z": -35.22,
-            "scale": 1.08,
+            "z": -57.04,
+            "scale": 1.03,
+            "rotY": 3.1416,
+            "collidable": false
+        },
+        {
+            "model": "Bench.glb",
+            "x": -37.86,
+            "y": 0.0,
+            "z": -158.27,
+            "scale": 1.0,
             "rotY": 3.1416,
             "collidable": false
         },
         {
             "model": "Fence.glb",
-            "x": 63.15,
+            "x": 159.59,
             "y": 0.0,
-            "z": -229.49,
-            "scale": 1.32,
+            "z": 21.59,
+            "scale": 1.05,
             "rotY": 4.7124,
             "collidable": false
         },
         {
             "model": "Tree.glb",
-            "x": -65.43,
+            "x": -16.98,
             "y": 0.0,
-            "z": -326.22,
-            "scale": 1.27,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": 221.42,
-            "y": 0.0,
-            "z": -226.9,
-            "scale": 1.54,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": -73.56,
-            "y": 0.0,
-            "z": -133.61,
-            "scale": 1.1,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Fence.glb",
-            "x": -176.45,
-            "y": 0.0,
-            "z": 160.71,
-            "scale": 1.31,
-            "rotY": 4.7124,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": 324.18,
-            "y": 0.0,
-            "z": -10.3,
-            "scale": 1.56,
+            "z": 3.12,
+            "scale": 1.58,
             "rotY": 0.0,
             "collidable": false
         },
         {
             "model": "Traffic Light.glb",
-            "x": 255.7,
+            "x": 50.55,
             "y": 0.0,
-            "z": 58.33,
-            "scale": 1.04,
+            "z": -155.19,
+            "scale": 1.07,
             "rotY": 1.5708,
-            "collidable": false
-        },
-        {
-            "model": "Tree.glb",
-            "x": 51.24,
-            "y": 0.0,
-            "z": -209.8,
-            "scale": 1.06,
-            "rotY": 0.0,
-            "collidable": false
-        },
-        {
-            "model": "Bench.glb",
-            "x": 163.47,
-            "y": 0.0,
-            "z": -26.58,
-            "scale": 1.19,
-            "rotY": 3.1416,
             "collidable": false
         }
     ]

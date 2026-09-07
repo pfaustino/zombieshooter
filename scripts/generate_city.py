@@ -19,29 +19,29 @@ ROOT = Path(__file__).resolve().parents[1]
 LAYOUT_OUT = ROOT / "assets" / "city-layout.json"
 WORLD_OUT = ROOT / "assets" / "world.json"
 
-# Original city ≈ 260×285. Use ~3× linear so roads still matter without ~2k GLBs.
+# Original city ≈ 260×285. Keep ~1.75× for FPS headroom.
 CENTER_X, CENTER_Z = 40.0, 12.5
-HALF_X, HALF_Z = 390.0, 430.0
+HALF_X, HALF_Z = 230.0, 250.0
 BOUNDS = {
     "minX": CENTER_X - HALF_X,
     "maxX": CENTER_X + HALF_X,
     "minZ": CENTER_Z - HALF_Z,
     "maxZ": CENTER_Z + HALF_Z,
 }
-GROUND_SIZE = 1200
+GROUND_SIZE = 800
 ROAD_WIDTH = 16.0
-RING_INSET = 40.0
-BLOCK = 100.0
+RING_INSET = 30.0
+BLOCK = 90.0
 SIDEWALK = 10.0
-DOWNTOWN_RADIUS = 180.0
-PLAZA_RADIUS = 18.0
+DOWNTOWN_RADIUS = 140.0
+PLAZA_RADIUS = 16.0
 
 # Soft caps — keep draw calls / GLB loads in a sane range.
-MAX_BUILDINGS = 140
-MAX_DRIVEABLE = 48
-MAX_NPCS = 28
-MAX_STATIC_SCENERY = 14
-MAX_PROPS = 40
+MAX_BUILDINGS = 45
+MAX_DRIVEABLE = 22
+MAX_NPCS = 12
+MAX_STATIC_SCENERY = 8
+MAX_PROPS = 20
 
 BUILDING_MODELS = [
     ("Big Building.glb", 2.0, 2.8),
@@ -57,11 +57,7 @@ DRIVABLE = [
     ("Car-unqqkULtRU.glb", 1.8, 2.2),
     ("SUV.glb", 1.5, 1.7),
     ("Sports Car.glb", 1.5, 1.8),
-    ("Sports Car-Gzj704DXdr.glb", 0.85, 1.0),
     ("Police Car.glb", 1.8, 2.2),
-    ("Pickup Truck.glb", 1.0, 1.2),
-    ("Bus.glb", 0.08, 0.12),
-    ("Motorcycle.glb", 0.018, 0.025),
 ]
 
 NPC_MODELS = [
