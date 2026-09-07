@@ -10,6 +10,7 @@ import { ParticleSystem } from './particle-system.js?v=0.1.4c';
 import { VehicleManager } from './vehicle-manager.js?v=0.1.17';
 import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
+import { handleGameOver, wireUi } from './leaderboard.js?v=0.1.28';
 
 export class Game {
   constructor() {
@@ -132,6 +133,9 @@ export class Game {
     this._setupSettingsControlCenter(showScreen);
     this._applySettingsToUI();
     this._applyAllSettings();
+
+    this._lastRun = { kills: 0, wave: 1 };
+    wireUi(() => this._lastRun);
 
     document.addEventListener('pointerlockchange', () => {
       if (document.pointerLockElement === this.canvas) {
@@ -560,8 +564,14 @@ export class Game {
     }
     const gameOverEl = document.getElementById('game-over');
     if (gameOverEl) gameOverEl.classList.remove('hidden');
+    const kills = this.enemyManager?.killCount || 0;
+    const wave = this.enemyManager?.currentWave || 1;
+    this._lastRun = { kills, wave };
     const finalKills = document.getElementById('final-kills');
-    if (finalKills) finalKills.textContent = this.enemyManager.killCount;
+    if (finalKills) finalKills.textContent = kills;
+    const finalWave = document.getElementById('final-wave');
+    if (finalWave) finalWave.textContent = wave;
+    handleGameOver(this._lastRun);
   }
 
   animate() {

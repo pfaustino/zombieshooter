@@ -2,6 +2,9 @@
 dist/
 _tmp/
 node_modules/
+.env
+.env.local
+.env.*.local
 
 # Bulky source dumps (CityPack lives in assets/)
 3dfps-main/

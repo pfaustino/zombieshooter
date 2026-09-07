@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: 20
       - run: npm run build:itch
+        env:
+          LEADERBOARD_API: https://leaderboards-opal.vercel.app
+          LEADERBOARD_WRITE_KEY: ${{ secrets.LEADERBOARD_WRITE_KEY }}
       - name: Install butler
         run: |
           curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default

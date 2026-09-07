@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: 20
       - run: npm run prepare-dist
+        env:
+          LEADERBOARD_API: https://leaderboards-opal.vercel.app
+          LEADERBOARD_WRITE_KEY: ${{ secrets.LEADERBOARD_WRITE_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

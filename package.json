@@ -7,6 +7,6 @@
     "prepare-dist": "node scripts/prepare-dist.mjs",
     "build": "npm run prepare-dist",
     "build:itch": "npm run prepare-dist",
-    "start": "python -m http.server 8080"
+    "start": "node scripts/dev-server.mjs 8080"
   }
 }
