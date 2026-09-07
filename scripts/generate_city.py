@@ -1,10 +1,12 @@
-"""Generate a ~10x city: city-layout.json (bounds+roads) and world.json (content).
+"""Generate a playable city: city-layout.json (bounds+roads) and world.json (content).
+
+Sized for WebGPU FPS (~3× the original map, not 10×).
 
 Rules:
-- Meaningful road grid + perimeter ring
+- Road grid + perimeter ring
 - Buildings and NPCs never on roads
 - Only driveable cars placed on roads
-- Dense downtown core around spawn; still filled suburbs
+- Dense-enough downtown without melting the GPU
 """
 from __future__ import annotations
 
@@ -17,22 +19,29 @@ ROOT = Path(__file__).resolve().parents[1]
 LAYOUT_OUT = ROOT / "assets" / "city-layout.json"
 WORLD_OUT = ROOT / "assets" / "world.json"
 
-# Current city ≈ 260×285; scale linear 10× around same center.
+# Original city ≈ 260×285. Use ~3× linear so roads still matter without ~2k GLBs.
 CENTER_X, CENTER_Z = 40.0, 12.5
-HALF_X, HALF_Z = 1300.0, 1425.0
+HALF_X, HALF_Z = 390.0, 430.0
 BOUNDS = {
     "minX": CENTER_X - HALF_X,
     "maxX": CENTER_X + HALF_X,
     "minZ": CENTER_Z - HALF_Z,
     "maxZ": CENTER_Z + HALF_Z,
 }
-GROUND_SIZE = 4000
+GROUND_SIZE = 1200
 ROAD_WIDTH = 16.0
-RING_INSET = 70.0
-BLOCK = 120.0  # centerline spacing
-SIDEWALK = 10.0  # keep buildings this far off road edge
-DOWNTOWN_RADIUS = 420.0  # dense core around spawn
-PLAZA_RADIUS = 22.0
+RING_INSET = 40.0
+BLOCK = 100.0
+SIDEWALK = 10.0
+DOWNTOWN_RADIUS = 180.0
+PLAZA_RADIUS = 18.0
+
+# Soft caps — keep draw calls / GLB loads in a sane range.
+MAX_BUILDINGS = 140
+MAX_DRIVEABLE = 48
+MAX_NPCS = 28
+MAX_STATIC_SCENERY = 14
+MAX_PROPS = 40
 
 BUILDING_MODELS = [
     ("Big Building.glb", 2.0, 2.8),
@@ -43,7 +52,6 @@ BUILDING_MODELS = [
     ("Pizza Corner.glb", 4.5, 6.0),
 ]
 
-# CityPack models use very different native units — match pre-city-redo world.json.
 DRIVABLE = [
     ("Car.glb", 1.8, 2.2),
     ("Car-unqqkULtRU.glb", 1.8, 2.2),
@@ -133,7 +141,6 @@ def sample_road_points(
     min_sep: float = 14.0,
     max_spawn_dist: float | None = None,
 ) -> list[tuple[float, float, float]]:
-    """Return (x, z, rotY) along road centerlines. rotY aligns car with long axis."""
     points: list[tuple[float, float, float]] = []
 
     def try_sample(road: dict) -> tuple[float, float, float] | None:
@@ -157,13 +164,12 @@ def sample_road_points(
             return None
         return (x, z, rot)
 
-    # Prefer shorter downtown segments by sampling roads near spawn first.
     ordered = sorted(roads, key=lambda r: dist2_spawn(r["x"], r["z"]))
     attempts = 0
     while len(points) < count and attempts < count * 20:
         attempts += 1
-        if prefer_downtown and len(points) < count * 0.55:
-            road = ordered[rng.randrange(min(12, len(ordered)))]
+        if prefer_downtown and len(points) < count * 0.6:
+            road = ordered[rng.randrange(min(10, len(ordered)))]
         else:
             road = roads[rng.randrange(len(roads))]
         pt = try_sample(road)
@@ -218,15 +224,20 @@ def main() -> None:
                 return True
         return False
 
+    # Prefer downtown blocks first so the budget fills the playable core.
+    centers_sorted = sorted(centers, key=lambda c: dist2_spawn(c[0], c[1]))
     mi = 0
-    for cx, cz in centers:
+    for cx, cz in centers_sorted:
+        if len(buildings) >= MAX_BUILDINGS:
+            break
         downtown = dist2_spawn(cx, cz) < DOWNTOWN_RADIUS**2
-        # Dense downtown lots; still fill the suburbs.
-        n = rng.randint(5, 8) if downtown else rng.randint(3, 5)
-        sep = 11.0 if downtown else 14.0
-        jitter = 46.0 if downtown else 40.0
-        for _ in range(n * 3):
-            if sum(1 for bx, bz in occupied if (bx - cx) ** 2 + (bz - cz) ** 2 < 55**2) >= n:
+        n = rng.randint(2, 3) if downtown else rng.randint(1, 2)
+        sep = 14.0 if downtown else 18.0
+        jitter = 38.0 if downtown else 34.0
+        for _ in range(n * 4):
+            if len(buildings) >= MAX_BUILDINGS:
+                break
+            if sum(1 for bx, bz in occupied if (bx - cx) ** 2 + (bz - cz) ** 2 < 50**2) >= n:
                 break
             x = cx + rng.uniform(-jitter, jitter)
             z = cz + rng.uniform(-jitter, jitter)
@@ -247,45 +258,15 @@ def main() -> None:
             )
             occupied.append((x, z))
 
-    # Extra downtown fill so spawn feels like a packed city core.
-    for _ in range(400):
-        ang = rng.uniform(0, math.pi * 2)
-        rad = rng.uniform(PLAZA_RADIUS + 8, DOWNTOWN_RADIUS * 0.85)
-        x = CENTER_X + math.cos(ang) * rad
-        z = CENTER_Z + math.sin(ang) * rad
-        if blocked(x, z, sep=10.0):
-            continue
-        model, smin, smax = BUILDING_MODELS[mi % len(BUILDING_MODELS)]
-        mi += 1
-        buildings.append(
-            {
-                "model": model,
-                "x": round(x, 2),
-                "y": 0.0,
-                "z": round(z, 2),
-                "scale": round(rng.uniform(smin, smax), 2),
-                "rotY": round(ROTS[mi % 4], 4),
-                "collidable": True,
-            }
-        )
-        occupied.append((x, z))
-        if sum(1 for bx, bz in occupied if dist2_spawn(bx, bz) < 200**2) >= 160:
-            break
-
-    # Driveable cars only on roads — pack downtown streets first, then citywide.
     vehicles: list[dict] = []
-    downtown_cars = sample_road_points(
-        roads, rng, count=120, prefer_downtown=True, min_sep=9.0, max_spawn_dist=280.0
+    car_points = sample_road_points(
+        roads,
+        rng,
+        count=MAX_DRIVEABLE,
+        prefer_downtown=True,
+        min_sep=16.0,
+        max_spawn_dist=None,
     )
-    city_cars = sample_road_points(roads, rng, count=280, prefer_downtown=False, min_sep=14.0)
-    # Dedupe city cars that landed on downtown spots
-    car_points = list(downtown_cars)
-    for x, z, rot in city_cars:
-        if any((x - px) ** 2 + (z - pz) ** 2 < 12**2 for px, pz, _ in car_points):
-            continue
-        car_points.append((x, z, rot))
-        if len(car_points) >= 400:
-            break
     for i, (x, z, rot) in enumerate(car_points):
         model, smin, smax = DRIVABLE[i % len(DRIVABLE)]
         vehicles.append(
@@ -300,11 +281,12 @@ def main() -> None:
             }
         )
 
-    # Static scenery vehicles off-road (bus stops / vans near sidewalks)
-    for i in range(60):
+    for i in range(MAX_STATIC_SCENERY * 3):
+        if sum(1 for v in vehicles if v["model"] in ("Van.glb", "Bus Stop.glb")) >= MAX_STATIC_SCENERY:
+            break
         cx, cz = rng.choice(centers)
-        x = cx + rng.uniform(-45, 45)
-        z = cz + rng.uniform(-45, 45)
+        x = cx + rng.uniform(-40, 40)
+        z = cz + rng.uniform(-40, 40)
         if on_road(x, z, roads, margin=margin) or blocked(x, z, 12):
             continue
         model, smin, smax = STATIC_VEHICLE_SCENERY[i % len(STATIC_VEHICLE_SCENERY)]
@@ -321,31 +303,33 @@ def main() -> None:
         )
         occupied.append((x, z))
 
-    # NPCs on sidewalks / plazas (off road), denser downtown
     props: list[dict] = []
     npc_i = 0
     sidewalk = BLOCK * 0.5 - ROAD_WIDTH * 0.5 - 6.0
     npc_sep: list[tuple[float, float]] = []
-    for cx, cz in centers:
+    for cx, cz in centers_sorted:
+        if npc_i >= MAX_NPCS:
+            break
         downtown = dist2_spawn(cx, cz) < DOWNTOWN_RADIUS**2
-        if not downtown and rng.random() > 0.35:
+        if not downtown and rng.random() > 0.4:
             continue
-        rolls = rng.randint(2, 4) if downtown else rng.randint(1, 2)
-        for _ in range(rolls):
+        for _ in range(rng.randint(1, 2) if downtown else 1):
+            if npc_i >= MAX_NPCS:
+                break
             edge = rng.choice(["n", "s", "e", "w"])
             if edge == "n":
-                x, z = cx + rng.uniform(-25, 25), cz + sidewalk
+                x, z = cx + rng.uniform(-20, 20), cz + sidewalk
             elif edge == "s":
-                x, z = cx + rng.uniform(-25, 25), cz - sidewalk
+                x, z = cx + rng.uniform(-20, 20), cz - sidewalk
             elif edge == "e":
-                x, z = cx + sidewalk, cz + rng.uniform(-25, 25)
+                x, z = cx + sidewalk, cz + rng.uniform(-20, 20)
             else:
-                x, z = cx - sidewalk, cz + rng.uniform(-25, 25)
+                x, z = cx - sidewalk, cz + rng.uniform(-20, 20)
             if on_road(x, z, roads, margin=1.0):
                 continue
-            if any((x - ox) ** 2 + (z - oz) ** 2 < 8**2 for ox, oz in npc_sep):
+            if any((x - ox) ** 2 + (z - oz) ** 2 < 10**2 for ox, oz in npc_sep):
                 continue
-            if any((x - ox) ** 2 + (z - oz) ** 2 < 10**2 for ox, oz in occupied):
+            if any((x - ox) ** 2 + (z - oz) ** 2 < 12**2 for ox, oz in occupied):
                 continue
             props.append(
                 {
@@ -361,17 +345,15 @@ def main() -> None:
             npc_sep.append((x, z))
             occupied.append((x, z))
             npc_i += 1
-            if npc_i >= 100:
-                break
-        if npc_i >= 100:
-            break
 
-    # Decorative props off-road
-    for i in range(200):
+    prop_count = 0
+    for i in range(MAX_PROPS * 4):
+        if prop_count >= MAX_PROPS:
+            break
         cx, cz = rng.choice(centers)
-        x = cx + rng.uniform(-40, 40)
-        z = cz + rng.uniform(-40, 40)
-        if on_road(x, z, roads, margin=margin) or blocked(x, z, 8):
+        x = cx + rng.uniform(-36, 36)
+        z = cz + rng.uniform(-36, 36)
+        if on_road(x, z, roads, margin=margin) or blocked(x, z, 10):
             continue
         model, smin, smax = PROP_SCENERY[i % len(PROP_SCENERY)]
         if not (ROOT / "assets" / "CityPack" / model).exists():
@@ -388,6 +370,7 @@ def main() -> None:
             }
         )
         occupied.append((x, z))
+        prop_count += 1
 
     world = {"buildings": buildings, "vehicles": vehicles, "props": props}
     WORLD_OUT.write_text(json.dumps(world, indent=4) + "\n", encoding="utf-8")
