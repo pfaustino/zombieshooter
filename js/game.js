@@ -7,7 +7,7 @@ import { EnemyManager } from './enemy-manager.js?v=0.1.4r';
 import { AudioManager } from './audio-manager.js?v=0.1.4s';
 import { LootManager } from './loot-manager.js';
 import { ParticleSystem } from './particle-system.js?v=0.1.4c';
-import { VehicleManager } from './vehicle-manager.js?v=0.1.9';
+import { VehicleManager } from './vehicle-manager.js?v=0.1.10';
 import { NpcManager } from './npc-manager.js?v=0.1.5';
 import { loadEngine } from './engine-loader.js';
 

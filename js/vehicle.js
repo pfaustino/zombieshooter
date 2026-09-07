@@ -307,17 +307,17 @@ export class Vehicle {
     return this._getForward();
   }
 
-  _updateVehicleCamera(delta) {
+  _updateVehicleCamera(_delta) {
     const cam = this.game.camera;
     const len = this.length || 4.2;
     const h = this.height || 1.2;
+    // Body-locked forward — same yaw the mesh uses. No world-space lag (that drifts to the side on turns).
     const forward = this._getForward();
     const followDist = Math.max(len * 1.45, 8);
     const followHeight = Math.max(h * 1.35, 3.2) + 1.2;
     const lookAhead = Math.max(len * 0.85, 4);
 
-    // Sit behind the rear bumper, look past the hood down the road.
-    const desiredEye = new Vec3(
+    const eye = new Vec3(
       this.position.x - forward.x * followDist,
       this.position.y + followHeight,
       this.position.z - forward.z * followDist
@@ -328,17 +328,8 @@ export class Vehicle {
       this.position.z + forward.z * lookAhead
     );
 
-    if (!this._chaseEye || !(delta > 0)) {
-      this._chaseEye = desiredEye.clone();
-    } else {
-      // Follow the car tightly; lag only enough to hide hitching.
-      const blend = 1 - Math.exp(-14 * delta);
-      this._chaseEye.x += (desiredEye.x - this._chaseEye.x) * blend;
-      this._chaseEye.y += (desiredEye.y - this._chaseEye.y) * blend;
-      this._chaseEye.z += (desiredEye.z - this._chaseEye.z) * blend;
-    }
-
-    cam.setLookAt(this._chaseEye, lookTarget);
+    this._chaseEye = eye;
+    cam.setLookAt(eye, lookTarget);
 
     this.game.player.position.set(this.position.x, this.position.y + 1.0, this.position.z);
     this.game.player.yaw = this.yaw;

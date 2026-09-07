@@ -1,5 +1,5 @@
 import { Vec3 } from './math.js';
-import { Vehicle } from './vehicle.js?v=0.1.9';
+import { Vehicle } from './vehicle.js?v=0.1.10';
 
 export const DRIVABLE_MODELS = [
   'Car.glb', 'Car-unqqkULtRU.glb', 'SUV.glb', 'Sports Car.glb', 'Police Car.glb',
